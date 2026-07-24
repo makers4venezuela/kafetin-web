@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo de Filamentos & Calculadora Maker — Kafetin</title>
+<meta name="description" content="Catálogo de filamentos PLA, PETG, ABS, TPU con precios en tiempo real. Calculadora de costos de impresión 3D para makers en Colombia.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════
+   RESET + VARIABLES
+═══════════════════════════════════ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+:root{
+  --navy:#0F0F23;
+  --amber:#F7A519;
+  --sage:#586049;
+  --gray:#6B6263;
+  --cream:#F4F1E8;
+  --white:#FFFFFF;
+  --nav-h:80px;
+}
+body{font-family:"Barlow",sans-serif;color:var(--navy);overflow-x:hidden;background:var(--cream);}
+
+/* ═══════════════════════════════════
+   GLOBAL NAV
+═══════════════════════════════════ */
+#main-nav{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  height:var(--nav-h);
+  background:#fff;
+  background-image:url("./textura_Mesa de trabajo 1.jpg");
+  background-size:160%;background-position:0% 0%;
+  border-bottom:1px solid rgba(15,15,35,.10);
+  box-shadow:0 2px 24px rgba(15,15,35,.12);
+  display:flex;align-items:center;
+  padding:0 24px;gap:0;
+}
+.mn-logo{
+  flex-shrink:0;height:var(--nav-h);
+  display:flex;align-items:center;overflow:hidden;
+  text-decoration:none;
+}
+.mn-logo img{height:var(--nav-h);width:auto;transform:scale(1.85);transform-origin:center center;}
+.mn-tabs{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  gap:4px;list-style:none;
+}
+.mn-tabs li{display:flex;}
+.tab-btn{
+  background:none;border:none;cursor:pointer;
+  font-family:"Barlow",sans-serif;font-size:12px;font-weight:700;
+  letter-spacing:.09em;text-transform:uppercase;
+  color:rgba(15,15,35,.55);
+  padding:8px 16px;border-radius:2px;
+  transition:color .2s,background .2s;
+  white-space:nowrap;
+}
+.tab-btn:hover{color:var(--navy);}
+.tab-btn.active{background:var(--amber);color:var(--navy);}
+.mn-cta{
+  flex-shrink:0;
+  background:var(--amber);color:var(--navy);
+  font-family:"Barlow",sans-serif;font-size:12px;font-weight:700;
+  letter-spacing:.07em;text-transform:uppercase;
+  padding:9px 20px;border-radius:2px;text-decoration:none;
+  transition:background .2s;white-space:nowrap;
+  margin-left:16px;
+}
+.mn-cta:hover{background:var(--cream);}
+.mn-ham{
+  display:none;flex-direction:column;gap:5px;cursor:pointer;
+  padding:6px;margin-left:12px;background:none;border:none;
+}
+.mn-ham span{width:22px;height:2px;background:var(--navy);display:block;transition:all .3s;}
+.mn-ham.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.mn-ham.open span:nth-child(2){opacity:0;transform:scaleX(0);}
+.mn-ham.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+@media(max-width:800px){
+  .mn-tabs{display:none;}
+  .mn-ham{display:flex;}
+  .mn-cta{display:none;}
+}
+.mob-nav{
+  display:none;position:fixed;
+  top:var(--nav-h);left:0;right:0;
+  background:var(--cream);z-index:499;
+  padding:20px 24px;flex-direction:column;gap:12px;
+  border-bottom:1px solid rgba(15,15,35,.08);
+  box-shadow:0 8px 24px rgba(15,15,35,.1);
+}
+.mob-nav.open{display:flex;}
+.mob-nav .tab-btn{text-align:left;padding:12px 0;border-bottom:1px solid rgba(15,15,35,.06);border-radius:0;font-size:14px;}
+.mob-nav .tab-btn:last-child{border-bottom:none;}
+.mob-nav .mn-cta{margin-left:0;text-align:center;padding:14px;display:block;}
+
+/* ═══════════════════════════════════
+   PAGES
+═══════════════════════════════════ */
+.page{display:none;min-height:100vh;padding-top:var(--nav-h);}
+.page.active{display:block;}
+
+/* ═══════════════════════════════════
+   SHARED ANIMATIONS
+═══════════════════════════════════ */
+@keyframes textureDrift{
+  0%{background-position:0% 0%}25%{background-position:30% 20%}
+  50%{background-position:60% 40%}75%{background-position:30% 60%}100%{background-position:0% 0%}
+}
+@keyframes textureDriftReverse{
+  0%{background-position:60% 40%}50%{background-position:0% 0%}100%{background-position:60% 40%}
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* ═══════════════════════════════════
+   MOBILE GLOBAL
+═══════════════════════════════════ */
+@media(max-width:480px){
+  :root{--nav-h:64px;}
+  #main-nav{padding:0 12px;}
+  .mn-logo img{transform:scale(1.5);}
+  .tab-btn{font-size:11px;padding:10px 14px;}
+}
+@media(max-width:360px){
+  .mn-cta{display:none;}
+}
+/* Safe area for notched phones */
+@supports(padding-bottom:env(safe-area-inset-bottom)){
+  .mob-nav{padding-bottom:calc(20px + env(safe-area-inset-bottom));}
+}
+/* Touch target minimum */
+@media(max-width:800px){
+  .tab-btn,.mn-cta,.mn-cart-btn{min-height:44px;}
+  .mob-nav .tab-btn{min-height:48px;display:flex;align-items:center;}
+}
+</style>
+</head>
+<body>
+<style>
+.mn-back{flex-shrink:0;font-family:"Barlow",sans-serif;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(15,15,35,.45);text-decoration:none;padding:9px 14px;border-radius:2px;transition:color .2s;white-space:nowrap;margin-left:8px;}
+.mn-back:hover{color:var(--navy);}
+@media(max-width:800px){.mn-back{display:none;}}
+</style>
+
+<!-- ═══ MAIN NAV ═══ -->
+<nav id="main-nav">
+  <a href="kafetin-unified.html" class="mn-logo">
+    <img src="./Logo final_Mesa sin fondo.png" alt="Kafetin">
+  </a>
+  <ul class="mn-tabs">
+    <li><button class="tab-btn active" data-page="catalogo">Catálogo</button></li>
+    <li><button class="tab-btn" data-page="herramientas">Herramientas Maker</button></li>
+  </ul>
+  <a href="kafetin-unified.html" class="mn-back">← kafetin.co</a>
+  <button id="ct-open-cart" class="mn-cart-btn" aria-label="Ver carrito">
+    <svg viewBox="0 0 24 24"><path d="M3 4h2l2.4 12.5a2 2 0 0 0 2 1.5h8.2a2 2 0 0 0 2-1.5L21 8H6"/><circle cx="10" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/></svg>
+    Carrito <span id="ct-cart-count">0</span>
+  </button>
+  <button class="mn-ham" id="mn-ham" aria-label="Menú"><span></span><span></span><span></span></button>
+</nav>
+
+<nav class="mob-nav" id="mob-nav">
+  <button class="tab-btn active" data-page="catalogo">Catálogo</button>
+  <button class="tab-btn" data-page="herramientas">Herramientas Maker</button>
+  <a href="kafetin-unified.html" style="display:block;margin-top:8px;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(15,15,35,.5);text-decoration:none;padding:10px 0;">← kafetin.co</a>
+</nav>
+
+
+
+<style>
+/* ═══════════════════════════════════
+   CATALOGO SECTION
+═══════════════════════════════════ */
+#page-catalogo{
+  background:#F4F1E8;
+  position:relative;
+}
+#page-catalogo::before{
+  content:"";position:fixed;inset:0;
+  background-image:url("./textura_Mesa de trabajo 1.jpg");
+  background-size:160%;opacity:.07;pointer-events:none;z-index:0;
+  animation:textureDrift 40s ease-in-out infinite;
+}
+/* carrito en el nav principal */
+.mn-cart-btn{display:flex;align-items:center;gap:.4rem;background:#F7A519;border:none;border-radius:999px;padding:.4rem 1rem;font-family:"Barlow",sans-serif;font-size:.78rem;font-weight:700;color:#0F0F23;cursor:pointer;transition:background .2s,transform .2s;white-space:nowrap;flex-shrink:0;}
+.mn-cart-btn:hover{background:#e5950f;transform:translateY(-1px);}
+.mn-cart-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+#ct-cart-count{background:#0F0F23;color:#F7A519;border-radius:999px;font-size:.65rem;font-weight:700;padding:.05rem .35rem;min-width:16px;text-align:center;display:none;}
+#ct-cart-count.has-items{display:inline-block;}
+@media(max-width:600px){.mn-cart-btn span:not(#ct-cart-count){display:none;}}
+
+/* hero strip */
+#page-catalogo .ct-hero{position:relative;z-index:1;background:#0F0F23;color:#F4F1E8;padding:2.5rem 1rem 2rem;text-align:center;border-bottom:3px solid #F7A519;overflow:hidden;}
+#page-catalogo .ct-hero::before{content:"";position:absolute;inset:0;background-image:url("./textura_Mesa de trabajo 1.jpg");background-size:220%;background-position:center;opacity:.07;animation:textureDrift 35s ease-in-out infinite;pointer-events:none;}
+#page-catalogo .ct-hero h1{font-family:"Bebas Neue",sans-serif;font-size:clamp(3rem,10vw,5rem);letter-spacing:.04em;line-height:1;color:#F4F1E8;margin-bottom:.5rem;position:relative;z-index:1;}
+#page-catalogo .ct-hero h1 span{color:#F7A519;}
+#page-catalogo .ct-hero-sub{font-size:.88rem;font-weight:400;color:rgba(244,241,232,.72);letter-spacing:.06em;text-transform:uppercase;position:relative;z-index:1;}
+
+/* filters */
+#page-catalogo .ct-filters-wrap{position:relative;z-index:1;background:#F4F1E8;border-bottom:1px solid rgba(15,15,35,.10);padding:.6rem 0;}
+#ct-filters{display:flex;gap:.5rem;padding:0 1rem;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;}
+#ct-filters::-webkit-scrollbar{display:none;}
+#page-catalogo .ct-chip{flex-shrink:0;border:1.5px solid rgba(15,15,35,.14);border-radius:999px;background:#fff;padding:.35rem .85rem;font-family:"Barlow",sans-serif;font-size:.78rem;font-weight:500;color:#6B6263;cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .22s;white-space:nowrap;}
+#page-catalogo .ct-chip:hover{border-color:#0F0F23;color:#0F0F23;}
+#page-catalogo .ct-chip[aria-pressed="true"]{background:#0F0F23;border-color:#0F0F23;color:#F4F1E8;}
+#page-catalogo .ct-chip-num{font-size:.68rem;font-weight:600;border-radius:999px;padding:.05rem .3rem;}
+#page-catalogo .ct-chip[aria-pressed="true"] .ct-chip-num{background:rgba(255,255,255,.2);}
+#page-catalogo .ct-chip[aria-pressed="false"] .ct-chip-num{background:#EAE6D8;color:#6B6263;}
+
+/* catalog grid */
+#page-catalogo .ct-catalog{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:1.5rem 1rem 4rem;}
+#page-catalogo .ct-catalog-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1rem;}
+#page-catalogo .ct-catalog-header h2{font-family:"Bebas Neue",sans-serif;font-size:1.4rem;letter-spacing:.06em;}
+#ct-visible-count{font-size:.78rem;font-weight:500;color:#6B6263;}
+#ct-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem;}
+@media(min-width:600px){#ct-grid{grid-template-columns:repeat(3,1fr);gap:1rem;}}
+@media(min-width:900px){#ct-grid{grid-template-columns:repeat(4,1fr);}}
+@media(min-width:1200px){#ct-grid{grid-template-columns:repeat(5,1fr);}}
+
+/* card */
+#page-catalogo .ct-card{background:#fff;border:1px solid rgba(15,15,35,.10);border-radius:6px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 3px rgba(15,15,35,.08);transition:transform .22s,box-shadow .22s,border-color .22s;}
+#page-catalogo .ct-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(15,15,35,.10);border-color:rgba(15,15,35,.22);}
+#page-catalogo .ct-card.is-unavailable{opacity:.6;}
+#page-catalogo .ct-swatch{position:relative;aspect-ratio:1/1;overflow:hidden;background:#EAE6D8;}
+#page-catalogo .ct-spool{position:absolute;inset:0;display:grid;place-items:center;z-index:0;}
+#page-catalogo .ct-coin{width:68%;aspect-ratio:1/1;border-radius:999px;background:var(--c1,#888);box-shadow:inset 0 -6px 16px rgba(0,0,0,.18),inset 0 6px 16px rgba(255,255,255,.22),0 4px 14px rgba(15,15,35,.12);position:relative;}
+#page-catalogo .ct-coin.bicolor{background:linear-gradient(130deg,var(--c1,#888) 0% 49%,rgba(0,0,0,.12) 49% 51%,var(--c2,#444) 51% 100%);}
+#page-catalogo .ct-coin::after{content:"";position:absolute;inset:12%;border-radius:999px;background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.55),transparent 55%);mix-blend-mode:screen;}
+#page-catalogo .ct-hub-mark{position:absolute;font-family:"Bebas Neue",sans-serif;font-size:.55rem;letter-spacing:.1em;color:rgba(255,255,255,.7);text-align:center;line-height:1;z-index:1;}
+#page-catalogo .ct-card-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s ease;z-index:1;}
+#page-catalogo .ct-card-photo.loaded{opacity:1;}
+#page-catalogo .ct-badge{position:absolute;top:.45rem;left:.45rem;z-index:3;background:#0F0F23;color:#F4F1E8;font-family:"Barlow",sans-serif;font-size:.6rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:.18rem .5rem;border-radius:999px;display:flex;align-items:center;gap:.25rem;}
+#page-catalogo .ct-badge .dot{width:5px;height:5px;border-radius:50%;background:#F7A519;flex-shrink:0;}
+#page-catalogo .ct-sold-out{position:absolute;inset:0;z-index:4;display:grid;place-items:center;background:rgba(15,15,35,.45);}
+#page-catalogo .ct-sold-out span{font-family:"Bebas Neue",sans-serif;font-size:1rem;letter-spacing:.1em;color:#F4F1E8;border:1.5px solid rgba(244,241,232,.6);padding:.3rem .8rem;border-radius:6px;}
+#page-catalogo .ct-card-body{padding:.7rem .8rem .9rem;flex:1;display:flex;flex-direction:column;gap:.45rem;}
+#page-catalogo .ct-card-name{font-size:.82rem;font-weight:600;color:#0F0F23;line-height:1.25;}
+#page-catalogo .ct-card-meta{display:flex;align-items:center;justify-content:space-between;gap:.4rem;margin-top:auto;}
+#page-catalogo .ct-card-price{font-family:"Bebas Neue",sans-serif;font-size:1.1rem;letter-spacing:.04em;color:#0F0F23;}
+#page-catalogo .ct-card-price .unit{font-family:"Barlow",sans-serif;font-size:.68rem;font-weight:400;color:#6B6263;}
+#page-catalogo .ct-card-add{background:#F7A519;color:#0F0F23;border:none;border-radius:999px;padding:.35rem .75rem;font-family:"Barlow",sans-serif;font-size:.74rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.3rem;transition:background .22s,transform .22s;flex-shrink:0;}
+#page-catalogo .ct-card-add:hover{background:#e5950f;transform:translateY(-1px);}
+#page-catalogo .ct-card-add svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;}
+#page-catalogo .ct-card-add.is-added{background:#586049;color:#fff;}
+#page-catalogo .ct-card-add.is-disabled{background:#EAE6D8;color:#6B6263;cursor:default;pointer-events:none;font-size:.72rem;}
+
+/* skeleton */
+#page-catalogo .is-skel .ct-swatch{background:#EAE6D8;}
+#page-catalogo .ct-skel{background:linear-gradient(90deg,#EAE6D8 25%,#F4F1E8 50%,#EAE6D8 75%);background-size:200% 100%;animation:skel 1.4s ease infinite;border-radius:3px;}
+@keyframes skel{0%{background-position:200% 0}100%{background-position:-200% 0}}
+#page-catalogo .ct-skel-bar{height:10px;}
+#page-catalogo .ct-skel-bar.sm{height:8px;width:50%!important;}
+
+/* cart drawer */
+#ct-scrim{position:fixed;inset:0;z-index:600;background:rgba(15,15,35,.5);opacity:0;pointer-events:none;transition:opacity .22s;}
+#ct-scrim.is-open{opacity:1;pointer-events:all;}
+#ct-drawer{position:fixed;top:0;right:0;bottom:0;z-index:601;width:min(100vw,400px);background:#F4F1E8;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .22s;box-shadow:-8px 0 32px rgba(15,15,35,.12);}
+#ct-drawer.is-open{transform:translateX(0);}
+#page-catalogo .ct-drawer-header{padding:1rem 1.2rem;border-bottom:1px solid rgba(15,15,35,.10);display:flex;align-items:center;justify-content:space-between;background:#0F0F23;}
+#page-catalogo .ct-drawer-header h2{font-family:"Bebas Neue",sans-serif;font-size:1.3rem;letter-spacing:.06em;color:#F4F1E8;display:flex;align-items:center;gap:.5rem;}
+#ct-drawer-count{font-family:"Barlow",sans-serif;font-size:.72rem;font-weight:500;color:#F7A519;letter-spacing:.06em;}
+#ct-close-cart{background:none;border:1.5px solid rgba(244,241,232,.3);border-radius:999px;padding:.4rem .7rem;color:#F4F1E8;cursor:pointer;display:flex;align-items:center;transition:border-color .2s;}
+#ct-close-cart:hover{border-color:rgba(244,241,232,.7);}
+#ct-close-cart svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
+#ct-drawer-body{flex:1;overflow-y:auto;padding:1rem 1.2rem;display:flex;flex-direction:column;gap:.75rem;}
+#page-catalogo .ct-drawer-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.75rem;text-align:center;padding:2rem;}
+#page-catalogo .ct-drawer-empty h3{font-family:"Bebas Neue",sans-serif;font-size:1.05rem;letter-spacing:.05em;color:#0F0F23;}
+#page-catalogo .ct-drawer-empty p{font-size:.8rem;color:#6B6263;line-height:1.5;}
+#page-catalogo .ct-line{display:flex;align-items:center;gap:.75rem;padding:.75rem;background:#fff;border:1px solid rgba(15,15,35,.10);border-radius:6px;}
+#page-catalogo .ct-line-thumb{width:44px;height:44px;flex-shrink:0;border-radius:4px;overflow:hidden;background:#EAE6D8;display:grid;place-items:center;}
+#page-catalogo .ct-line-info{flex:1;min-width:0;}
+#page-catalogo .ct-line-info .mat{font-size:.62rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#6B6263;margin-bottom:.1rem;}
+#page-catalogo .ct-line-info h4{font-size:.82rem;font-weight:600;color:#0F0F23;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#page-catalogo .ct-line-info .price{font-size:.75rem;font-weight:500;color:#586049;margin-top:.1rem;}
+#page-catalogo .ct-line-remove{font-size:.68rem;color:#6B6263;background:none;border:none;cursor:pointer;text-decoration:underline;margin-top:.2rem;padding:0;font-family:"Barlow",sans-serif;}
+#page-catalogo .ct-qty{display:flex;align-items:center;gap:.3rem;flex-shrink:0;}
+#page-catalogo .ct-qty button{width:26px;height:26px;border-radius:999px;border:1.5px solid rgba(15,15,35,.14);background:#F4F1E8;display:grid;place-items:center;cursor:pointer;transition:border-color .2s,background .2s;}
+#page-catalogo .ct-qty button:hover{border-color:#0F0F23;background:#0F0F23;color:#F4F1E8;}
+#page-catalogo .ct-qty button svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;}
+#page-catalogo .ct-qty .n{font-size:.84rem;font-weight:600;width:20px;text-align:center;}
+#ct-drawer-foot{padding:1rem 1.2rem;border-top:1px solid rgba(15,15,35,.10);background:#F4F1E8;}
+#page-catalogo .ct-foot-row{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:.9rem;}
+#page-catalogo .ct-foot-label{font-size:.78rem;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:#6B6263;}
+#ct-drawer-total{font-family:"Bebas Neue",sans-serif;font-size:1.6rem;letter-spacing:.04em;color:#0F0F23;}
+#ct-drawer-total small{font-size:.75rem;font-weight:400;font-family:"Barlow",sans-serif;color:#6B6263;}
+#ct-checkout{width:100%;padding:.85rem;background:#586049;color:#fff;border:none;border-radius:6px;font-family:"Bebas Neue",sans-serif;font-size:1.1rem;letter-spacing:.08em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.6rem;transition:background .22s,transform .22s;}
+#ct-checkout:hover{background:#4a5230;transform:translateY(-1px);}
+#ct-checkout svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;}
+
+/* toast */
+#ct-toast-wrap{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:700;display:flex;flex-direction:column;align-items:center;gap:.5rem;pointer-events:none;}
+#page-catalogo .ct-toast{background:#0F0F23;color:#F4F1E8;border-radius:999px;padding:.5rem 1rem;font-size:.78rem;font-weight:500;display:flex;align-items:center;gap:.5rem;box-shadow:0 4px 16px rgba(15,15,35,.10);opacity:0;transform:translateY(8px);transition:opacity .25s,transform .25s;}
+#page-catalogo .ct-toast.show{opacity:1;transform:translateY(0);}
+#page-catalogo .ct-toast .check{width:18px;height:18px;background:#F7A519;border-radius:50%;display:grid;place-items:center;flex-shrink:0;}
+#page-catalogo .ct-toast .check svg{width:10px;height:10px;stroke:#0F0F23;fill:none;stroke-width:2.5;stroke-linecap:round;}
+
+/* footer catalogo */
+#page-catalogo footer{position:relative;z-index:1;background:#0F0F23;color:#F4F1E8;padding:2.5rem 1rem 2rem;text-align:center;border-top:3px solid #F7A519;overflow:hidden;}
+#page-catalogo footer::before{content:"";position:absolute;inset:0;background-image:url("./textura_Mesa de trabajo 1.jpg");background-size:200%;opacity:.05;pointer-events:none;animation:textureDriftReverse 36s ease-in-out infinite;}
+#page-catalogo footer .logo-sm{height:48px;width:auto;margin:0 auto 1rem;display:block;position:relative;z-index:1;}
+#page-catalogo footer p{font-size:.75rem;color:rgba(244,241,232,.5);letter-spacing:.06em;position:relative;z-index:1;}
+#page-catalogo footer strong{color:#F7A519;}
+#page-catalogo .ct-footer-social{position:relative;z-index:1;display:flex;justify-content:center;gap:24px;margin-top:1rem;}
+#page-catalogo .ct-footer-social a{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(244,241,232,.4);text-decoration:none;transition:color .2s;}
+#page-catalogo .ct-footer-social a:hover{color:#F7A519;}
+
+/* error/empty */
+#page-catalogo .ct-error,#page-catalogo .ct-empty{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;gap:.75rem;padding:3rem 1rem;text-align:center;color:#6B6263;}
+#page-catalogo .ct-error h3,#page-catalogo .ct-empty h3{font-family:"Bebas Neue",sans-serif;font-size:1.1rem;letter-spacing:.05em;color:#0F0F23;}
+#page-catalogo .ct-error p,#page-catalogo .ct-empty p{font-size:.82rem;line-height:1.6;max-width:320px;}
+
+@media(max-width:599px){
+  #page-catalogo .ct-hero{padding:1.2rem .75rem 1rem;}
+  #page-catalogo .ct-hero h1{font-size:clamp(2rem,9vw,3.5rem);}
+  #page-catalogo .ct-catalog{padding:1rem .75rem 3rem;}
+  #page-catalogo .ct-card-name{font-size:.78rem;}
+  #page-catalogo .ct-card-price{font-size:1rem;}
+  #page-catalogo .ct-card-add{font-size:.7rem;padding:.3rem .6rem;min-height:44px;}
+  /* touch targets for cart quantity buttons */
+  #page-catalogo .ct-qty button{min-width:36px;min-height:44px;}
+  /* cart drawer slides up from bottom on mobile */
+  #ct-drawer{top:auto;left:0;right:0;bottom:0;width:100%;max-height:88dvh;border-radius:16px 16px 0 0;transform:translateY(110%);}
+  #ct-drawer.is-open{transform:translateY(0);}
+  /* safe area for iPhone home bar */
+  @supports(padding-bottom:env(safe-area-inset-bottom)){
+    #ct-drawer-foot{padding-bottom:calc(1rem + env(safe-area-inset-bottom));}
+  }
+}
+</style>
+
+<!-- ═══ SECTION: CATALOGO ═══ -->
+<div id="page-catalogo" class="page active">
+
+<!-- hero strip -->
+<section class="ct-hero">
+  <h1>FILAMENTOS <span>PARA MAKERS</span></h1>
+  <p class="ct-hero-sub">Entrega en Medellín 24 horas &nbsp;·&nbsp; PLA · PETG · ABS · TPU</p>
+</section>
+
+<!-- filters -->
+<div class="ct-filters-wrap">
+  <div id="ct-filters" role="tablist" aria-label="Filtrar por material"></div>
+</div>
+
+<!-- catalog -->
+<main class="ct-catalog">
+  <div class="ct-catalog-header">
+    <h2>CATÁLOGO</h2>
+    <span id="ct-visible-count">—</span>
+  </div>
+  <div id="ct-grid"></div>
+</main>
+
+<!-- BambuLab coming soon -->
+<div class="ct-coming-wrap">
+  <div class="ct-coming-inner">
+    <span class="ct-coming-icon">🔧</span>
+    <div>
+      <div class="ct-coming-title">Repuestos BambuLab <span class="ct-coming-chip">Próximamente</span></div>
+      <p class="ct-coming-sub">Extrusores, hotends, camas de impresión y piezas de desgaste. Pronto disponibles para makers con impresoras BambuLab en Medellín.</p>
+      <a href="https://wa.me/573155425240?text=Hola%20Kafetin!%20Quiero%20que%20me%20avisen%20cuando%20tengan%20repuestos%20BambuLab%20disponibles%20%F0%9F%94%A7" target="_blank" class="ct-coming-cta">Avisarme cuando lleguen →</a>
+    </div>
+  </div>
+</div>
+
+<!-- footer -->
+<footer>
+  <img src="./Isotipo_Mesa de trabajo 1 sin fondo.png" alt="Kafetin" class="logo-sm" loading="lazy">
+  <p>© 2026 <strong>Kafetin.co</strong> · Medellín, Colombia<br>Disponibilidad sujeta a confirmación por WhatsApp</p>
+  <div class="ct-footer-social">
+    <a href="https://wa.me/573155425240" target="_blank">WhatsApp</a>
+    <a href="https://www.instagram.com/kafetin.co/" target="_blank">Instagram</a>
+    <a href="https://www.linkedin.com/company/kafetin" target="_blank">LinkedIn</a>
+  </div>
+</footer>
+
+<!-- cart scrim + drawer -->
+<div id="ct-scrim"></div>
+<aside id="ct-drawer" aria-label="Carrito de compras">
+  <div class="ct-drawer-header">
+    <h2>
+      <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;"><path d="M3 4h2l2.4 12.5a2 2 0 0 0 2 1.5h8.2a2 2 0 0 0 2-1.5L21 8H6"/><circle cx="10" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/></svg>
+      TU PEDIDO <span id="ct-drawer-count">0 ítems</span>
+    </h2>
+    <button id="ct-close-cart" aria-label="Cerrar carrito">
+      <svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div id="ct-drawer-body"></div>
+  <div id="ct-drawer-foot" hidden>
+    <div class="ct-foot-row">
+      <span class="ct-foot-label">Total estimado</span>
+      <span id="ct-drawer-total">$0 <small>COP</small></span>
+    </div>
+    <button id="ct-checkout">
+      <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.8 19.8 0 0 1-3.07-8.67A2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6.13 6.13l1.32-1.32a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      ORDENAR POR WHATSAPP
+    </button>
+  </div>
+</aside>
+<div id="ct-toast-wrap" aria-live="polite"></div>
+
+</div><!-- /page-catalogo -->
+
+
+<style>
+/* ═══════════════════════════════════
+   CALCULADORA SECTION
+═══════════════════════════════════ */
+#page-herramientas{background:#0F0F23;color:#F4F1E8;position:relative;}
+#page-herramientas::before{content:"";position:fixed;inset:0;background-image:url("./textura_Mesa de trabajo 1.jpg");background-size:160%;background-position:center;opacity:.04;pointer-events:none;z-index:0;animation:textureDrift 40s ease-in-out infinite;}
+
+/* LOGIN GATE */
+#calc-gate{position:fixed;top:var(--nav-h);left:0;right:0;bottom:0;z-index:490;background:#0F0F23;display:none;align-items:flex-start;justify-content:center;padding:28px 16px 40px;overflow-y:auto;transition:opacity .4s ease;}
+#calc-gate.hidden{opacity:0;pointer-events:none;}
+#calc-gate::before{content:"";position:absolute;inset:0;background-image:url("./textura_Mesa de trabajo 1.jpg");background-size:160%;opacity:.05;pointer-events:none;animation:textureDrift 30s ease-in-out infinite;}
+#page-herramientas .gate-card{position:relative;background:rgba(244,241,232,.04);border:1px solid rgba(244,241,232,.12);border-radius:6px;padding:48px 44px;width:100%;max-width:480px;display:flex;flex-direction:column;align-items:center;margin:auto;}
+#page-herramientas .gate-logo{height:52px;margin-bottom:28px;opacity:.85;}
+#page-herramientas .gate-tag{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#F7A519;background:rgba(247,165,25,.1);border:1px solid rgba(247,165,25,.2);padding:4px 12px;border-radius:2px;margin-bottom:18px;}
+#page-herramientas .gate-title{font-family:"Bebas Neue",sans-serif;font-size:34px;letter-spacing:.04em;color:#F4F1E8;text-align:center;line-height:1.1;margin-bottom:10px;}
+#page-herramientas .gate-title span{color:#F7A519;}
+#page-herramientas .gate-sub{font-size:14px;color:rgba(244,241,232,.5);text-align:center;line-height:1.6;margin-bottom:32px;}
+#page-herramientas .gate-form{width:100%;display:flex;flex-direction:column;gap:12px;}
+#page-herramientas .gate-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+#page-herramientas .gate-field{display:flex;flex-direction:column;gap:5px;}
+#page-herramientas .gate-field label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(244,241,232,.4);}
+#page-herramientas .gate-field input{background:rgba(15,15,35,.7);border:1px solid rgba(244,241,232,.12);border-radius:3px;outline:none;color:#F4F1E8;font-family:"Barlow",sans-serif;font-size:14px;font-weight:500;padding:12px 14px;width:100%;transition:border-color .2s;}
+#page-herramientas .gate-field input::placeholder{color:rgba(244,241,232,.2);}
+#page-herramientas .gate-field input:focus{border-color:rgba(247,165,25,.5);}
+#page-herramientas .btn-gate{margin-top:8px;width:100%;background:#F7A519;color:#0F0F23;font-family:"Barlow",sans-serif;font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:none;border-radius:3px;padding:15px 24px;cursor:pointer;transition:background .2s,opacity .2s;}
+#page-herramientas .btn-gate:hover{background:#F4F1E8;}
+#page-herramientas .btn-gate:disabled{opacity:.5;cursor:not-allowed;}
+#page-herramientas .gate-legal{margin-top:16px;font-size:11px;color:rgba(244,241,232,.25);text-align:center;line-height:1.5;}
+#page-herramientas .gate-error{font-size:12px;color:rgba(220,80,80,.8);text-align:center;min-height:16px;}
+@media(max-width:520px){
+  #page-herramientas .gate-card{padding:28px 20px;}
+  #page-herramientas .gate-row{grid-template-columns:1fr;}
+  #page-herramientas .gate-title{font-size:28px;}
+  #calc-gate{padding:16px 12px 32px;}
+}
+
+/* CALCULATOR BODY */
+#calc-body{transition:opacity .4s;}
+#calc-body.locked{opacity:0;pointer-events:none;user-select:none;}
+
+#page-herramientas .cb-hero{position:relative;padding:64px 40px 48px;text-align:center;z-index:1;}
+#page-herramientas .cb-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#F7A519;border:1px solid rgba(247,165,25,.3);padding:5px 14px;border-radius:2px;margin-bottom:18px;}
+#page-herramientas .cb-hero h1{font-family:"Bebas Neue",sans-serif;font-size:clamp(42px,6vw,72px);letter-spacing:.04em;color:#F4F1E8;line-height:1;margin-bottom:14px;}
+#page-herramientas .cb-hero h1 span{color:#F7A519;}
+#page-herramientas .cb-hero p{font-size:16px;font-weight:400;color:rgba(244,241,232,.6);max-width:540px;margin:0 auto;line-height:1.6;}
+
+#page-herramientas .calc-wrapper{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 24px 80px;display:flex;flex-direction:column;gap:24px;}
+#page-herramientas .cb-card{background:rgba(244,241,232,.04);border:1px solid rgba(244,241,232,.1);border-radius:4px;padding:32px;}
+#page-herramientas .cb-card-title{font-family:"Bebas Neue",sans-serif;font-size:22px;letter-spacing:.07em;color:#F4F1E8;margin-bottom:6px;}
+#page-herramientas .cb-card-sub{font-size:13px;color:rgba(244,241,232,.45);margin-bottom:28px;}
+#page-herramientas .cb-top-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+#page-herramientas .cb-input-group{display:flex;flex-direction:column;gap:18px;}
+#page-herramientas .cb-field{display:flex;flex-direction:column;gap:7px;}
+#page-herramientas .cb-field label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(244,241,232,.55);}
+#page-herramientas .cb-field-row{display:flex;align-items:center;background:rgba(15,15,35,.6);border:1px solid rgba(244,241,232,.12);border-radius:3px;overflow:hidden;transition:border-color .2s;}
+#page-herramientas .cb-field-row:focus-within{border-color:#F7A519;}
+#page-herramientas .cb-field-row input{flex:1;background:transparent;border:none;outline:none;color:#F4F1E8;font-family:"Barlow",sans-serif;font-size:20px;font-weight:600;padding:14px 16px;}
+#page-herramientas .cb-field-row input::placeholder{color:rgba(244,241,232,.2);}
+#page-herramientas .cb-field-row .unit{padding:0 16px 0 0;font-size:12px;font-weight:600;letter-spacing:.06em;color:rgba(244,241,232,.35);white-space:nowrap;}
+#page-herramientas .cb-field-hint{font-size:11px;color:rgba(244,241,232,.3);}
+#page-herramientas .cb-field-row.editable{border-color:rgba(247,165,25,.2);background:rgba(247,165,25,.04);}
+#page-herramientas .cb-field-row.editable:focus-within{border-color:#F7A519;background:rgba(247,165,25,.07);}
+#page-herramientas .cb-field-row.editable input{color:#F7A519;}
+#page-herramientas .cb-field-row.editable .unit{color:rgba(247,165,25,.5);}
+#page-herramientas .cb-editable-badge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#F7A519;background:rgba(247,165,25,.12);border:1px solid rgba(247,165,25,.2);padding:2px 7px;border-radius:2px;margin-left:8px;vertical-align:middle;}
+
+#page-herramientas .cb-result-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:8px;}
+#page-herramientas .cb-result-item{background:rgba(15,15,35,.5);border:1px solid rgba(244,241,232,.08);border-radius:3px;padding:20px 22px;display:flex;flex-direction:column;gap:6px;}
+#page-herramientas .cb-result-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(244,241,232,.4);}
+#page-herramientas .cb-result-value{font-family:"Bebas Neue",sans-serif;font-size:32px;letter-spacing:.03em;color:#F4F1E8;line-height:1;}
+#page-herramientas .cb-result-sub{font-size:11px;color:rgba(244,241,232,.3);}
+
+#page-herramientas .cb-breakdown{margin-top:20px;display:flex;flex-direction:column;}
+#page-herramientas .cb-breakdown-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(244,241,232,.05);font-size:14px;}
+#page-herramientas .cb-breakdown-row:last-child{border-bottom:none;}
+#page-herramientas .cb-breakdown-label{color:rgba(244,241,232,.5);}
+#page-herramientas .cb-breakdown-value{font-weight:600;color:#F4F1E8;}
+#page-herramientas .cb-breakdown-row.total .cb-breakdown-label{font-weight:700;color:rgba(244,241,232,.8);font-size:15px;}
+#page-herramientas .cb-breakdown-row.total .cb-breakdown-value{color:#F7A519;font-family:"Bebas Neue",sans-serif;font-size:22px;letter-spacing:.04em;}
+
+#page-herramientas .cb-price-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+#page-herramientas .cb-price-card{border-radius:4px;padding:28px 24px;display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden;}
+#page-herramientas .cb-price-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;}
+#page-herramientas .cb-price-card.b2c{background:rgba(244,241,232,.05);border:1px solid rgba(244,241,232,.1);}
+#page-herramientas .cb-price-card.b2c::before{background:#F4F1E8;}
+#page-herramientas .cb-price-card.volume{background:rgba(88,96,73,.15);border:1px solid rgba(88,96,73,.4);}
+#page-herramientas .cb-price-card.volume::before{background:#586049;}
+#page-herramientas .cb-price-badge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:3px 9px;border-radius:2px;width:fit-content;}
+#page-herramientas .b2c .cb-price-badge{background:rgba(244,241,232,.1);color:rgba(244,241,232,.7);}
+#page-herramientas .volume .cb-price-badge{background:rgba(88,96,73,.3);color:#a8b49a;}
+#page-herramientas .cb-price-name{font-family:"Bebas Neue",sans-serif;font-size:18px;letter-spacing:.06em;color:#F4F1E8;}
+#page-herramientas .cb-price-amount{font-family:"Bebas Neue",sans-serif;font-size:42px;letter-spacing:.02em;line-height:1;}
+#page-herramientas .b2c .cb-price-amount{color:#F4F1E8;}
+#page-herramientas .volume .cb-price-amount{color:#a8b49a;}
+#page-herramientas .cb-price-unit-label{font-size:11px;color:rgba(244,241,232,.35);font-weight:500;}
+#page-herramientas .cb-price-desc{font-size:12px;color:rgba(244,241,232,.35);line-height:1.5;border-top:1px solid rgba(244,241,232,.06);padding-top:10px;margin-top:4px;}
+
+#page-herramientas .cb-margin-control{border-top:1px solid rgba(244,241,232,.07);padding-top:14px;margin-top:4px;display:flex;flex-direction:column;gap:10px;}
+#page-herramientas .cb-margin-label-row{display:flex;align-items:center;justify-content:space-between;}
+#page-herramientas .cb-margin-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(244,241,232,.35);}
+#page-herramientas .cb-margin-stepper{display:flex;align-items:center;gap:6px;}
+#page-herramientas .cb-margin-stepper button{background:rgba(244,241,232,.08);border:1px solid rgba(244,241,232,.12);color:#F4F1E8;width:26px;height:26px;border-radius:3px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;}
+#page-herramientas .cb-margin-stepper button:hover{background:rgba(244,241,232,.15);}
+#page-herramientas .cb-margin-pct{font-family:"Bebas Neue",sans-serif;font-size:22px;letter-spacing:.04em;min-width:52px;text-align:center;}
+#page-herramientas .b2c .cb-margin-pct{color:#F4F1E8;}
+#page-herramientas .volume .cb-margin-pct{color:#a8b49a;}
+#page-herramientas .cb-margin-slider{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:2px;outline:none;cursor:pointer;}
+#page-herramientas .b2c .cb-margin-slider{background:linear-gradient(to right,rgba(244,241,232,.5) 0%,rgba(244,241,232,.5) var(--pct),rgba(244,241,232,.1) var(--pct),rgba(244,241,232,.1) 100%);}
+#page-herramientas .volume .cb-margin-slider{background:linear-gradient(to right,rgba(88,96,73,.8) 0%,rgba(88,96,73,.8) var(--pct),rgba(88,96,73,.2) var(--pct),rgba(88,96,73,.2) 100%);}
+#page-herramientas .cb-margin-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#F7A519;cursor:pointer;border:2px solid #0F0F23;}
+#page-herramientas .cb-margin-slider::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#F7A519;cursor:pointer;border:2px solid #0F0F23;}
+
+/* extras */
+#page-herramientas .cb-extras-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+#page-herramientas .cb-extra-row{display:flex;align-items:center;gap:10px;}
+#page-herramientas .cb-extra-desc{flex:1;background:rgba(15,15,35,.6);border:1px solid rgba(244,241,232,.12);border-radius:3px;outline:none;color:#F4F1E8;font-family:"Barlow",sans-serif;font-size:14px;font-weight:500;padding:11px 14px;transition:border-color .2s;}
+#page-herramientas .cb-extra-desc::placeholder{color:rgba(244,241,232,.2);}
+#page-herramientas .cb-extra-cost-wrap{display:flex;align-items:center;background:rgba(15,15,35,.6);border:1px solid rgba(244,241,232,.12);border-radius:3px;overflow:hidden;width:180px;}
+#page-herramientas .cb-extra-cost-wrap input{flex:1;background:transparent;border:none;outline:none;color:#F4F1E8;font-family:"Barlow",sans-serif;font-size:15px;font-weight:600;padding:11px 12px;}
+#page-herramientas .cb-extra-cost-wrap .unit{padding:0 10px 0 0;font-size:11px;font-weight:600;color:rgba(244,241,232,.3);white-space:nowrap;}
+#page-herramientas .cb-btn-remove{background:none;border:1px solid rgba(244,241,232,.1);color:rgba(244,241,232,.25);cursor:pointer;border-radius:3px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:18px;transition:border-color .2s,color .2s;flex-shrink:0;}
+#page-herramientas .cb-btn-remove:hover{border-color:rgba(220,80,80,.4);color:rgba(220,80,80,.6);}
+#page-herramientas .cb-btn-add-extra{display:inline-flex;align-items:center;gap:8px;background:none;border:1px dashed rgba(244,241,232,.18);border-radius:3px;color:rgba(244,241,232,.4);font-family:"Barlow",sans-serif;font-size:12px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;padding:10px 18px;cursor:pointer;transition:border-color .2s,color .2s;width:100%;justify-content:center;}
+#page-herramientas .cb-btn-add-extra:hover{border-color:rgba(247,165,25,.35);color:#F7A519;}
+#page-herramientas .cb-extras-total-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0 0;border-top:1px solid rgba(244,241,232,.07);margin-top:4px;font-size:13px;}
+#page-herramientas .cb-extras-total-label{color:rgba(244,241,232,.45);}
+#page-herramientas .cb-extras-total-value{font-weight:700;color:#F4F1E8;}
+
+/* ── Checkbox consentimiento gate ── */
+.gate-consent{display:flex;gap:12px;align-items:flex-start;margin:14px 0 4px;cursor:pointer;text-align:left;}
+.gate-consent input[type=checkbox]{width:20px;height:20px;flex-shrink:0;margin-top:1px;accent-color:#F7A519;cursor:pointer;}
+.gate-consent span{font-size:11.5px;color:rgba(244,241,232,.48);line-height:1.55;}
+.gate-consent strong{color:rgba(244,241,232,.7);}
+
+/* ── Sección comunidad WhatsApp ── */
+#page-herramientas .mk-community{
+  position:relative;z-index:1;
+  background:linear-gradient(135deg,#0b1f0d 0%,#0F0F23 60%);
+  border-top:1px solid rgba(37,211,102,.15);
+  border-bottom:1px solid rgba(37,211,102,.1);
+  padding:56px 24px;
+}
+#page-herramientas .mk-community-inner{
+  max-width:760px;margin:0 auto;
+  display:flex;align-items:center;gap:28px;flex-wrap:wrap;
+}
+#page-herramientas .mk-community-icon{
+  flex-shrink:0;width:72px;height:72px;
+  background:rgba(37,211,102,.12);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+#page-herramientas .mk-community-icon svg{width:38px;height:38px;}
+#page-herramientas .mk-community-text{flex:1;min-width:200px;}
+#page-herramientas .mk-community-tag{
+  font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:#25D366;margin-bottom:6px;
+}
+#page-herramientas .mk-community-title{
+  font-family:"Bebas Neue",sans-serif;font-size:clamp(24px,4vw,34px);
+  letter-spacing:.04em;color:#F4F1E8;margin:0 0 8px;
+}
+#page-herramientas .mk-community-desc{
+  font-size:14px;color:rgba(244,241,232,.55);line-height:1.6;margin:0;
+}
+#page-herramientas .mk-community-btn{
+  flex-shrink:0;
+  display:inline-flex;align-items:center;gap:8px;
+  background:#25D366;color:#0b1f0d;
+  font-family:"Barlow",sans-serif;font-size:13px;font-weight:700;
+  letter-spacing:.07em;text-transform:uppercase;
+  padding:14px 28px;border-radius:2px;text-decoration:none;
+  transition:background .2s,transform .2s;white-space:nowrap;
+}
+#page-herramientas .mk-community-btn:hover{background:#1eb857;transform:translateY(-2px);}
+@media(max-width:600px){
+  #page-herramientas .mk-community-inner{flex-direction:column;text-align:center;}
+  #page-herramientas .mk-community-btn{width:100%;justify-content:center;}
+}
+
+/* ── Sección proponer herramienta ── */
+#page-herramientas .mk-suggest{
+  position:relative;z-index:1;
+  background:rgba(247,165,25,.05);
+  border-top:1px solid rgba(244,241,232,.07);
+  padding:72px 24px;text-align:center;
+}
+#page-herramientas .mk-suggest-inner{max-width:720px;margin:0 auto;}
+#page-herramientas .mk-suggest-title{
+  font-family:"Bebas Neue",sans-serif;
+  font-size:clamp(36px,5vw,56px);letter-spacing:.04em;
+  color:#F4F1E8;margin:16px 0 14px;line-height:1.05;
+}
+#page-herramientas .mk-suggest-sub{
+  font-size:15px;color:rgba(244,241,232,.55);
+  max-width:560px;margin:0 auto 40px;line-height:1.7;
+}
+#page-herramientas .mk-suggest-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  background:#F7A519;color:#0F0F23;
+  font-family:"Barlow",sans-serif;font-size:14px;font-weight:700;
+  letter-spacing:.07em;text-transform:uppercase;
+  padding:16px 36px;border-radius:2px;text-decoration:none;
+  transition:background .2s,transform .2s;
+}
+#page-herramientas .mk-suggest-btn:hover{background:#F4F1E8;transform:translateY(-2px);}
+#page-herramientas .mk-suggest-note{
+  margin-top:14px;font-size:12px;color:rgba(244,241,232,.25);
+}
+/* ── Mini-form ideas ── */
+#page-herramientas .mk-idea-form{width:100%;max-width:560px;margin:0 auto 12px;display:flex;flex-direction:column;gap:10px;}
+#page-herramientas .mk-idea-row{display:flex;gap:10px;}
+#page-herramientas .mk-idea-row input{flex:1;min-width:0;}
+#page-herramientas .mk-idea-form input,
+#page-herramientas .mk-idea-form textarea{
+  width:100%;background:rgba(244,241,232,.07);border:1px solid rgba(244,241,232,.15);
+  border-radius:3px;padding:11px 14px;font-family:"Barlow",sans-serif;font-size:14px;
+  color:#F4F1E8;outline:none;transition:border-color .2s;resize:vertical;
+}
+#page-herramientas .mk-idea-form input::placeholder,
+#page-herramientas .mk-idea-form textarea::placeholder{color:rgba(244,241,232,.3);}
+#page-herramientas .mk-idea-form input:focus,
+#page-herramientas .mk-idea-form textarea:focus{border-color:rgba(247,165,25,.6);}
+#page-herramientas .mk-idea-btn{
+  background:#F7A519;color:#0F0F23;border:none;border-radius:3px;
+  padding:13px 28px;font-family:"Barlow",sans-serif;font-size:14px;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;cursor:pointer;
+  transition:background .2s,transform .2s;align-self:flex-end;
+}
+#page-herramientas .mk-idea-btn:hover{background:#F4F1E8;transform:translateY(-2px);}
+#page-herramientas .mk-idea-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+#page-herramientas .mk-idea-success{font-size:13px;color:#25D366;margin-top:4px;text-align:center;}
+@media(max-width:600px){
+  #page-herramientas .mk-idea-row{flex-direction:column;}
+  #page-herramientas .mk-idea-btn{align-self:stretch;}
+}
+
+/* ── BambuLab coming soon ── */
+#page-catalogo .ct-coming-wrap{
+  position:relative;z-index:1;
+  max-width:1200px;margin:-1rem auto 2rem;padding:0 1rem;
+}
+#page-catalogo .ct-coming-inner{
+  display:flex;align-items:center;gap:20px;
+  background:#fff;border:1.5px dashed rgba(15,15,35,.15);
+  border-radius:8px;padding:22px 26px;
+}
+#page-catalogo .ct-coming-icon{font-size:32px;flex-shrink:0;}
+#page-catalogo .ct-coming-title{
+  font-family:"Bebas Neue",sans-serif;font-size:1.2rem;letter-spacing:.06em;
+  color:#0F0F23;margin-bottom:3px;display:flex;align-items:center;gap:8px;
+}
+#page-catalogo .ct-coming-chip{
+  font-family:"Barlow",sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  background:rgba(88,96,73,.15);color:#586049;border-radius:2px;padding:2px 7px;
+}
+#page-catalogo .ct-coming-sub{font-size:13px;color:#6B6263;line-height:1.5;margin-bottom:10px;}
+#page-catalogo .ct-coming-cta{
+  font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  color:#F7A519;text-decoration:none;transition:color .2s;
+}
+#page-catalogo .ct-coming-cta:hover{color:#0F0F23;}
+@media(max-width:499px){
+  #page-catalogo .ct-coming-inner{flex-direction:column;align-items:flex-start;gap:10px;}
+  #page-herramientas .mk-suggest{padding:48px 16px;}
+}
+
+/* footer calculadora */
+#page-herramientas footer{position:relative;z-index:1;border-top:1px solid rgba(244,241,232,.07);padding:32px 40px;display:flex;flex-direction:column;gap:20px;}
+#page-herramientas .cb-foot-row{display:flex;justify-content:space-between;align-items:center;}
+#page-herramientas footer .foot-logo img{height:40px;opacity:.5;}
+#page-herramientas footer p{font-size:12px;color:rgba(244,241,232,.3);}
+#page-herramientas footer a{color:#F7A519;text-decoration:none;font-size:12px;font-weight:600;}
+#page-herramientas .cb-foot-social{display:flex;justify-content:center;gap:24px;border-top:1px solid rgba(244,241,232,.06);padding-top:16px;}
+#page-herramientas .cb-foot-social a{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(244,241,232,.35);transition:color .2s;}
+#page-herramientas .cb-foot-social a:hover{color:#F7A519;}
+
+@media(max-width:768px){
+  #page-herramientas .cb-top-row{grid-template-columns:1fr;}
+  #page-herramientas .cb-result-grid{grid-template-columns:1fr 1fr;}
+  #page-herramientas .cb-price-grid{grid-template-columns:1fr;}
+  #page-herramientas .cb-hero{padding:40px 20px 32px;}
+  #page-herramientas .calc-wrapper{padding:0 16px 60px;gap:16px;}
+  #page-herramientas .cb-card{padding:22px 18px;}
+  #page-herramientas .cb-result-item{padding:16px;}
+  #page-herramientas .cb-result-value{font-size:26px;}
+  #page-herramientas .cb-price-amount{font-size:34px;}
+  #page-herramientas footer{padding:24px 20px;}
+  #page-herramientas .cb-foot-row{flex-direction:column;gap:12px;text-align:center;}
+}
+@media(max-width:480px){
+  #page-herramientas .cb-result-grid{grid-template-columns:1fr;}
+  #page-herramientas .gate-row{grid-template-columns:1fr;}
+  #page-herramientas .cb-extra-row{flex-wrap:wrap;}
+  #page-herramientas .cb-extra-cost-wrap{width:100%;}
+  #page-herramientas .cb-field-row input{font-size:16px;} /* prevent iOS zoom */
+  #page-herramientas .gate-field input{font-size:16px;}   /* prevent iOS zoom */
+  #page-herramientas .mk-idea-form input,
+  #page-herramientas .mk-idea-form textarea{font-size:16px;} /* prevent iOS zoom */
+  #page-herramientas .cb-extra-desc,
+  #page-herramientas .cb-extra-cost-wrap input{font-size:16px;} /* prevent iOS zoom */
+  /* margin stepper touch targets */
+  #page-herramientas .cb-margin-stepper button{min-width:36px;min-height:44px;}
+}
+</style>
+
+<!-- ═══ SECTION: CALCULADORA ═══ -->
+<div id="page-herramientas" class="page">
+
+<!-- GATE (fixed overlay) -->
+<div id="calc-gate">
+  <div class="gate-card">
+    <img src="./Isotipo_Mesa de trabajo 1 sin fondo.png" alt="Kafetin" class="gate-logo">
+    <div class="gate-tag">Zona exclusiva para makers</div>
+    <div class="gate-title">Accede a las<br><span>Herramientas Maker</span></div>
+    <p class="gate-sub">Regístrate una sola vez y accede sin límites a todas las herramientas gratuitas de Kafetin para makers. Sin spam, sin costos.</p>
+    <form class="gate-form" id="calc-gate-form" onsubmit="submitCalcGate(event)">
+      <div class="gate-row">
+        <div class="gate-field"><label>Nombre *</label><input type="text" id="cg-nombre" placeholder="Tu nombre" required></div>
+        <div class="gate-field"><label>Empresa</label><input type="text" id="cg-empresa" placeholder="Empresa u organización"></div>
+      </div>
+      <div class="gate-field"><label>Correo electrónico *</label><input type="email" id="cg-correo" placeholder="tu@correo.com" required></div>
+      <div class="gate-row">
+        <div class="gate-field"><label>Teléfono</label><input type="tel" id="cg-telefono" placeholder="3001234567"></div>
+        <div class="gate-field"><label>Ciudad *</label><input type="text" id="cg-ciudad" placeholder="Medellín" required></div>
+      </div>
+      <div class="gate-error" id="calc-gate-error"></div>
+      <label class="gate-consent">
+        <input type="checkbox" id="cg-consent" required>
+        <span>Acepto el <strong>tratamiento de mis datos personales</strong> por parte de Kafetin con fines de comunidad. Mis datos no serán compartidos con terceros ni usados con fines comerciales sin mi autorización.</span>
+      </label>
+      <button type="submit" class="btn-gate" id="btn-calc-gate">Acceder a las Herramientas →</button>
+    </form>
+    <p class="gate-legal">Acceso gratuito · Sin spam · Datos protegidos bajo la Ley 1581 de 2012 (Colombia)</p>
+    <button onclick="switchPage('catalogo')" style="margin-top:12px;background:none;border:none;color:rgba(244,241,232,.25);font-family:Barlow,sans-serif;font-size:12px;cursor:pointer;text-decoration:underline;padding:4px;">← Volver al catálogo</button>
+  </div>
+</div>
+
+<!-- CALCULATOR BODY -->
+<div id="calc-body" class="locked">
+
+  <div class="cb-hero">
+    <div class="cb-tag">Herramienta gratuita para makers</div>
+    <h1>Calculadora de<br><span>Costo de Fabricación</span></h1>
+    <p>Estima el costo real de imprimir una pieza en FDM. Ajusta los valores base a tu configuración y obtén precios sugeridos para diferentes mercados.</p>
+  </div>
+
+  <div class="calc-wrapper">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+      <button onclick="switchPage('catalogo')" style="background:none;border:1px solid rgba(244,241,232,.15);border-radius:3px;color:rgba(244,241,232,.5);font-family:Barlow,sans-serif;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:6px;">← Ver catálogo</button>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span id="cb-welcome" style="font-size:12px;color:rgba(244,241,232,.38);font-style:italic;display:none;"></span>
+        <button onclick="cbResetAll()" style="background:none;border:1px solid rgba(244,241,232,.15);border-radius:3px;color:rgba(244,241,232,.4);font-family:Barlow,sans-serif;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:8px 16px;cursor:pointer;display:flex;align-items:center;gap:7px;"><span style="font-size:15px;">↺</span>Reiniciar</button>
+        <button id="cb-logout-btn" style="background:none;border:1px solid rgba(244,241,232,.1);border-radius:3px;color:rgba(244,241,232,.3);font-family:Barlow,sans-serif;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:5px;" title="Cerrar sesión">🔓 Salir</button>
+      </div>
+    </div>
+
+    <div class="cb-top-row">
+      <!-- datos pieza -->
+      <div class="cb-card">
+        <div class="cb-card-title">Datos de la pieza</div>
+        <div class="cb-card-sub">Ingresa las características de tu impresión</div>
+        <div class="cb-input-group">
+          <div class="cb-field"><label>Peso de la pieza</label><div class="cb-field-row"><input type="number" id="cb-weight" value="50" min="1" oninput="cbCalculate()"><span class="unit">gramos</span></div><span class="cb-field-hint">Puedes verlo en tu slicer antes de imprimir</span></div>
+          <div class="cb-field"><label>Tiempo de impresión</label><div class="cb-field-row"><input type="number" id="cb-time" value="2" min="0.1" step="0.5" oninput="cbCalculate()"><span class="unit">horas</span></div></div>
+          <div class="cb-field"><label>Unidades a producir</label><div class="cb-field-row"><input type="number" id="cb-units" value="1" min="1" oninput="cbCalculate()"><span class="unit">unidades</span></div><span class="cb-field-hint">El costo por unidad baja con más volumen</span></div>
+          <div class="cb-field"><label>Horas de mano de obra</label><div class="cb-field-row"><input type="number" id="cb-laborHours" value="0.5" min="0" step="0.25" oninput="cbCalculate()"><span class="unit">horas / ud.</span></div><span class="cb-field-hint">Setup, supervisión y post-procesado por pieza</span></div>
+        </div>
+      </div>
+      <!-- valores base -->
+      <div class="cb-card">
+        <div class="cb-card-title">Valores base <span class="cb-editable-badge">editables</span></div>
+        <div class="cb-card-sub">Predeterminados con referencia de mercado Colombia 2026</div>
+        <div class="cb-input-group">
+          <div class="cb-field"><label>Costo material</label><div class="cb-field-row editable"><input type="number" id="cb-matCost" value="85000" min="1" oninput="cbCalculate()"><span class="unit">COP / kg</span></div><span class="cb-field-hint">Precio promedio filamento PLA/PETG Colombia</span></div>
+          <div class="cb-field"><label>Precio kWh</label><div class="cb-field-row editable"><input type="number" id="cb-kwh" value="800" min="1" oninput="cbCalculate()"><span class="unit">COP / kWh</span></div></div>
+          <div class="cb-field"><label>Depreciación máquina</label><div class="cb-field-row editable"><input type="number" id="cb-machineCost" value="5000000" min="1" oninput="cbCalculate()"><span class="unit">COP total</span></div><span class="cb-field-hint">Costo de tu impresora — amortizado a 3 años</span></div>
+          <div class="cb-field"><label>Mano de obra</label><div class="cb-field-row editable"><input type="number" id="cb-laborRate" value="50000" min="0" oninput="cbCalculate()"><span class="unit">COP / 8 h</span></div><span class="cb-field-hint">Tarifa jornada laboral — equivale a $6,250/hora</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- extras -->
+    <div class="cb-card">
+      <div class="cb-card-title">Gastos extras por unidad <span class="cb-editable-badge">opcional</span></div>
+      <div class="cb-card-sub">Accesorios, empaques, etiquetas, insumos de post-procesado, etc.</div>
+      <div class="cb-extras-list" id="cb-extras-list"></div>
+      <button class="cb-btn-add-extra" onclick="cbAddExtra()"><span style="font-size:18px;line-height:1;">+</span>Agregar gasto extra</button>
+      <div class="cb-extras-total-row"><span class="cb-extras-total-label">Total extras por unidad</span><span class="cb-extras-total-value" id="cb-extras-total">$0</span></div>
+    </div>
+
+    <!-- resultados -->
+    <div class="cb-card">
+      <div class="cb-card-title">Costo de fabricación</div>
+      <div class="cb-card-sub">Desglose real por componente · basado en tus datos</div>
+      <div class="cb-result-grid">
+        <div class="cb-result-item"><span class="cb-result-label">Costo material</span><span class="cb-result-value" id="cb-res-material">—</span><span class="cb-result-sub" id="cb-res-material-sub">—</span></div>
+        <div class="cb-result-item"><span class="cb-result-label">Costo electricidad</span><span class="cb-result-value" id="cb-res-electric">—</span><span class="cb-result-sub" id="cb-res-electric-sub">—</span></div>
+        <div class="cb-result-item"><span class="cb-result-label">Depreciación máquina</span><span class="cb-result-value" id="cb-res-deprec">—</span><span class="cb-result-sub" id="cb-res-deprec-sub">—</span></div>
+        <div class="cb-result-item"><span class="cb-result-label">Mano de obra</span><span class="cb-result-value" id="cb-res-labor">—</span><span class="cb-result-sub" id="cb-res-labor-sub">—</span></div>
+      </div>
+      <div class="cb-breakdown">
+        <div class="cb-breakdown-row"><span class="cb-breakdown-label">Subtotal fabricación (lote completo)</span><span class="cb-breakdown-value" id="cb-res-subtotal">—</span></div>
+        <div class="cb-breakdown-row" id="cb-row-extras" style="display:none;"><span class="cb-breakdown-label">Gastos extras (por unidad)</span><span class="cb-breakdown-value" id="cb-res-extras-inline">—</span></div>
+        <div class="cb-breakdown-row"><span class="cb-breakdown-label">Unidades</span><span class="cb-breakdown-value" id="cb-res-units-show">—</span></div>
+        <div class="cb-breakdown-row total"><span class="cb-breakdown-label">Costo total por unidad</span><span class="cb-breakdown-value" id="cb-res-per-unit">—</span></div>
+      </div>
+    </div>
+
+    <!-- precios sugeridos -->
+    <div class="cb-card">
+      <div class="cb-card-title">Precios sugeridos</div>
+      <div class="cb-card-sub">Estimaciones por canal de venta · no incluyen gastos de envío ni tiempo de diseño</div>
+      <div class="cb-price-grid">
+        <div class="cb-price-card b2c">
+          <span class="cb-price-badge">B2C</span>
+          <span class="cb-price-name">Consumidor Final</span>
+          <div><div class="cb-price-amount" id="cb-price-b2c">—</div><div class="cb-price-unit-label">por unidad</div></div>
+          <div class="cb-price-desc">Ideal para ventas directas en Instagram, MercadoLibre o clientes retail.</div>
+          <div class="cb-margin-control">
+            <div class="cb-margin-label-row"><span class="cb-margin-label">Margen bruto</span><div class="cb-margin-stepper"><button onclick="cbAdjustMargin('b2c',-5)">−</button><span class="cb-margin-pct" id="cb-pct-b2c">70</span><span style="font-size:13px;color:rgba(244,241,232,.4);margin-left:-4px">%</span><button onclick="cbAdjustMargin('b2c',+5)">+</button></div></div>
+            <input type="range" class="cb-margin-slider" id="cb-slider-b2c" min="10" max="90" value="70" style="--pct:75%" oninput="cbSyncSlider('b2c')">
+          </div>
+        </div>
+        <div class="cb-price-card volume">
+          <span class="cb-price-badge">B2B Volumen</span>
+          <span class="cb-price-name">Lote / Producción</span>
+          <div><div class="cb-price-amount" id="cb-price-volume">—</div><div class="cb-price-unit-label">por unidad</div></div>
+          <div class="cb-price-desc">Para pedidos repetitivos o producción en serie. Precio agresivo para ganar contratos.</div>
+          <div class="cb-margin-control">
+            <div class="cb-margin-label-row"><span class="cb-margin-label">Margen bruto</span><div class="cb-margin-stepper"><button onclick="cbAdjustMargin('volume',-5)">−</button><span class="cb-margin-pct" id="cb-pct-volume">47</span><span style="font-size:13px;color:rgba(244,241,232,.4);margin-left:-4px">%</span><button onclick="cbAdjustMargin('volume',+5)">+</button></div></div>
+            <input type="range" class="cb-margin-slider" id="cb-slider-volume" min="10" max="90" value="47" style="--pct:41%" oninput="cbSyncSlider('volume')">
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:20px;padding:14px 18px;background:rgba(247,165,25,.05);border:1px solid rgba(247,165,25,.1);border-radius:3px;">
+        <p style="font-size:12px;color:rgba(244,241,232,.4);line-height:1.6;">⚠️ <strong style="color:rgba(244,241,232,.6);">Nota:</strong> Estos precios no incluyen tiempo de diseño CAD, post-procesado, ni fallas de impresión (~5-10%). Para piezas técnicas ajusta el costo de material y agrega tiempo adicional.</p>
+      </div>
+    </div>
+
+  </div><!-- /calc-wrapper -->
+
+  <!-- ── COMUNIDAD WHATSAPP ── -->
+  <div class="mk-community">
+    <div class="mk-community-inner">
+      <div class="mk-community-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.004 0C5.374 0 .006 5.374.006 12.004c0 2.115.554 4.1 1.523 5.823L0 24l6.335-1.652A11.954 11.954 0 0012.004 24C18.63 24 24 18.626 24 12.004 24 5.374 18.63 0 12.004 0zm0 21.818a9.814 9.814 0 01-5.017-1.376l-.36-.214-3.736.975.998-3.64-.235-.374a9.805 9.805 0 01-1.506-5.189c0-5.423 4.412-9.836 9.836-9.836 5.423 0 9.836 4.413 9.836 9.836 0 5.424-4.413 9.818-9.816 9.818z"/></svg>
+      </div>
+      <div class="mk-community-text">
+        <div class="mk-community-tag">Comunidad Maker</div>
+        <h2 class="mk-community-title">Únete al grupo de makers</h2>
+        <p class="mk-community-desc">Un espacio para makers en Medellín y Colombia. Tips, proyectos, materiales y todo lo que necesitas para imprimir mejor.</p>
+      </div>
+      <a href="https://chat.whatsapp.com/FUlnaCRc95hEfchnSDVvrk" target="_blank" rel="noopener" class="mk-community-btn">
+        Unirme al grupo →
+      </a>
+    </div>
+  </div>
+
+  <!-- ── PROPONER HERRAMIENTA ── -->
+  <div class="mk-suggest">
+    <div class="mk-suggest-inner">
+      <div class="cb-tag">Comunidad Maker</div>
+      <h2 class="mk-suggest-title">¿Qué herramienta<br>necesitas?</h2>
+      <p class="mk-suggest-sub">Esta zona crece con los aportes de la comunidad. Cuéntanos qué herramienta te haría la vida más fácil y la priorizamos.</p>
+      <form class="mk-idea-form" id="mk-idea-form" onsubmit="submitIdea(event)">
+        <div class="mk-idea-row">
+          <input type="text" id="idea-nombre" placeholder="Tu nombre (opcional)" autocomplete="name">
+          <input type="email" id="idea-correo" placeholder="Tu correo (opcional)" autocomplete="email">
+        </div>
+        <textarea id="idea-texto" placeholder="Describe la herramienta que necesitas…" required rows="3"></textarea>
+        <button type="submit" class="mk-idea-btn" id="mk-idea-btn">Enviar idea →</button>
+        <p class="mk-idea-success" id="mk-idea-success" style="display:none;">¡Gracias! Tu idea quedó registrada. La revisamos pronto.</p>
+      </form>
+      <p class="mk-suggest-note">Todas las herramientas son gratuitas · kafetin.co</p>
+    </div>
+  </div>
+
+  <footer>
+    <div class="cb-foot-row">
+      <div class="foot-logo"><img src="./Isotipo_Mesa de trabajo 1 sin fondo.png" alt="Kafetin"></div>
+      <p>Herramienta gratuita de <a href="https://kafetin.co">kafetin.co</a> — manufactura aditiva para empresas en Medellín</p>
+      <a href="https://wa.me/573155425240?text=Hola%20Kafetin%2C%20quiero%20cotizar%20un%20proyecto" target="_blank">Cotizar proyecto →</a>
+    </div>
+    <div class="cb-foot-social">
+      <a href="https://wa.me/573155425240" target="_blank">WhatsApp</a>
+      <a href="https://www.instagram.com/kafetin.co/" target="_blank">Instagram</a>
+      <a href="https://www.linkedin.com/company/kafetin" target="_blank">LinkedIn</a>
+    </div>
+  </footer>
+
+</div><!-- /calc-body -->
+</div><!-- /page-calculadora -->
+
+<script>const PAGES = ['catalogo','herramientas'];
+let catalogReady = false;
+
+function switchPage(id) {
+  if (!PAGES.includes(id)) id = 'catalogo';
+  PAGES.forEach(p => document.getElementById('page-'+p).classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.page === id));
+  window.scrollTo(0,0);
+  window.location.hash = id;
+  document.getElementById('mob-nav').classList.remove('open');
+  document.getElementById('mn-ham').classList.remove('open');
+  if (id === 'catalogo' && !catalogReady) { catalogReady = true; ctRender(); ctRenderCart(); ctLoadProducts(); }
+  if (id === 'herramientas') cbCheckGate();
+}
+
+
+/* ═══════════════════════════════════
+   CATALOGO — DATA + CART
+═══════════════════════════════════ */
+const CT_SHEET_ID = "1CoLC56zmPh8bT2DHNTKHm0XHVgNk7AuvgwVPZRN2nWM";
+const CT_GVIZ_URL = `https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/gviz/tq?tqx=out:json&gid=0&range=A4:D200`;
+const CT_WA = "573155425240";
+
+const CT_MATERIALS = [
+  {key:"all",label:"Todos",match:()=>true},
+  {key:"pla",label:"PLA",match:m=>m==="pla"},
+  {key:"pla-bicolor",label:"PLA Bicolor",match:m=>m==="pla-bicolor"},
+  {key:"petg",label:"PETG",match:m=>m==="petg"},
+  {key:"abs",label:"ABS",match:m=>m==="abs"},
+  {key:"tpu",label:"TPU",match:m=>m==="tpu"},
+  {key:"pp",label:"PP",match:m=>m==="pp"},
+];
+
+const CT_COLOR_MAP = {"negro":"#1a1a1a","blanco":"#f1ede2","litofania":"#f1ede2","hueso":"#e6dec8","crema":"#ead9b6","beige":"#d8c08e","rojo":"#c5302e","rojo seda":"#b02828","rojo oscuro":"#8a1f1d","vino":"#6e1d27","azul":"#1f4b8e","azul cielo":"#6fb3d9","azul claro":"#6fb3d9","celeste":"#7cc1de","azul oscuro":"#14305c","azul marino":"#14305c","marino":"#14305c","navy":"#14305c","azul electrico":"#1e6fe0","azul rey":"#1e4dad","azul sed":"#8fabc7","azul seda":"#8fabc7","azul pastel":"#a8c4dc","verde":"#2e7d4f","verde claro":"#7bc26b","verde manzana":"#b7c44a","verde lima":"#bfd24a","verde biche":"#9fbf3a","verde oscuro":"#1f5237","verde pino":"#1d4b34","verde militar":"#4a5530","verde menta":"#8fcfb1","verde agua":"#7cc7be","verde turquesa":"#1fa9a3","verde esmeralda":"#1a7a4a","verde pastel":"#a8d5a2","verde neon":"#39ff14","verde glitter":"#2e7d4f","amarillo":"#f2c029","amarillo limon":"#e8e832","mostaza":"#c89a1c","ocre":"#b8841c","amarillo tras":"#f2e060","naranja":"#e8732a","naranja neon":"#ff7a20","naranja cheddar":"#e8732a","morado":"#6b3a8a","purpura":"#6b3a8a","violeta":"#6b3a8a","lila":"#9c7ec0","morado traslucido":"#8a5aaa","rosa":"#e08aa6","rosado":"#e08aa6","rosa claro":"#f0bdca","rosado pastel":"#f4c6d4","rosado piel":"#e8b89a","fucsia":"#c83a87","magenta":"#c83a87","gris":"#8d8a86","gris claro":"#c2bfba","gris oscuro":"#4d4a48","gris perla":"#b9b4ac","cafe":"#6a3f23","marron":"#6a3f23","chocolate":"#4a2812","plateado":"#b6b6b3","plata":"#b6b6b3","dorado":"#c9a23c","oro":"#c9a23c","cobre":"#b6743f","bronce":"#9c6b2a","old bronce":"#9c6b2a","bronce silk":"#b8860b","transparente":"#e8e8e0","cristal":"#e8e8e0","traslucido":"#e8e8e0","natural":"#e3d6b3","turquesa":"#1fa9a3","madera":"#a07043","negro carbono":"#222222","carbon":"#1a1a1a","marmol":"#e8e4d8","blanco marmol":"#e8e4d8","rojo glitter":"#c5302e","piel":"#e8b89a","skin":"#e8b89a","fluor":"#caff3a","neon":"#caff3a"};
+
+function ctDeburr(s){return s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();}
+function ctResolveColor(raw){if(!raw)return{c1:"#888"};const norm=ctDeburr(String(raw));const parts=norm.split(/\s*[\/+&]\s*|\s+y\s+|\s*-\s*/).map(s=>s.trim()).filter(Boolean);const lookup=n=>{if(CT_COLOR_MAP[n])return CT_COLOR_MAP[n];let best=null;for(const k of Object.keys(CT_COLOR_MAP))if(n.includes(k)&&(!best||k.length>best.length))best=k;return best?CT_COLOR_MAP[best]:null;};if(parts.length>=2){const c1=lookup(parts[0]),c2=lookup(parts[1]);if(c1&&c2&&c1!==c2)return{c1,c2};}const single=lookup(norm);if(single)return{c1:single};let h=0;for(const ch of norm)h=(h*31+ch.charCodeAt(0))>>>0;return{c1:`hsl(${h%360},35%,55%)`};}
+function ctNormMat(rawMat,rawCol){const m=ctDeburr(rawMat||""),c=ctDeburr(rawCol||"");let fam=null;if(m.startsWith("pla"))fam="pla";else if(m.startsWith("petg"))fam="petg";else if(m.startsWith("abs"))fam="abs";else if(m.startsWith("tpu"))fam="tpu";else if(m.startsWith("pp"))fam="pp";if(!fam)return null;if(fam==="pla"&&(m.includes("bicolor")||/\s*[-\/+]\s*/.test(c)))return "pla-bicolor";return fam;}
+function ctDispMat(key){return{pla:"PLA","pla-bicolor":"PLA Bicolor",petg:"PETG",abs:"ABS",tpu:"TPU",pp:"PP"}[key]||key.toUpperCase();}
+function ctImageFor(p){const BICOLOR_MAP={"AZUL SEDA-FUCSIA":"AZUL FUCSIA","AZUL-NEGRO":"NEGRO AZUL","BEIGE-NEGRO":"NEGRO BEIGE","DORADO-FUCSIA":"DORADO FUCSIA","ROJO-AZUL":"AZUL ROJO","VERDE BICHE-NEGRO":"NEGRO VERDE","AZUL-MARINO":"AZUL MARINO","MARINO-AZUL":"AZUL MARINO","NEGRO-ROJO":"NEGRO ROJO","ROJO-NEGRO":"NEGRO ROJO","NEGRO-BLANCO":"NEGRO BLANCO","BLANCO-NEGRO":"NEGRO BLANCO","NEGRO-MORADO":"NEGRO MORADO","MORADO-NEGRO":"NEGRO MORADO","NEGRO-NARANJA":"NEGRO NARANJA","NARANJA-NEGRO":"NEGRO NARANJA","VERDE-AMARILLO":"VERDE AMARILLO","AMARILLO-VERDE":"VERDE AMARILLO"};if(p.material==="pla-bicolor"){const name=BICOLOR_MAP[p.color.toUpperCase()];return name?"FILAMENTOS/"+name+".jpg":"";}const FULL_PATH={"AZUL MARINO":"FILAMENTOS/AZUL MARINO.jpg"};const cu=p.color.toUpperCase();if(FULL_PATH[cu])return FULL_PATH[cu];const PLA_OV={"NARANJA CHEDDAR":"NARANJA","AZUL SEDA":"AZUL SED","BLANCO MARMOL":"MARMOL","BRONCE":"OLD BRONCE","GRIS":"GRIS 2024","NEGRO CARBONO":"NEGRO","DORADO":"DORADO SILK","LITOFANIA":"BLANCO"};const imgName=PLA_OV[cu]||cu;if(p.material==="petg")return "FILAMENTOS/PETG "+imgName+".jpg";if(p.material==="pp")return "FILAMENTOS/PP "+imgName+".jpg";if(p.material==="tpu"){const TPU_OV={"AZUL":"AZUL REY"};return "FILAMENTOS/PLA "+(TPU_OV[cu]||imgName)+".jpg";}return "FILAMENTOS/PLA "+imgName+".jpg";}
+
+const ctFmt=n=>"$"+Math.round(n).toLocaleString("es-CO");
+const ctSlug=s=>ctDeburr(String(s)).replace(/[^a-z0-9]+/g,"-");
+const ctState={products:[],filter:"all",cart:new Map(),loading:true,error:null};
+
+window.google=window.google||{}; window.google.visualization=window.google.visualization||{}; window.google.visualization.Query=window.google.visualization.Query||{};
+window.google.visualization.Query.setResponse=function(json){try{const rows=(json.table&&json.table.rows)||[];const products=[];rows.forEach((row,i)=>{const cells=row.c||[];const rawMat=cells[0]&&(cells[0].v??cells[0].f);const rawColor=cells[1]&&(cells[1].v??cells[1].f);const rawPrice=cells[2]&&(cells[2].v??cells[2].f);const rawStatus=cells[3]&&(cells[3].v??cells[3].f);if(!rawMat||!rawColor)return;const matKey=ctNormMat(rawMat,rawColor);if(!matKey)return;let price=0;if(typeof rawPrice==="number")price=rawPrice;else if(rawPrice)price=Number(String(rawPrice).replace(/[^0-9.]/g,""))||0;if(!price)return;const statusStr=rawStatus?String(rawStatus):"";const available=!statusStr?false:(ctDeburr(statusStr).includes("disponible")||statusStr.includes("✅"));const color=String(rawColor).trim();products.push({id:`${matKey}-${ctSlug(color)}-${i}`,material:matKey,color,price,available,statusLabel:statusStr.replace(/[✅⛔️🚫⏳]/g,"").trim()||(available?"Disponible":"Agotado")});});ctState.products=products;ctState.loading=false;ctState.error=null;ctRender();}catch(err){ctState.loading=false;ctState.error=err.message;ctRender();}};
+
+async function ctLoadProducts(){
+  const parseGviz=text=>{const stripped=text.replace(/^\/\*[\s\S]*?\*\/\s*/,'').replace(/^google\.visualization\.Query\.setResponse\(/,'').replace(/\);\s*$/,'');return JSON.parse(stripped);};
+  try{
+    const res=await fetch(CT_GVIZ_URL);
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const json=parseGviz(await res.text());
+    window.google.visualization.Query.setResponse(json);
+  }catch(e){
+    // CORS fallback: JSONP script tag
+    const s=document.createElement('script');
+    s.src=CT_GVIZ_URL;
+    s.onerror=function(){ctState.loading=false;ctState.error='No se pudo cargar el catálogo. Revisa tu conexión o intenta servir el archivo desde un servidor local.';ctRender();};
+    document.head.appendChild(s);
+  }
+}
+
+function ctRenderFilters(){const wrap=document.getElementById("ct-filters");const counts={};CT_MATERIALS.forEach(d=>counts[d.key]=0);counts.all=ctState.products.length;ctState.products.forEach(p=>{if(counts[p.material]!=null)counts[p.material]++;});wrap.innerHTML=CT_MATERIALS.map(d=>`<button class="ct-chip" role="tab" data-key="${d.key}" aria-pressed="${ctState.filter===d.key?'true':'false'}">${d.label}<span class="ct-chip-num">${counts[d.key]||0}</span></button>`).join("");wrap.querySelectorAll(".ct-chip").forEach(btn=>btn.addEventListener("click",()=>{ctState.filter=btn.dataset.key;ctRender();btn.scrollIntoView({behavior:"smooth",block:"nearest",inline:"center"});}));}
+
+function ctRenderGrid(){const grid=document.getElementById("ct-grid");const countEl=document.getElementById("ct-visible-count");if(ctState.loading){grid.innerHTML=Array.from({length:6}).map(()=>`<article class="ct-card is-skel"><div class="ct-swatch"></div><div class="ct-card-body"><div class="ct-skel ct-skel-bar" style="width:70%"></div><div class="ct-skel ct-skel-bar sm"></div><div class="ct-card-meta"><div class="ct-skel ct-skel-bar" style="width:40%"></div><div class="ct-skel ct-skel-bar" style="width:34%;height:28px;border-radius:999px"></div></div></div></article>`).join("");if(countEl)countEl.textContent="—";return;}if(ctState.error){grid.innerHTML=`<div class="ct-error"><h3>No pudimos cargar el catálogo</h3><p>Revisa tu conexión.</p></div>`;if(countEl)countEl.textContent="0";return;}const def=CT_MATERIALS.find(d=>d.key===ctState.filter)||CT_MATERIALS[0];const visible=ctState.products.filter(p=>def.match(p.material));if(countEl)countEl.textContent=visible.length+" referencias";if(!visible.length){grid.innerHTML=`<div class="ct-empty"><h3>SIN REFERENCIAS</h3><p>Pronto sumamos más colores en <b>${def.label}</b>.</p></div>`;return;}grid.innerHTML=visible.map(ctRenderCard).join("");grid.querySelectorAll(".ct-card-add").forEach(btn=>btn.addEventListener("click",()=>ctAddToCart(btn.dataset.id)));}
+
+function ctRenderCard(p){const col=ctResolveColor(p.color);const isBi=!!col.c2;const matBadge=ctDispMat(p.material);const imgPath=ctImageFor(p);const imgTag=imgPath?`<img class="ct-card-photo" src="${imgPath}" alt="${p.color}" loading="lazy" onload="this.classList.add('loaded');var sp=this.parentNode.querySelector('.ct-spool');if(sp)sp.style.opacity='0';" onerror="this.remove()">`:""  ;const soldOut=!p.available?`<div class="ct-sold-out"><span>Agotado</span></div>`:"";const cta=p.available?`<button class="ct-card-add" data-id="${p.id}"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Agregar</button>`:`<span class="ct-card-add is-disabled">Agotado</span>`;return `<article class="ct-card${!p.available?" is-unavailable":""}" data-id="${p.id}"><div class="ct-swatch"><span class="ct-badge"><span class="dot"></span>${matBadge}</span><div class="ct-spool"><div class="ct-coin${isBi?" bicolor":""}" style="--c1:${col.c1};${isBi?`--c2:${col.c2};`:""}"></div><div class="ct-hub-mark">${p.material==="pla-bicolor"?"BI":p.material.toUpperCase()}</div></div>${imgTag}${soldOut}</div><div class="ct-card-body"><h3 class="ct-card-name">${p.color}</h3><div class="ct-card-meta"><span class="ct-card-price">${ctFmt(p.price)}<span class="unit"> /kg</span></span>${cta}</div></div></article>`;}
+
+function ctAddToCart(id){const p=ctState.products.find(p=>p.id===id);if(!p)return;const ex=ctState.cart.get(id);if(ex)ex.qty++;else ctState.cart.set(id,{...p,qty:1});ctRenderCart();ctFlashAdd(id);ctToast(`${p.color} · agregado`);}
+function ctFlashAdd(id){const btn=document.querySelector(`.ct-card-add[data-id="${id}"]`);if(!btn)return;btn.classList.add("is-added");btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Listo`;setTimeout(()=>{btn.classList.remove("is-added");btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Agregar`;},1300);}
+function ctSetQty(id,d){const it=ctState.cart.get(id);if(!it)return;it.qty+=d;if(it.qty<=0)ctState.cart.delete(id);ctRenderCart();}
+function ctRemoveLine(id){ctState.cart.delete(id);ctRenderCart();}
+
+function ctRenderCart(){const count=[...ctState.cart.values()].reduce((s,it)=>s+it.qty,0);const total=[...ctState.cart.values()].reduce((s,it)=>s+it.qty*it.price,0);const cc=document.getElementById("ct-cart-count");cc.textContent=count;cc.classList.toggle("has-items",count>0);document.getElementById("ct-drawer-count").textContent=`${count} ${count===1?"ítem":"ítems"}`;document.getElementById("ct-drawer-total").innerHTML=`${ctFmt(total)} <small>COP</small>`;const body=document.getElementById("ct-drawer-body");const foot=document.getElementById("ct-drawer-foot");if(!ctState.cart.size){body.innerHTML=`<div class="ct-drawer-empty"><h3>CARRITO VACÍO</h3><p>Agrega filamentos para hacer tu pedido.</p></div>`;foot.hidden=true;return;}foot.hidden=false;body.innerHTML=[...ctState.cart.values()].map(it=>{const col=ctResolveColor(it.color);const isBi=!!col.c2;return `<div class="ct-line"><div class="ct-line-thumb"><div class="ct-coin${isBi?" bicolor":""}" style="--c1:${col.c1};${isBi?`--c2:${col.c2};`:""}width:36px;height:36px;"></div></div><div class="ct-line-info"><div class="mat">${ctDispMat(it.material)}</div><h4>${it.color}</h4><div class="price">${ctFmt(it.price)}/kg</div><button class="ct-line-remove" data-rm="${it.id}">Eliminar</button></div><div class="ct-qty"><button data-dec="${it.id}"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button><span class="n">${it.qty}</span><button data-inc="${it.id}"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button></div></div>`;}).join("");body.querySelectorAll("[data-inc]").forEach(b=>b.addEventListener("click",()=>ctSetQty(b.dataset.inc,+1)));body.querySelectorAll("[data-dec]").forEach(b=>b.addEventListener("click",()=>ctSetQty(b.dataset.dec,-1)));body.querySelectorAll("[data-rm]").forEach(b=>b.addEventListener("click",()=>ctRemoveLine(b.dataset.rm)));}
+
+const ctScrim=document.getElementById("ct-scrim");const ctDrawer=document.getElementById("ct-drawer");
+function ctOpenCart(){ctScrim.classList.add("is-open");ctDrawer.classList.add("is-open");document.body.style.overflow="hidden";}
+function ctCloseCart(){ctScrim.classList.remove("is-open");ctDrawer.classList.remove("is-open");document.body.style.overflow="";}
+document.getElementById("ct-open-cart").addEventListener("click",ctOpenCart);
+document.getElementById("ct-close-cart").addEventListener("click",ctCloseCart);
+ctScrim.addEventListener("click",ctCloseCart);
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){ctCloseCart();}});
+
+document.getElementById("ct-checkout").addEventListener("click",()=>{if(!ctState.cart.size)return;const lines=[...ctState.cart.values()].map((it,i)=>`${String.fromCharCode(97+i)}. ${ctDispMat(it.material)} ${it.color} — ${it.qty} kg`);const total=[...ctState.cart.values()].reduce((s,it)=>s+it.qty*it.price,0);const msg="Hola Kafetin! 🎨 Me interesa hacer este pedido:\n\n"+lines.join("\n")+`\n\nTotal estimado: ${ctFmt(total)} COP\n\n¿Está disponible?`;window.open(`https://wa.me/${CT_WA}?text=${encodeURIComponent(msg)}`,"_blank","noopener");});
+
+function ctToast(msg){const wrap=document.getElementById("ct-toast-wrap");const el=document.createElement("div");el.className="ct-toast";el.innerHTML=`<span class="check"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span><span>${msg}</span>`;wrap.appendChild(el);requestAnimationFrame(()=>el.classList.add("show"));setTimeout(()=>{el.classList.remove("show");setTimeout(()=>el.remove(),320);},1900);}
+
+function ctRender(){ctRenderFilters();ctRenderGrid();}
+
+/* ═══════════════════════════════════
+   CALCULADORA — GATE + LOGIC
+═══════════════════════════════════ */
+const CB_STORAGE_KEY = 'kafetin_calc_access';
+// ── Reemplaza con tu URL de Google Apps Script deployment ──
+const GAS_URL = 'https://script.google.com/macros/s/AKfycby3nvOaUJjV8DAwXVSk6dXaXEhJpMXW-jsavyAp4iqd8lQa7lRSIsqpEDtmMhjDJZUS/exec';
+const CB_PRINTER_W = 300;
+const CB_MACHINE_LIFE = 3*22*12*8;
+
+function cbShowWelcome(data){
+  const el=document.getElementById('cb-welcome');
+  if(el&&data&&data.nombre){el.textContent='Hola, '+data.nombre+' 👋';el.style.display='inline';}
+}
+
+function cbCheckGate(){
+  const stored=localStorage.getItem(CB_STORAGE_KEY);
+  if(stored){
+    let data=null;try{data=JSON.parse(stored);}catch(e){}
+    document.getElementById('calc-gate').style.display='none';
+    document.getElementById('calc-body').classList.remove('locked');
+    cbShowWelcome(data);
+    cbInitSliders();cbCalculate();
+  }else{
+    document.getElementById('calc-gate').style.display='flex';
+    document.getElementById('calc-body').classList.add('locked');
+  }
+}
+
+function cbUnlock(){
+  const gate=document.getElementById('calc-gate');
+  const body=document.getElementById('calc-body');
+  gate.classList.add('hidden');
+  body.classList.remove('locked');
+  setTimeout(()=>{gate.style.display='none';gate.classList.remove('hidden');},450);
+  let data=null;try{data=JSON.parse(localStorage.getItem(CB_STORAGE_KEY));}catch(e){}
+  cbShowWelcome(data);
+  cbInitSliders();cbCalculate();
+}
+
+function submitCalcGate(e){
+  e.preventDefault();
+  const btn=document.getElementById('btn-calc-gate');
+  const nombre=document.getElementById('cg-nombre').value.trim();
+  const empresa=document.getElementById('cg-empresa').value.trim();
+  const correo=document.getElementById('cg-correo').value.trim();
+  const telefono=document.getElementById('cg-telefono').value.trim();
+  const ciudad=document.getElementById('cg-ciudad').value.trim();
+  btn.disabled=true;btn.textContent='Accediendo…';
+  // Guardar localmente primero (el acceso no depende de la red)
+  const data={nombre,empresa,correo,telefono,ciudad,ts:Date.now()};
+  localStorage.setItem(CB_STORAGE_KEY,JSON.stringify(data));
+  // Enviar a Google Sheets (fire & forget — si falla, el usuario igual entra)
+  if(GAS_URL && GAS_URL !== 'PEGA_AQUI_TU_URL_GAS'){
+    const params=new URLSearchParams({nombre,empresa,correo,telefono,ciudad});
+    fetch(`${GAS_URL}?${params}`).catch(()=>{});
+  }
+  setTimeout(()=>cbUnlock(),350);
+}
+
+// Logout
+document.addEventListener('DOMContentLoaded',()=>{
+  const logoutBtn=document.getElementById('cb-logout-btn');
+  if(logoutBtn)logoutBtn.addEventListener('click',()=>{
+    localStorage.removeItem(CB_STORAGE_KEY);
+    document.getElementById('calc-gate').style.display='flex';
+    document.getElementById('calc-body').classList.add('locked');
+    document.getElementById('calc-gate-form').reset();
+    document.getElementById('btn-calc-gate').disabled=false;
+    document.getElementById('btn-calc-gate').textContent='Acceder a las Herramientas →';
+    const welEl=document.getElementById('cb-welcome');if(welEl){welEl.textContent='';welEl.style.display='none';}
+    window.scrollTo(0,0);
+  });
+});
+
+function cbSyncSlider(ch){const sl=document.getElementById('cb-slider-'+ch);const val=parseInt(sl.value);document.getElementById('cb-pct-'+ch).textContent=val;sl.style.setProperty('--pct',((val-10)/80*100).toFixed(1)+'%');cbCalculate();}
+function cbAdjustMargin(ch,delta){const sl=document.getElementById('cb-slider-'+ch);sl.value=Math.min(90,Math.max(10,parseInt(sl.value)+delta));cbSyncSlider(ch);}
+function cbInitSliders(){['b2c','volume'].forEach(ch=>cbSyncSlider(ch));}
+
+let cbExtraCount=0;
+function cbFmt(n){return '$'+Math.round(n).toLocaleString('es-CO');}
+function cbAddExtra(desc='',cost=''){cbExtraCount++;const id=cbExtraCount;const list=document.getElementById('cb-extras-list');const row=document.createElement('div');row.className='cb-extra-row';row.id='cb-extra-row-'+id;row.innerHTML=`<input class="cb-extra-desc" type="text" placeholder="Ej: Empaque, Accesorio…" value="${desc}" oninput="cbCalculate()"><div class="cb-extra-cost-wrap"><input type="number" min="0" placeholder="0" value="${cost}" oninput="cbCalculate()"><span class="unit">COP</span></div><button class="cb-btn-remove" onclick="cbRemoveExtra(${id})">×</button>`;list.appendChild(row);cbCalculate();}
+function cbRemoveExtra(id){const row=document.getElementById('cb-extra-row-'+id);if(row)row.remove();cbCalculate();}
+function cbGetExtras(){let t=0;document.querySelectorAll('#cb-extras-list .cb-extra-row').forEach(row=>{t+=parseFloat(row.querySelector('input[type="number"]').value)||0;});return t;}
+
+function cbCalculate(){
+  const w=parseFloat(document.getElementById('cb-weight').value)||0;
+  const t=parseFloat(document.getElementById('cb-time').value)||0;
+  const u=parseInt(document.getElementById('cb-units').value)||1;
+  const mc=parseFloat(document.getElementById('cb-matCost').value)||85000;
+  const kp=parseFloat(document.getElementById('cb-kwh').value)||800;
+  const mch=parseFloat(document.getElementById('cb-machineCost').value)||5000000;
+  const lh=parseFloat(document.getElementById('cb-laborHours').value)||0;
+  const lr=parseFloat(document.getElementById('cb-laborRate').value)||50000;
+  const costMat=(w/1000)*mc;const costEl=t*(CB_PRINTER_W/1000)*kp;
+  const deprecH=mch/CB_MACHINE_LIFE;const costDeprec=t*deprecH;
+  const laborHR=lr/8;const costLabor=lh*laborHR;
+  const costBase=costMat+costEl+costDeprec+costLabor;
+  const extras=cbGetExtras();const costPer=costBase+extras;const costTotal=costBase*u;
+  document.getElementById('cb-res-material').textContent=cbFmt(costMat*u);document.getElementById('cb-res-material-sub').textContent=`${w}g × ${u} ud. · ${cbFmt(costMat)}/ud`;
+  document.getElementById('cb-res-electric').textContent=cbFmt(costEl*u);document.getElementById('cb-res-electric-sub').textContent=`${t}h × ${CB_PRINTER_W}W · ${cbFmt(costEl)}/ud`;
+  document.getElementById('cb-res-deprec').textContent=cbFmt(costDeprec*u);document.getElementById('cb-res-deprec-sub').textContent=`${cbFmt(Math.round(deprecH))}/hr · ${cbFmt(costDeprec)}/ud`;
+  document.getElementById('cb-res-labor').textContent=cbFmt(costLabor*u);document.getElementById('cb-res-labor-sub').textContent=`${lh}h × ${cbFmt(Math.round(laborHR))}/hr · ${cbFmt(costLabor)}/ud`;
+  document.getElementById('cb-res-subtotal').textContent=cbFmt(costTotal);
+  document.getElementById('cb-res-units-show').textContent=u+' unidad'+(u!==1?'es':'');
+  document.getElementById('cb-res-per-unit').textContent=cbFmt(costPer);
+  document.getElementById('cb-extras-total').textContent=cbFmt(extras);
+  const rowExtras=document.getElementById('cb-row-extras');
+  if(extras>0){rowExtras.style.display='flex';document.getElementById('cb-res-extras-inline').textContent=cbFmt(extras);}else{rowExtras.style.display='none';}
+  const pB2C=parseInt(document.getElementById('cb-slider-b2c').value)/100;
+  const pVol=parseInt(document.getElementById('cb-slider-volume').value)/100;
+  document.getElementById('cb-price-b2c').textContent=costPer>0?cbFmt(costPer/(1-pB2C)):'—';
+  document.getElementById('cb-price-volume').textContent=costPer>0?cbFmt(costPer/(1-pVol)):'—';
+}
+
+function cbResetAll(){['cb-weight','cb-time','cb-units','cb-laborHours'].forEach((id,i)=>{document.getElementById(id).value=[50,2,1,0.5][i];});['cb-matCost','cb-kwh','cb-machineCost','cb-laborRate'].forEach((id,i)=>{document.getElementById(id).value=[85000,800,5000000,50000][i];});document.getElementById('cb-slider-b2c').value=70;document.getElementById('cb-slider-volume').value=47;document.getElementById('cb-extras-list').innerHTML='';cbExtraCount=0;cbInitSliders();cbCalculate();}
+
+function submitIdea(e){
+  e.preventDefault();
+  const btn=document.getElementById('mk-idea-btn');
+  const nombre=document.getElementById('idea-nombre').value.trim();
+  const correo=document.getElementById('idea-correo').value.trim();
+  const idea=document.getElementById('idea-texto').value.trim();
+  if(!idea)return;
+  btn.disabled=true;btn.textContent='Enviando…';
+  const params=new URLSearchParams({tipo:'idea',nombre,correo,idea});
+  fetch(`${GAS_URL}?${params}`)
+    .then(r=>r.json())
+    .catch(()=>({status:'ok'}))
+    .finally(()=>{
+      document.getElementById('mk-idea-form').reset();
+      btn.style.display='none';
+      document.getElementById('mk-idea-success').style.display='block';
+    });
+}
+
+// ── IMPORTANTE: Inicialización al final del script ──────────────────────────
+// Este bloque DEBE estar aquí abajo, después de todos los `const` (CT_GVIZ_URL,
+// CT_MATERIALS, ctState, etc.). Si se mueve arriba, los `const` caen en
+// "temporal dead zone" y el catálogo falla silenciosamente sin cargar nada.
+// Tab buttons
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchPage(btn.dataset.page));
+});
+
+// Hamburger
+document.getElementById('mn-ham').addEventListener('click', () => {
+  document.getElementById('mob-nav').classList.toggle('open');
+  document.getElementById('mn-ham').classList.toggle('open');
+});
+
+// Hash routing
+(function(){
+  const h = window.location.hash.slice(1);
+  if (PAGES.includes(h)) switchPage(h);
+  else { catalogReady = true; ctRender(); ctRenderCart(); ctLoadProducts(); }
+})();
+
+</script>
+</body>
+</html>

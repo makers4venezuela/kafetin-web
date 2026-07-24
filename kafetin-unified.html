@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kafetin — Manufactura Aditiva · Medellín</title>
+<meta name="description" content="Impresión 3D a demanda para empresas en Medellín. Portafolio, catálogo de filamentos y calculadora maker.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════
+   RESET + VARIABLES
+═══════════════════════════════════ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+:root{
+  --navy:#0F0F23;
+  --amber:#F7A519;
+  --sage:#586049;
+  --gray:#6B6263;
+  --cream:#F4F1E8;
+  --white:#FFFFFF;
+  --nav-h:80px;
+}
+body{font-family:"Barlow",sans-serif;color:var(--navy);overflow-x:hidden;background:var(--cream);}
+
+/* ═══════════════════════════════════
+   GLOBAL NAV
+═══════════════════════════════════ */
+#main-nav{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  height:var(--nav-h);
+  background:#fff;
+  background-image:url("./textura_Mesa de trabajo 1.jpg");
+  background-size:160%;background-position:0% 0%;
+  border-bottom:1px solid rgba(15,15,35,.10);
+  box-shadow:0 2px 24px rgba(15,15,35,.12);
+  display:flex;align-items:center;
+  padding:0 24px;gap:0;
+}
+.mn-logo{
+  flex-shrink:0;height:var(--nav-h);
+  display:flex;align-items:center;overflow:hidden;
+  text-decoration:none;
+}
+.mn-logo img{height:var(--nav-h);width:auto;transform:scale(1.85);transform-origin:center center;}
+.mn-tabs{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  gap:4px;list-style:none;
+}
+.mn-tabs li{display:flex;}
+.tab-btn{
+  background:none;border:none;cursor:pointer;
+  font-family:"Barlow",sans-serif;font-size:12px;font-weight:700;
+  letter-spacing:.09em;text-transform:uppercase;
+  color:rgba(15,15,35,.55);
+  padding:8px 16px;border-radius:2px;
+  transition:color .2s,background .2s;
+  white-space:nowrap;
+}
+.tab-btn:hover{color:var(--navy);}
+.tab-btn.active{background:var(--amber);color:var(--navy);}
+.mn-cta{
+  flex-shrink:0;
+  background:var(--amber);color:var(--navy);
+  font-family:"Barlow",sans-serif;font-size:12px;font-weight:700;
+  letter-spacing:.07em;text-transform:uppercase;
+  padding:9px 20px;border-radius:2px;text-decoration:none;
+  transition:background .2s;white-space:nowrap;
+  margin-left:16px;
+}
+.mn-cta:hover{background:var(--cream);}
+.mn-ham{
+  display:none;flex-direction:column;gap:5px;cursor:pointer;
+  padding:6px;margin-left:12px;background:none;border:none;
+}
+.mn-ham span{width:22px;height:2px;background:var(--navy);display:block;transition:all .3s;}
+.mn-ham.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.mn-ham.open span:nth-child(2){opacity:0;transform:scaleX(0);}
+.mn-ham.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+@media(max-width:800px){
+  .mn-tabs{display:none;}
+  .mn-ham{display:flex;}
+  .mn-cta{display:none;}
+}
+.mob-nav{
+  display:none;position:fixed;
+  top:var(--nav-h);left:0;right:0;
+  background:var(--cream);z-index:499;
+  padding:20px 24px;flex-direction:column;gap:12px;
+  border-bottom:1px solid rgba(15,15,35,.08);
+  box-shadow:0 8px 24px rgba(15,15,35,.1);
+}
+.mob-nav.open{display:flex;}
+.mob-nav .tab-btn{text-align:left;padding:12px 0;border-bottom:1px solid rgba(15,15,35,.06);border-radius:0;font-size:14px;}
+.mob-nav .tab-btn:last-child{border-bottom:none;}
+.mob-nav .mn-cta{margin-left:0;text-align:center;padding:14px;display:block;}
+
+/* ═══════════════════════════════════
+   PAGES
+═══════════════════════════════════ */
+.page{display:none;min-height:100vh;padding-top:var(--nav-h);}
+.page.active{display:block;}
+
+/* ═══════════════════════════════════
+   SHARED ANIMATIONS
+═══════════════════════════════════ */
+@keyframes textureDrift{
+  0%{background-position:0% 0%}25%{background-position:30% 20%}
+  50%{background-position:60% 40%}75%{background-position:30% 60%}100%{background-position:0% 0%}
+}
+@keyframes textureDriftReverse{
+  0%{background-position:60% 40%}50%{background-position:0% 0%}100%{background-position:60% 40%}
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* ═══════════════════════════════════
+   MOBILE GLOBAL
+═══════════════════════════════════ */
+@media(max-width:480px){
+  :root{--nav-h:64px;}
+  #main-nav{padding:0 12px;}
+  .mn-logo img{transform:scale(1.5);}
+  .tab-btn{font-size:11px;padding:10px 14px;}
+}
+@media(max-width:360px){
+  .mn-cta{display:none;}
+}
+/* Safe area for notched phones */
+@supports(padding-bottom:env(safe-area-inset-bottom)){
+  .mob-nav{padding-bottom:calc(20px + env(safe-area-inset-bottom));}
+}
+/* Touch target minimum */
+@media(max-width:800px){
+  .tab-btn,.mn-cta{min-height:44px;}
+  .mob-nav .tab-btn{min-height:48px;display:flex;align-items:center;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ MAIN NAV ═══ -->
+<nav id="main-nav">
+  <a href="#" class="mn-logo" onclick="switchPage('inicio');return false;">
+    <img src="./Logo final_Mesa sin fondo.png" alt="Kafetin">
+  </a>
+  <ul class="mn-tabs">
+    <li><button class="tab-btn active" data-page="inicio">Inicio</button></li>
+    <li><button class="tab-btn" data-page="portafolio">Portafolio</button></li>
+  </ul>
+  <button class="mn-ham" id="mn-ham" aria-label="Menú"><span></span><span></span><span></span></button>
+</nav>
+
+<nav class="mob-nav" id="mob-nav">
+  <button class="tab-btn active" data-page="inicio">Inicio</button>
+  <button class="tab-btn" data-page="portafolio">Portafolio</button>
+</nav>
+
+<style>
+/* ═══════════════════════════════════
+   INICIO SECTION
+═══════════════════════════════════ */
+#page-inicio{background:var(--cream);}
+
+/* hero */
+#page-inicio #hero{
+  min-height:100vh;background:var(--navy);
+  display:flex;flex-direction:column;justify-content:center;
+  position:relative;overflow:hidden;padding-top:0;
+}
+#page-inicio .hero-texture{
+  position:absolute;inset:0;
+  background-image:url("./textura_Mesa de trabajo 1.jpg");
+  background-size:160%;opacity:.09;pointer-events:none;
+  animation:textureDrift 28s ease-in-out infinite;
+}
+#page-inicio .hero-accent{position:absolute;top:0;left:0;right:0;height:3px;background:var(--amber);}
+#page-inicio .hero-content{position:relative;z-index:2;padding:80px 60px 60px;max-width:980px;}
+#page-inicio .hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(247,165,25,.15);border:1px solid rgba(247,165,25,.3);
+  color:var(--amber);font-size:12px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;padding:6px 16px;margin-bottom:32px;border-radius:2px;
+}
+#page-inicio .hero-title{
+  font-family:"Bebas Neue",sans-serif;
+  font-size:clamp(60px,10vw,136px);line-height:.90;
+  color:var(--cream);margin-bottom:36px;letter-spacing:.015em;
+}
+#page-inicio .hero-title em{font-style:normal;color:var(--amber);}
+#page-inicio .hero-sub{
+  font-size:clamp(16px,1.8vw,20px);font-weight:300;
+  color:rgba(244,241,232,.68);max-width:560px;line-height:1.65;margin-bottom:52px;
+}
+#page-inicio .hero-btns{display:flex;gap:14px;flex-wrap:wrap;}
+#page-inicio .hero-stats{
+  position:relative;z-index:2;
+  display:grid;grid-template-columns:repeat(4,1fr);
+  border-top:1px solid rgba(244,241,232,.10);margin-top:auto;
+}
+#page-inicio .stat{padding:28px 36px;border-right:1px solid rgba(244,241,232,.10);}
+#page-inicio .stat:last-child{border-right:none;}
+#page-inicio .stat-num{font-family:"Bebas Neue",sans-serif;font-size:44px;color:var(--amber);line-height:1;margin-bottom:4px;}
+#page-inicio .stat-num.stat-brand{font-size:22px;letter-spacing:.04em;line-height:1.2;}
+#page-inicio .stat-label{font-size:11px;font-weight:500;color:rgba(244,241,232,.45);letter-spacing:.12em;text-transform:uppercase;}
+
+/* btn */
+.btn{display:inline-flex;align-items:center;gap:9px;font-family:"Barlow",sans-serif;font-weight:700;font-size:14px;letter-spacing:.07em;text-transform:uppercase;padding:15px 30px;text-decoration:none;border-radius:2px;transition:all .2s;white-space:nowrap;background:transparent;border:none;cursor:pointer;}
+.btn-amber{background:var(--amber);color:var(--navy);}
+.btn-amber:hover{background:var(--white);}
+.btn-outline{border:1.5px solid rgba(244,241,232,.30);color:var(--cream);}
+.btn-outline:hover{border-color:var(--cream);background:rgba(244,241,232,.08);}
+.btn-navy{background:var(--navy);color:var(--cream);}
+.btn-navy:hover{background:rgba(15,15,35,.85);}
+
+/* sections shared */
+#page-inicio section{padding:100px 60px;}
+#page-inicio .s-tag{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--sage);margin-bottom:14px;}
+#page-inicio .s-title{font-family:"Bebas Neue",sans-serif;font-size:clamp(40px,5.5vw,72px);line-height:.94;color:var(--navy);margin-bottom:18px;}
+#page-inicio .s-sub{font-size:17px;font-weight:300;color:var(--gray);max-width:500px;line-height:1.65;margin-bottom:60px;}
+
+/* servicios */
+#page-inicio #servicios{background:var(--cream);}
+#page-inicio .services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:3px;}
+#page-inicio .svc-card{background:var(--white);padding:44px 36px;border-left:3px solid transparent;transition:border-color .25s,transform .25s,box-shadow .25s;}
+#page-inicio .svc-card:hover{border-left-color:var(--amber);transform:translateY(-6px);box-shadow:0 16px 40px rgba(15,15,35,.08);}
+#page-inicio .svc-icon{font-size:36px;display:block;margin-bottom:22px;}
+#page-inicio .svc-name{font-family:"Bebas Neue",sans-serif;font-size:26px;letter-spacing:.02em;color:var(--navy);margin-bottom:14px;}
+#page-inicio .svc-desc{font-size:14px;color:var(--gray);line-height:1.7;}
+
+/* filamentos teaser */
+#page-inicio #fil-teaser{background:var(--navy);position:relative;overflow:hidden;}
+#page-inicio #fil-teaser .s-tag{color:var(--amber);}
+#page-inicio #fil-teaser .s-title{color:var(--cream);}
+#page-inicio #fil-teaser .s-sub{color:rgba(244,241,232,.70);font-size:clamp(18px,2.2vw,26px);font-weight:300;max-width:640px;line-height:1.5;}
+#page-inicio .fil-texture{position:absolute;inset:0;background-image:url("./textura_Mesa de trabajo 1.jpg");background-size:160%;opacity:.06;pointer-events:none;animation:textureDriftReverse 32s ease-in-out infinite;}
+#page-inicio .fil-inner{position:relative;z-index:2;}
+#page-inicio .materials-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:52px;}
+#page-inicio .mat-card{border:1px solid rgba(244,241,232,.12);padding:28px 22px;transition:border-color .2s,background .2s;}
+#page-inicio .mat-card:hover{border-color:var(--amber);background:rgba(247,165,25,.05);}
+#page-inicio .mat-name{font-family:"Bebas Neue",sans-serif;font-size:32px;color:var(--amber);margin-bottom:10px;letter-spacing:.02em;}
+#page-inicio .mat-desc{font-size:13px;color:rgba(244,241,232,.50);line-height:1.6;margin-bottom:14px;}
+#page-inicio .mat-badge{display:inline-block;background:rgba(88,96,73,.5);color:rgba(244,241,232,.7);font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;padding:3px 9px;border-radius:2px;}
+#page-inicio .fil-cta{display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
+#page-inicio .fil-cta-note{font-size:13px;color:rgba(244,241,232,.35);letter-spacing:.04em;}
+#page-inicio .fil-header{display:flex;align-items:center;justify-content:space-between;gap:32px;margin-bottom:20px;}
+#page-inicio .fil-partner-logo{height:104px;width:auto;opacity:.90;flex-shrink:0;transition:opacity .2s;}
+#page-inicio .fil-partner-logo:hover{opacity:1;}
+@media(max-width:600px){
+  #page-inicio .fil-header{flex-direction:column;align-items:flex-start;gap:20px;}
+  #page-inicio .fil-partner-logo{height:72px;}
+}
+
+/* proceso */
+#page-inicio #proceso{background:var(--white);}
+#page-inicio .steps-row{display:grid;grid-template-columns:repeat(3,1fr);position:relative;margin-top:60px;}
+#page-inicio .steps-row::before{content:"";position:absolute;top:31px;left:calc(100%/6);right:calc(100%/6);height:2px;background:linear-gradient(90deg,var(--amber),rgba(247,165,25,.3));z-index:0;}
+#page-inicio .step{text-align:center;padding:0 32px;position:relative;z-index:1;}
+#page-inicio .step-num{width:64px;height:64px;background:var(--navy);color:var(--amber);font-family:"Bebas Neue",sans-serif;font-size:26px;display:flex;align-items:center;justify-content:center;margin:0 auto 28px;border-radius:2px;}
+#page-inicio .step-title{font-family:"Bebas Neue",sans-serif;font-size:24px;color:var(--navy);letter-spacing:.03em;margin-bottom:12px;}
+#page-inicio .step-desc{font-size:14px;color:var(--gray);line-height:1.7;}
+
+/* diferencial */
+#page-inicio #diferencial{background:var(--navy);display:flex;align-items:flex-start;gap:80px;position:relative;overflow:hidden;}
+#page-inicio #diferencial::before{content:"";position:absolute;inset:0;background-image:url("./textura-02 (1).jpg");background-size:cover;opacity:.04;}
+#page-inicio .dif-left{min-width:260px;position:relative;z-index:2;flex-shrink:0;}
+#page-inicio .dif-heading{font-family:"Bebas Neue",sans-serif;font-size:clamp(44px,6vw,86px);line-height:.92;color:var(--cream);}
+#page-inicio .dif-heading em{font-style:normal;color:var(--amber);}
+#page-inicio .dif-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;position:relative;z-index:2;}
+#page-inicio .dif-item{display:flex;gap:14px;align-items:flex-start;}
+#page-inicio .dif-arrow{color:var(--amber);font-size:18px;line-height:1.4;flex-shrink:0;font-weight:700;}
+#page-inicio .dif-item strong{display:block;font-size:15px;font-weight:700;color:var(--cream);margin-bottom:5px;}
+#page-inicio .dif-item p{font-size:13px;color:rgba(244,241,232,.45);line-height:1.6;}
+
+/* contacto */
+#page-inicio #contacto{background:var(--cream);text-align:center;position:relative;}
+#page-inicio #contacto::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:var(--amber);}
+#page-inicio .cta-title{font-family:"Bebas Neue",sans-serif;font-size:clamp(48px,8vw,110px);line-height:.88;color:var(--navy);margin-bottom:24px;}
+#page-inicio .cta-title em{font-style:normal;color:var(--amber);}
+#page-inicio .cta-sub{font-size:18px;font-weight:300;color:var(--gray);max-width:440px;margin:0 auto 48px;line-height:1.65;}
+#page-inicio .cta-loc{margin-top:36px;font-size:13px;color:var(--gray);letter-spacing:.09em;text-transform:uppercase;}
+
+/* makers cta */
+#page-inicio #makers-cta{
+  background:var(--amber);
+  position:relative;overflow:hidden;
+  padding:80px 60px;
+}
+#page-inicio .mk-texture{
+  position:absolute;inset:0;
+  background-image:url("./textura_Mesa de trabajo 1.jpg");
+  background-size:160%;opacity:.08;pointer-events:none;
+  animation:textureDrift 36s ease-in-out infinite;
+}
+#page-inicio .mk-inner{position:relative;z-index:2;max-width:700px;}
+#page-inicio .mk-eyebrow{
+  font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  color:rgba(15,15,35,.55);margin-bottom:14px;
+}
+#page-inicio .mk-title{
+  font-family:"Bebas Neue",sans-serif;
+  font-size:clamp(64px,10vw,120px);line-height:.88;
+  color:var(--navy);margin-bottom:20px;
+}
+#page-inicio .mk-title em{font-style:normal;color:#fff;}
+#page-inicio .mk-sub{
+  font-size:16px;font-weight:400;color:rgba(15,15,35,.75);
+  max-width:560px;line-height:1.7;margin-bottom:32px;
+}
+#page-inicio .mk-features{
+  list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:40px;
+}
+#page-inicio .mk-features li{
+  display:flex;align-items:center;gap:10px;
+  font-size:14px;font-weight:600;color:rgba(15,15,35,.8);
+}
+#page-inicio .mk-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--navy);flex-shrink:0;
+}
+#page-inicio .mk-btn{
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--navy);color:var(--cream);
+  font-family:"Barlow",sans-serif;font-size:14px;font-weight:700;
+  letter-spacing:.07em;text-transform:uppercase;
+  padding:16px 32px;border-radius:2px;text-decoration:none;
+  transition:background .2s,transform .2s;
+}
+#page-inicio .mk-btn:hover{background:rgba(15,15,35,.8);transform:translateY(-2px);}
+@media(max-width:900px){
+  #page-inicio #makers-cta{padding:64px 20px;}
+}
+@media(max-width:480px){
+  #page-inicio #makers-cta{padding:48px 16px;}
+  #page-inicio .mk-btn{width:100%;justify-content:center;}
+}
+
+/* redes */
+#page-inicio #redes{background:var(--navy);text-align:center;position:relative;overflow:hidden;}
+#page-inicio #redes::before{content:"";position:absolute;inset:0;background-image:url("./textura_Mesa de trabajo 1.jpg");background-size:160%;opacity:.05;pointer-events:none;}
+#page-inicio .redes-inner{position:relative;z-index:2;}
+#page-inicio #redes .s-tag{color:var(--amber);}
+#page-inicio #redes .s-title{color:var(--cream);margin-bottom:12px;}
+#page-inicio #redes .s-sub{color:rgba(244,241,232,.50);margin:0 auto 56px;text-align:center;}
+#page-inicio .social-cards{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+#page-inicio .social-card{display:flex;flex-direction:column;align-items:center;gap:14px;border:1px solid rgba(244,241,232,.12);padding:36px 40px;min-width:200px;text-decoration:none;transition:border-color .2s,background .2s,transform .2s;}
+#page-inicio .social-card:hover{border-color:var(--amber);background:rgba(247,165,25,.05);transform:translateY(-4px);}
+#page-inicio .social-icon{width:52px;height:52px;display:flex;align-items:center;justify-content:center;}
+#page-inicio .social-icon svg{width:48px;height:48px;}
+#page-inicio .social-name{font-family:"Bebas Neue",sans-serif;font-size:22px;color:var(--amber);letter-spacing:.04em;}
+#page-inicio .social-handle{font-size:13px;color:rgba(244,241,232,.40);letter-spacing:.04em;}
+
+/* footer */
+#page-inicio footer{background:var(--navy);padding:52px 60px 28px;}
+#page-inicio .footer-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:36px;margin-bottom:40px;}
+#page-inicio .footer-logo-wrap img{height:52px;display:block;}
+#page-inicio .footer-tagline{font-size:13px;color:rgba(244,241,232,.35);margin-top:14px;max-width:220px;line-height:1.6;}
+#page-inicio .footer-nav{display:flex;flex-direction:column;gap:12px;}
+#page-inicio .footer-nav a,#page-inicio .footer-contact a{font-size:13px;font-weight:600;color:rgba(244,241,232,.45);text-decoration:none;transition:color .2s;}
+#page-inicio .footer-nav a:hover,#page-inicio .footer-contact a:hover{color:var(--amber);}
+#page-inicio .footer-contact{display:flex;flex-direction:column;gap:10px;}
+#page-inicio .footer-bottom{border-top:1px solid rgba(244,241,232,.09);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+#page-inicio .footer-copy{font-size:12px;color:rgba(244,241,232,.25);letter-spacing:.04em;}
+#page-inicio .footer-social{display:flex;gap:24px;}
+#page-inicio .footer-social a{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(244,241,232,.3);text-decoration:none;transition:color .2s;}
+#page-inicio .footer-social a:hover{color:var(--amber);}
+
+/* scroll fade */
+.fade{opacity:0;transform:translateY(28px);transition:opacity .65s ease,transform .65s ease;}
+.fade.in{opacity:1;transform:none;}
+.fade-d1{transition-delay:.10s}.fade-d2{transition-delay:.20s}.fade-d3{transition-delay:.30s}.fade-d4{transition-delay:.40s}
+
+/* responsive inicio */
+@media(max-width:900px){
+  #page-inicio section{padding:64px 20px;}
+  #page-inicio .hero-content{padding:44px 20px 32px;}
+  #page-inicio .hero-btns{flex-direction:column;gap:12px;}
+  #page-inicio .hero-btns .btn{width:100%;justify-content:center;text-align:center;}
+  #page-inicio .hero-stats{grid-template-columns:repeat(2,1fr);}
+  #page-inicio .stat{border-right:1px solid rgba(244,241,232,.10);border-bottom:1px solid rgba(244,241,232,.10);padding:20px;}
+  #page-inicio .stat:nth-child(2){border-right:none;}
+  #page-inicio .stat:nth-child(3){border-bottom:none;}
+  #page-inicio .stat:nth-child(4){border-right:none;border-bottom:none;}
+  #page-inicio .stat-num{font-size:36px;}
+  #page-inicio .steps-row{grid-template-columns:1fr;gap:32px;}
+  #page-inicio .steps-row::before{display:none;}
+  #page-inicio .step{text-align:left;display:flex;gap:16px;align-items:flex-start;}
+  #page-inicio .step-num{flex-shrink:0;margin:0;width:52px;height:52px;font-size:22px;}
+  #page-inicio #diferencial{flex-direction:column;gap:40px;padding:64px 20px;}
+  #page-inicio .dif-grid{grid-template-columns:1fr;gap:20px;}
+  #page-inicio .social-cards{flex-direction:column;align-items:stretch;}
+  #page-inicio .social-card{min-width:unset;width:100%;flex-direction:row;justify-content:flex-start;gap:20px;padding:24px 20px;}
+  #page-inicio footer{padding:48px 20px 28px;}
+  #page-inicio .footer-top{flex-direction:column;gap:28px;}
+  #page-inicio .footer-contact{flex-direction:row;flex-wrap:wrap;gap:16px;}
+}
+@media(max-width:480px){
+  #page-inicio #servicios{padding:48px 16px;}
+  #page-inicio .services-grid{gap:2px;}
+  #page-inicio .svc-card{padding:32px 24px;}
+  #page-inicio #fil-teaser{padding:48px 16px;}
+  #page-inicio .materials-grid{grid-template-columns:1fr 1fr;gap:8px;}
+  #page-inicio .mat-card{padding:20px 16px;}
+  #page-inicio #contacto{padding:64px 16px;}
+  #page-inicio .cta-title{font-size:clamp(40px,11vw,72px);}
+  #page-inicio #contacto .btn{width:100%;justify-content:center;}
+  #page-inicio #redes .social-card{padding:18px 14px;gap:14px;}
+  #page-inicio #redes .social-icon svg{width:36px;height:36px;}
+}
+</style>
+
+<!-- ═══ SECTION: INICIO ═══ -->
+<div id="page-inicio" class="page active">
+
+<section id="hero">
+  <div class="hero-accent"></div>
+  <div class="hero-texture"></div>
+  <div class="hero-content">
+    <span class="hero-badge">📍 Medellín, Colombia</span>
+    <h1 class="hero-title">MANUFACTURA<br>ADITIVA <em>PARA</em><br>EMPRESAS</h1>
+    <p class="hero-sub">Convertimos tus ideas en productos físicos con rapidez, precisión y costos optimizados. Prototipos, lotes pequeños y más — sin moldes, sin mínimos.</p>
+    <div class="hero-btns">
+      <a href="https://wa.me/573155425240?text=Hola%20Kafetin%2C%20quiero%20cotizar%20un%20proyecto" class="btn btn-amber" target="_blank">💬 Cotizar proyecto</a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">+50</div><div class="stat-label">Proyectos 2026</div></div>
+    <div class="stat"><div class="stat-num stat-brand">BAMBU<br>LAB</div><div class="stat-label">Tecnología última generación</div></div>
+    <div class="stat"><div class="stat-num">2–5</div><div class="stat-label">Días de entrega</div></div>
+    <div class="stat"><div class="stat-num">0</div><div class="stat-label">Mínimos de cantidad</div></div>
+  </div>
+</section>
+
+<section id="servicios">
+  <div class="fade"><p class="s-tag">Servicios B2B</p><h2 class="s-title">LO QUE<br>HACEMOS</h2><p class="s-sub">Manufactura aditiva aplicada a problemas reales de empresa. No solo impresión — criterio técnico y visión de negocio.</p></div>
+  <div class="services-grid">
+    <div class="svc-card fade fade-d1"><span class="svc-icon">⚡</span><div class="svc-name">Prototipado Rápido</div><p class="svc-desc">Del archivo al prototipo funcional en días. Iteraciones rápidas para validar diseños antes de invertir en moldes o producción masiva.</p></div>
+    <div class="svc-card fade fade-d2"><span class="svc-icon">📦</span><div class="svc-name">Lotes Pequeños</div><p class="svc-desc">Producción bajo demanda sin mínimos de cantidad. Ideal para lanzamientos, pruebas de mercado y proyectos con volúmenes variables.</p></div>
+    <div class="svc-card fade fade-d3"><span class="svc-icon">✏️</span><div class="svc-name">Diseño y CAD</div><p class="svc-desc">Diseño y optimización de piezas para impresión 3D. Rediseño para reducir material, mejorar resistencia o adaptar tolerancias.</p></div>
+    <div class="svc-card fade fade-d4"><span class="svc-icon">🔧</span><div class="svc-name">Asesoría Técnica</div><p class="svc-desc">Acompañamiento en decisiones de material, proceso y geometría. Para empresas que quieren integrar manufactura aditiva en su operación.</p></div>
+  </div>
+</section>
+
+<section id="fil-teaser">
+  <div class="fil-texture"></div>
+  <div class="fil-inner">
+    <div class="fade">
+      <div class="fil-header">
+        <h2 class="s-title">MATERIALES<br>DE CALIDAD</h2>
+        <img src="./4DVRC.png" alt="4DVRC" class="fil-partner-logo">
+      </div>
+      <p class="s-sub">Imprimimos con el material correcto para tu aplicación.</p>
+    </div>
+    <div class="materials-grid">
+      <div class="mat-card fade fade-d1"><div class="mat-name">PLA</div><p class="mat-desc">El más versátil. Fácil de imprimir, acabado limpio, amplia paleta de colores.</p><span class="mat-badge">+20 colores</span></div>
+      <div class="mat-card fade fade-d1"><div class="mat-name">PETG</div><p class="mat-desc">Mayor resistencia al calor e impacto. Ideal para piezas funcionales y estructurales.</p><span class="mat-badge">Resistente</span></div>
+      <div class="mat-card fade fade-d2"><div class="mat-name">TPU</div><p class="mat-desc">Flexible y elástico. Para protecciones, sellos, empaques y piezas con absorción de impacto.</p><span class="mat-badge">Flexible</span></div>
+      <div class="mat-card fade fade-d2"><div class="mat-name">ABS</div><p class="mat-desc">Alta resistencia mecánica y térmica. Para piezas técnicas en condiciones exigentes.</p><span class="mat-badge">Industrial</span></div>
+      <div class="mat-card fade fade-d3"><div class="mat-name">BICOLOR</div><p class="mat-desc">Filamentos de dos colores con transición gradual. Piezas con carácter visual único.</p><span class="mat-badge">Especial</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="proceso">
+  <div class="fade"><p class="s-tag">Proceso</p><h2 class="s-title">ASÍ DE<br>SIMPLE</h2></div>
+  <div class="steps-row">
+    <div class="step fade fade-d1"><div class="step-num">01</div><div><div class="step-title">Cuéntanos</div><p class="step-desc">Envíanos tu archivo, idea o descripción por WhatsApp. Te respondemos con una cotización el mismo día.</p></div></div>
+    <div class="step fade fade-d2"><div class="step-num">02</div><div><div class="step-title">Producimos</div><p class="step-desc">Imprimimos con el material correcto para tu aplicación. Control de calidad pieza por pieza antes de empacar.</p></div></div>
+    <div class="step fade fade-d3"><div class="step-num">03</div><div><div class="step-title">Entregamos</div><p class="step-desc">Envío a toda Colombia o recogida en Medellín. Normalmente en 2–5 días hábiles desde la aprobación.</p></div></div>
+  </div>
+</section>
+
+<section id="diferencial">
+  <div class="dif-left"><div class="dif-heading fade">POR QUÉ<br><em>KAFETIN</em></div></div>
+  <div class="dif-grid">
+    <div class="dif-item fade fade-d1"><span class="dif-arrow">→</span><div><strong>Sin mínimos de cantidad</strong><p>Una pieza o mil — el mismo compromiso de calidad en cada pedido.</p></div></div>
+    <div class="dif-item fade fade-d1"><span class="dif-arrow">→</span><div><strong>Entrega en días, no semanas</strong><p>Procesos ágiles diseñados para equipos que iteran rápido y necesitan resultados ya.</p></div></div>
+    <div class="dif-item fade fade-d2"><span class="dif-arrow">→</span><div><strong>Criterio técnico incluido</strong><p>No solo imprimimos — asesoramos sobre material, geometría y proceso desde el inicio.</p></div></div>
+    <div class="dif-item fade fade-d2"><span class="dif-arrow">→</span><div><strong>Sin moldes, sin riesgo</strong><p>Valida antes de comprometer presupuesto en producción masiva o inyección.</p></div></div>
+  </div>
+</section>
+
+<section id="contacto">
+  <div class="fade">
+    <h2 class="cta-title">¿TIENES UN<br><em>PROYECTO?</em></h2>
+    <p class="cta-sub">Cuéntanos qué necesitas. Te respondemos con una cotización el mismo día.</p>
+    <a href="https://wa.me/573155425240?text=Hola%20Kafetin%2C%20quiero%20cotizar%20un%20proyecto" class="btn btn-amber" target="_blank">💬 Escribir por WhatsApp</a>
+    <p class="cta-loc">📍 Medellín, Antioquia · kafetin.co</p>
+  </div>
+</section>
+
+<section id="makers-cta">
+  <div class="mk-texture"></div>
+  <div class="mk-inner fade">
+    <div class="mk-eyebrow">Zona Maker</div>
+    <h2 class="mk-title">¿ERES<br><em>MAKER?</em></h2>
+    <p class="mk-sub">Aquí puedes encontrar nuestro inventario de filamentos y repuestos, así como herramientas para potenciar tu emprendimiento.</p>
+    <a href="kafetin-makers.html" class="mk-btn">Ir a la zona maker →</a>
+  </div>
+</section>
+
+<section id="redes">
+  <div class="redes-inner">
+    <div class="fade"><p class="s-tag">Contáctanos</p><h2 class="s-title">ENCUÉNTRANOS<br>AQUÍ</h2><p class="s-sub">Escríbenos directamente o síguenos en redes.<br>Respondemos rápido.</p></div>
+    <div class="social-cards fade">
+      <a href="https://wa.me/573155425240?text=Hola%20Kafetin%2C%20quiero%20cotizar%20un%20proyecto" class="social-card" target="_blank">
+        <span class="social-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+        </span>
+        <span class="social-name">WhatsApp</span>
+        <span class="social-handle">+57 315 542 5240</span>
+      </a>
+      <a href="https://www.instagram.com/kafetin.co/" class="social-card" target="_blank">
+        <span class="social-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><defs><linearGradient id="ig-g" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f09433"/><stop offset="25%" stop-color="#e6683c"/><stop offset="50%" stop-color="#dc2743"/><stop offset="75%" stop-color="#cc2366"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs><path fill="url(#ig-g)" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        </span>
+        <span class="social-name">Instagram</span>
+        <span class="social-handle">@kafetin.co</span>
+      </a>
+      <a href="https://www.linkedin.com/company/kafetin" class="social-card" target="_blank">
+        <span class="social-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </span>
+        <span class="social-name">LinkedIn</span>
+        <span class="social-handle">Kafetin</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-logo-wrap"><img src="./Isotipo_Mesa de trabajo 1 sin fondo.png" alt="Kafetin"></div>
+      <p class="footer-tagline">Manufactura aditiva para empresas.<br>Medellín, Colombia.</p>
+    </div>
+    <nav class="footer-nav">
+      <a href="#" onclick="switchPage('inicio');return false;">Inicio</a>
+      <a href="#" onclick="switchPage('portafolio');return false;">Portafolio</a>
+      <a href="kafetin-makers.html">Catálogo</a>
+      <a href="kafetin-makers.html#calculadora">Calculadora</a>
+    </nav>
+    <div class="footer-contact">
+      <a href="https://wa.me/573155425240" target="_blank">WhatsApp →</a>
+      <a href="https://www.instagram.com/kafetin.co/" target="_blank">Instagram →</a>
+      <a href="https://www.linkedin.com/company/kafetin" target="_blank">LinkedIn →</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p class="footer-copy">© 2026 Kafetin.co · Todos los derechos reservados</p>
+    <div class="footer-social">
+      <a href="https://www.instagram.com/kafetin.co/" target="_blank">IG</a>
+      <a href="https://wa.me/573155425240" target="_blank">WA</a>
+      <a href="https://www.linkedin.com/company/kafetin" target="_blank">LI</a>
+    </div>
+  </div>
+</footer>
+
+</div><!-- /page-inicio -->
+
+<style>
+/* ═══════════════════════════════════
+   PORTAFOLIO SECTION
+═══════════════════════════════════ */
+#page-portafolio{background:#0A1628;color:#fff;}
+
+#page-portafolio .pf-hero{
+  position:relative;min-height:90vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;overflow:hidden;
+}
+#page-portafolio .pf-hero-bg{position:absolute;inset:0;overflow:hidden;}
+#page-portafolio .pf-hero-bg video{width:100%;height:100%;object-fit:cover;opacity:0.65;}
+#page-portafolio .pf-hero-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(10,22,40,.15) 0%,rgba(10,22,40,.55) 55%,#0A1628 100%);
+}
+#page-portafolio .pf-hero-content{position:relative;z-index:1;text-align:center;padding:0 24px;animation:fadeUp .9s ease both;}
+#page-portafolio .pf-hero-logo{
+  position:absolute;top:24px;left:50%;transform:translateX(-50%);
+  height:300px;z-index:2;filter:drop-shadow(0 4px 24px rgba(0,0,0,.6));
+}
+#page-portafolio .pf-title{font-size:clamp(2rem,5.5vw,4rem);font-weight:900;letter-spacing:-.025em;line-height:1.08;}
+#page-portafolio .pf-title em{font-style:normal;color:#F7A519;}
+#page-portafolio .pf-sub{margin-top:18px;font-size:1.05rem;color:#E8E0D0;opacity:.72;letter-spacing:.04em;}
+#page-portafolio .pf-pills{margin-top:28px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;animation:fadeUp .9s .25s ease both;}
+#page-portafolio .pf-pill{display:flex;align-items:center;gap:7px;padding:8px 18px;border-radius:50px;font-size:.82rem;font-weight:700;letter-spacing:.03em;backdrop-filter:blur(8px);}
+#page-portafolio .pf-pill.highlight{background:rgba(247,165,25,.15);border:1px solid rgba(247,165,25,.4);color:#F7A519;}
+#page-portafolio .pf-pill.subtle{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#E8E0D0;}
+#page-portafolio .pf-pill .dot-icon{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;}
+#page-portafolio .pf-mats{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;animation:fadeUp .9s .35s ease both;}
+#page-portafolio .pf-mat-tag{font-size:.7rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:4px 13px;border-radius:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#E8E0D0;opacity:.75;}
+#page-portafolio .pf-hero-line{position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#F7A519,transparent);opacity:.4;}
+#page-portafolio .pf-scroll-hint{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);z-index:1;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:#E8E0D0;opacity:.45;}
+#page-portafolio .pf-scroll-bar{width:1px;height:32px;background:#F7A519;animation:scrollBar 1.8s ease-in-out infinite;}
+@keyframes scrollBar{0%,100%{height:16px;opacity:.3}50%{height:36px;opacity:.9}}
+
+#page-portafolio .pf-intro-bar{background:#F7A519;color:#0A1628;text-align:center;padding:18px 24px;font-size:1rem;font-weight:800;letter-spacing:.02em;line-height:1.4;}
+
+#page-portafolio .pf-filter-wrap{padding:0 40px;max-width:1300px;margin:56px auto 0;}
+#page-portafolio .pf-filter-bar{display:flex;gap:10px;flex-wrap:wrap;}
+#page-portafolio .pf-filter-btn{padding:8px 20px;border-radius:50px;border:1px solid rgba(255,255,255,.15);background:transparent;color:#E8E0D0;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .2s;letter-spacing:.04em;}
+#page-portafolio .pf-filter-btn:hover{border-color:#F7A519;color:#F7A519;}
+#page-portafolio .pf-filter-btn.active{background:#F7A519;border-color:#F7A519;color:#0A1628;}
+
+#page-portafolio .pf-projects{padding:40px 40px 100px;max-width:1300px;margin:0 auto;}
+#page-portafolio .pf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:32px;}
+
+#page-portafolio .pf-card{
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:18px;overflow:hidden;
+  transition:transform .35s ease,box-shadow .35s ease,border-color .35s ease;
+  opacity:0;transform:translateY(36px);cursor:default;
+}
+#page-portafolio .pf-card.visible{opacity:1;transform:translateY(0);}
+#page-portafolio .pf-card:hover{transform:translateY(-7px);box-shadow:0 24px 64px rgba(0,0,0,.45),0 0 0 1px #F7A519;border-color:#F7A519;}
+#page-portafolio .pf-card.hidden{display:none;}
+
+#page-portafolio .pf-card-photo{position:relative;aspect-ratio:4/3;overflow:hidden;background:#0F2040;}
+#page-portafolio .pf-card-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .55s ease;}
+#page-portafolio .pf-card-photo img.active{opacity:1;}
+#page-portafolio .pf-card:hover .pf-card-photo img.active{transform:scale(1.04);transition:opacity .55s ease,transform .55s ease;}
+
+#page-portafolio .pf-dots{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:3;}
+#page-portafolio .pf-dot{height:6px;width:6px;border-radius:3px;background:rgba(255,255,255,.4);cursor:pointer;transition:background .2s,width .25s;}
+#page-portafolio .pf-dot.active{background:#F7A519;width:18px;}
+
+#page-portafolio .pf-arr{position:absolute;top:50%;transform:translateY(-50%);z-index:3;background:rgba(10,22,40,.65);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.12);color:white;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;}
+#page-portafolio .pf-card-photo:hover .pf-arr{opacity:1;}
+#page-portafolio .pf-arr.prev{left:10px;} #page-portafolio .pf-arr.next{right:10px;}
+#page-portafolio .pf-arr:hover{background:#F7A519;color:#0A1628;}
+
+#page-portafolio .pf-photo-count{position:absolute;top:12px;right:12px;background:rgba(10,22,40,.7);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.15);color:#E8E0D0;font-size:.68rem;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.06em;z-index:3;}
+
+#page-portafolio .pf-card-body{padding:20px 22px 24px;}
+#page-portafolio .pf-card-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+#page-portafolio .pf-tag{font-size:.63rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;padding:3px 10px;border-radius:20px;}
+#page-portafolio .pf-tag.primary{background:rgba(247,165,25,.15);color:#F7A519;border:1px solid rgba(247,165,25,.35);}
+#page-portafolio .pf-tag.secondary{background:rgba(255,255,255,.06);color:#E8E0D0;border:1px solid rgba(255,255,255,.12);}
+#page-portafolio .pf-card-client{font-size:1.15rem;font-weight:800;margin-bottom:7px;color:#fff;line-height:1.2;}
+#page-portafolio .pf-card-desc{font-size:.875rem;color:#E8E0D0;opacity:.72;line-height:1.6;}
+
+#page-portafolio .pf-cta{background:linear-gradient(180deg,#132040 0%,#0A1628 100%);border-top:1px solid rgba(247,165,25,.18);padding:96px 40px 72px;text-align:center;position:relative;overflow:hidden;}
+#page-portafolio .pf-cta-bg{position:absolute;inset:0;background:url("textura_Mesa de trabajo 1.jpg") center/cover no-repeat;opacity:.06;}
+#page-portafolio .pf-cta-inner{position:relative;z-index:1;}
+#page-portafolio .pf-cta-iso{height:200px;margin-bottom:28px;opacity:.85;animation:float 4s ease-in-out infinite;}
+#page-portafolio .pf-cta-title{font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:900;margin-bottom:14px;}
+#page-portafolio .pf-cta-title em{font-style:normal;color:#F7A519;}
+#page-portafolio .pf-cta-sub{color:#E8E0D0;opacity:.65;margin-bottom:36px;font-size:1rem;line-height:1.6;max-width:480px;margin-left:auto;margin-right:auto;}
+#page-portafolio .pf-cta-btn{display:inline-flex;align-items:center;gap:10px;background:#F7A519;color:#0A1628;font-weight:900;font-size:1rem;padding:17px 40px;border-radius:50px;text-decoration:none;letter-spacing:.01em;transition:transform .22s,box-shadow .22s;}
+#page-portafolio .pf-cta-btn:hover{transform:scale(1.05);box-shadow:0 10px 40px rgba(247,165,25,.45);}
+#page-portafolio .pf-foot-note{margin-top:52px;font-size:.75rem;color:#8A8A9A;letter-spacing:.08em;}
+
+@media(max-width:960px){#page-portafolio .pf-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){
+  #page-portafolio .pf-hero{min-height:100svh;}
+  #page-portafolio .pf-hero-logo{height:min(120px,35vw);top:10px;}
+  #page-portafolio .pf-hero-content{padding:0 16px;}
+  #page-portafolio .pf-title{font-size:clamp(1.5rem,7vw,2.8rem);}
+  #page-portafolio .pf-sub{font-size:.88rem;}
+  #page-portafolio .pf-pills{gap:6px;}
+  #page-portafolio .pf-pill{font-size:.74rem;padding:6px 12px;}
+  #page-portafolio .pf-filter-wrap{padding:0;margin-top:28px;}
+  #page-portafolio .pf-filter-bar{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0 12px 10px;gap:6px;scrollbar-width:none;}
+  #page-portafolio .pf-filter-bar::-webkit-scrollbar{display:none;}
+  #page-portafolio .pf-projects{padding:20px 10px 56px;}
+  #page-portafolio .pf-grid{grid-template-columns:1fr;gap:14px;margin-top:16px;}
+  #page-portafolio .pf-arr{opacity:1!important;width:40px;height:40px;font-size:20px;}
+  #page-portafolio .pf-cta{padding:56px 20px 48px;}
+  #page-portafolio .pf-cta-btn{width:100%;justify-content:center;}
+  #page-portafolio .pf-intro-bar{font-size:.85rem;padding:14px 16px;}
+}
+</style>
+
+<!-- ═══ SECTION: PORTAFOLIO ═══ -->
+<div id="page-portafolio" class="page">
+
+<section class="pf-hero">
+  <div class="pf-hero-bg">
+    <video autoplay muted loop playsinline preload="auto">
+      <source src="automatizacion-web.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="pf-hero-overlay"></div>
+  <img src="Logo final_Mesa sin fondo.png" alt="KAFETIN" class="pf-hero-logo">
+  <div class="pf-hero-content">
+    <h1 class="pf-title">De la idea a la pieza.<br><em>Sin moldes. Sin mínimos.</em></h1>
+    <p class="pf-sub">Impresión 3D a demanda &nbsp;·&nbsp; Medellín, Colombia</p>
+    <div class="pf-pills">
+      <div class="pf-pill highlight"><span class="dot-icon"></span>Entrega en menos de 5 días</div>
+      <div class="pf-pill highlight"><span class="dot-icon"></span>0 mínimo de unidades</div>
+      <div class="pf-pill subtle"><span class="dot-icon"></span>Consultoría técnica incluida</div>
+    </div>
+    <div class="pf-mats">
+      <span class="pf-mat-tag">PLA</span><span class="pf-mat-tag">PETG</span>
+      <span class="pf-mat-tag">ABS</span><span class="pf-mat-tag">TPU</span>
+    </div>
+  </div>
+  <div class="pf-scroll-hint">Proyectos<div class="pf-scroll-bar"></div></div>
+  <div class="pf-hero-line"></div>
+</section>
+
+<div class="pf-intro-bar">Manufactura aditiva para empresas, marcas y productos que no pueden esperar semanas.</div>
+
+<div class="pf-filter-wrap">
+  <div class="pf-filter-bar" id="pf-filters">
+    <button class="pf-filter-btn active" data-filter="all">Todos</button>
+    <button class="pf-filter-btn" data-filter="Industrial">Industrial</button>
+    <button class="pf-filter-btn" data-filter="Corporativo">Corporativo</button>
+    <button class="pf-filter-btn" data-filter="Merchandise">Merchandise</button>
+    <button class="pf-filter-btn" data-filter="Personalizado">Personalizado</button>
+    <button class="pf-filter-btn" data-filter="Automotriz">Automotriz</button>
+    <button class="pf-filter-btn" data-filter="Desarrollo">Desarrollo</button>
+  </div>
+</div>
+
+<section class="pf-projects">
+  <div class="pf-grid" id="pf-grid"></div>
+</section>
+
+<section class="pf-cta">
+  <div class="pf-cta-bg"></div>
+  <div class="pf-cta-inner">
+    <img src="Isotipo_Mesa de trabajo 1 sin fondo.png" alt="KAFETIN" class="pf-cta-iso">
+    <h2 class="pf-cta-title">¿Tienes un proyecto?<br><em>Hablemos.</em></h2>
+    <p class="pf-cta-sub">Sin mínimos de producción. Entrega en días, no en semanas.<br>Escríbenos y te cotizamos hoy.</p>
+    <a href="https://wa.me/573155425240" class="pf-cta-btn" target="_blank">💬 &nbsp;Escribir por WhatsApp</a>
+    <p class="pf-foot-note">kafetin.co &nbsp;·&nbsp; @kafetin &nbsp;·&nbsp; Medellín, Colombia</p>
+  </div>
+</section>
+
+</div><!-- /page-portafolio -->
+
+<script>/* ═══════════════════════════════════
+   TAB / PAGE NAVIGATION
+═══════════════════════════════════ */
+const PAGES = ['inicio','portafolio'];
+function switchPage(id) {
+  if (!PAGES.includes(id)) id = 'inicio';
+  PAGES.forEach(p => document.getElementById('page-'+p).classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.page === id));
+  window.scrollTo(0,0);
+  window.location.hash = id;
+  document.getElementById('mob-nav').classList.remove('open');
+  document.getElementById('mn-ham').classList.remove('open');
+  // re-init fade observer for inicio
+  if (id === 'inicio') initFade();
+}
+
+// hash routing
+(function(){
+  const h = window.location.hash.slice(1);
+  if (PAGES.includes(h)) switchPage(h);
+  else { catalogReady = false; }
+})();
+
+// tab buttons
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchPage(btn.dataset.page));
+});
+
+// hamburger
+document.getElementById('mn-ham').addEventListener('click', () => {
+  document.getElementById('mob-nav').classList.toggle('open');
+  document.getElementById('mn-ham').classList.toggle('open');
+});
+
+/* ═══════════════════════════════════
+   INICIO — SCROLL FADE
+═══════════════════════════════════ */
+function initFade() {
+  const fadeEls = document.querySelectorAll('#page-inicio .fade:not(.in)');
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }});
+  }, { threshold: 0.10 });
+  fadeEls.forEach(el => io.observe(el));
+}
+initFade();
+
+/* ═══════════════════════════════════
+   PORTAFOLIO — PROJECTS + CAROUSEL
+═══════════════════════════════════ */
+const PF_PROJECTS = [
+  {client:"Gato Negro",tags:["Merchandise","Personalizado"],desc:"Charms multipieza en colores vivos diseñados para un festival de música. Identidad de marca, multicolor, entregados en tiempo récord.",photos:["fotos para catalogo cafetin/gato negro.jpg","fotos para catalogo cafetin/gato negro 2.jpg"]},
+  {client:"OMMA",tags:["Industrial","B2B"],desc:"Piezas industriales funcionales para líneas de producción: soportes, brackets y embudos técnicos a medida en PETG.",photos:["fotos para catalogo cafetin/omma embudo.jpg","fotos para catalogo cafetin/omma embudo 2.jpg","fotos para catalogo cafetin/omma embudo 3.jpg","fotos para catalogo cafetin/omma embudo1.jpg","fotos para catalogo cafetin/omma2.jpg"]},
+  {client:"Racing Mueblería",tags:["Industrial","Serie"],desc:"Tapón terminal en ABS de alta resistencia para estructura tubular de muebles. Tolerancias exactas, producción en lote.",photos:["fotos para catalogo cafetin/racing muebleria.jpg","fotos para catalogo cafetin/racing muebleria (2).jpg","fotos para catalogo cafetin/racingmuebleri.jpg"]},
+  {client:"ESCALA",tags:["Corporativo","Serie"],desc:"Antiestrés fidget con logo corporativo grabado. Producción en lote con paleta de colores completamente personalizada.",photos:["fotos para catalogo cafetin/escala.jpg","fotos para catalogo cafetin/escala (2).jpg","fotos para catalogo cafetin/escala (3).jpg"]},
+  {client:"JOMA",tags:["Corporativo","Personalizado"],desc:"Regalo corporativo con logo JOMA en relieve que simula un bafle caricaturesco. Único, memorable y producido en lote.",photos:["fotos para catalogo cafetin/joma.jpg","fotos para catalogo cafetin/joma (2).jpg"]},
+  {client:"Salentino",tags:["Merchandise","Serie"],desc:"Mini tazas decorativas en serie para la industria del café. Merchandising de marca con producción rápida, sin inversión en moldes.",photos:["fotos para catalogo cafetin/salentino.jpg","fotos para catalogo cafetin/salentino (2).jpg"]},
+  {client:"Regalo Personalizado",tags:["Personalizado","Familia"],desc:"Regalos familiares únicos con firma y simbología grabada. Acabados en cobre y mármol que no se consiguen en ninguna tienda.",photos:["fotos para catalogo cafetin/regalo personalizado.jpg","fotos para catalogo cafetin/regalo personalizado (2).jpg","fotos para catalogo cafetin/regalo personalizado (3).jpg"]},
+  {client:"Tope Maletero Mazda",tags:["Automotriz","ABS"],desc:"Repuesto automotriz de precisión en ABS. Cuando la pieza original ya no existe en el mercado, la fabricamos desde cero.",photos:["fotos para catalogo cafetin/tope maletero mazfa 2 ABS.jpg"]},
+  {client:"Tree Stand",tags:["Desarrollo","B2B"],desc:"Colaboración en desarrollo de producto: botones y componentes para panel de control en múltiples líneas de diseño.",photos:["fotos para catalogo cafetin/treestand.jpg","fotos para catalogo cafetin/tree stand.jpg"]}
+];
+
+(function buildPortfolio(){
+  const grid = document.getElementById('pf-grid');
+  PF_PROJECTS.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'pf-card';
+    card.dataset.tags = p.tags.join(',');
+    card.style.transitionDelay = (i%3*0.08)+'s';
+    const photo = document.createElement('div');
+    photo.className = 'pf-card-photo';
+    p.photos.forEach((src,idx) => {
+      const img = document.createElement('img');
+      img.src = src; img.alt = p.client; img.draggable = false;
+      if (idx === 0) img.classList.add('active');
+      photo.appendChild(img);
+    });
+    if (p.photos.length > 1) {
+      const badge = document.createElement('div'); badge.className='pf-photo-count'; badge.textContent='1 / '+p.photos.length; photo.appendChild(badge);
+      const dots = document.createElement('div'); dots.className='pf-dots';
+      p.photos.forEach((_,idx) => { const d=document.createElement('div'); d.className='pf-dot'+(idx===0?' active':''); d.onclick=()=>pfGoTo(photo,idx); dots.appendChild(d); });
+      photo.appendChild(dots);
+      ['prev','next'].forEach(dir => { const btn=document.createElement('button'); btn.className='pf-arr '+dir; btn.innerHTML=dir==='prev'?'&#8249;':'&#8250;'; btn.onclick=e=>{e.stopPropagation();pfStep(photo,dir==='prev'?-1:1);}; photo.appendChild(btn); });
+    }
+    const body = document.createElement('div'); body.className='pf-card-body';
+    const tagsDiv = document.createElement('div'); tagsDiv.className='pf-card-tags';
+    p.tags.forEach((t,ti) => { const tag=document.createElement('span'); tag.className='pf-tag '+(ti===0?'primary':'secondary'); tag.textContent=t; tagsDiv.appendChild(tag); });
+    const clientEl = document.createElement('div'); clientEl.className='pf-card-client'; clientEl.textContent=p.client;
+    const descEl = document.createElement('p'); descEl.className='pf-card-desc'; descEl.textContent=p.desc;
+    body.appendChild(tagsDiv); body.appendChild(clientEl); body.appendChild(descEl);
+    card.appendChild(photo); card.appendChild(body); grid.appendChild(card);
+  });
+
+  // carousel helpers
+  function pfImgs(w){return [...w.querySelectorAll('img')];}
+  function pfDots(w){return [...w.querySelectorAll('.pf-dot')];}
+  function pfCur(w){const l=pfImgs(w);for(let i=0;i<l.length;i++)if(l[i].classList.contains('active'))return i;return 0;}
+  function pfGoTo(w,idx){const l=pfImgs(w),d=pfDots(w);l.forEach(i=>i.classList.remove('active'));d.forEach(x=>x.classList.remove('active'));l[idx].classList.add('active');if(d[idx])d[idx].classList.add('active');const b=w.querySelector('.pf-photo-count');if(b)b.textContent=(idx+1)+' / '+l.length;}
+  function pfStep(w,dir){const l=pfImgs(w);pfGoTo(w,(pfCur(w)+dir+l.length)%l.length);}
+  window.pfGoTo=pfGoTo; window.pfStep=pfStep;
+
+  // auto-advance
+  let pfHov=false;
+  document.querySelectorAll('.pf-card').forEach(c=>{c.addEventListener('mouseenter',()=>pfHov=true);c.addEventListener('mouseleave',()=>pfHov=false);});
+  setInterval(()=>{if(pfHov)return;document.querySelectorAll('.pf-card-photo').forEach(w=>{if(pfImgs(w).length>1)pfStep(w,1);});},3200);
+
+  // filter
+  document.getElementById('pf-filters').addEventListener('click', e => {
+    const btn=e.target.closest('.pf-filter-btn'); if(!btn)return;
+    document.querySelectorAll('.pf-filter-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
+    const filter=btn.dataset.filter;
+    document.querySelectorAll('.pf-card').forEach(card=>{const tags=card.dataset.tags.split(',');card.classList.toggle('hidden',filter!=='all'&&!tags.includes(filter));});
+  });
+
+  // scroll reveal
+  const pfObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');pfObs.unobserve(e.target);}});},{threshold:0.1});
+  document.querySelectorAll('.pf-card').forEach(c=>pfObs.observe(c));
+})();
+
+
+</script>
+</body>
+</html>
