@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kafetin — Manufactura Aditiva para Empresas · Medellín</title>
+  <meta name="description" content="Impresión 3D a demanda para empresas en Medellín. Prototipado rápido, lotes pequeños, diseño CAD. Sin mínimos. Entrega en días.">
+  <meta property="og:title" content="Kafetin — Manufactura Aditiva para Empresas">
+  <meta property="og:description" content="Convertimos ideas en productos físicos. Impresión 3D para empresas en Medellín.">
+  <meta property="og:url" content="https://kafetin.co">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --navy:  #0F0F23;
+      --amber: #F7A519;
+      --sage:  #586049;
+      --gray:  #6B6263;
+      --cream: #F4F1E8;
+      --white: #FFFFFF;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Barlow', sans-serif;
+      background: var(--cream);
+      color: var(--navy);
+      overflow-x: hidden;
+    }
+
+    /* ─── NAV ─── */
+    nav#nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      background: #ffffff;
+      background-image: url('./textura_Mesa de trabajo 1.jpg');
+      background-size: 160%;
+      background-position: 0% 0%;
+      border-bottom: 1px solid rgba(15,15,35,.10);
+      height: 120px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      box-shadow: 0 2px 24px rgba(15,15,35,.12);
+    }
+
+    .nav-logo {
+      flex: 0 0 auto;
+      height: 120px;
+      display: flex;
+      align-items: stretch;
+      overflow: hidden;
+    }
+    .nav-logo img {
+      height: 120px;
+      width: auto;
+      display: block;
+      background: transparent;
+      transform: scale(2.0);
+      transform-origin: center center;
+    }
+
+    .nav-right {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 28px;
+      padding-right: 40px;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 28px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .nav-links li {
+      display: flex;
+      align-items: center;
+    }
+    .nav-links a {
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: rgba(15,15,35,.70);
+      text-decoration: none;
+      transition: color .2s;
+      white-space: nowrap;
+      display: block;
+    }
+    .nav-links a:hover { color: var(--amber); }
+
+    .nav-cta {
+      background: var(--amber);
+      color: var(--navy) !important;
+      padding: 9px 22px;
+      border-radius: 2px;
+      font-weight: 700 !important;
+      transition: background .2s !important;
+    }
+    .nav-cta:hover { background: var(--cream) !important; color: var(--navy) !important; }
+
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 6px;
+    }
+    .nav-hamburger span {
+      width: 24px; height: 2px;
+      background: var(--navy);
+      transition: all .3s;
+      display: block;
+    }
+
+    /* ─── HERO ─── */
+    #hero {
+      min-height: 100vh;
+      background: var(--navy);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      padding-top: 120px;
+    }
+
+    @keyframes textureDrift {
+      0%   { background-position: 0% 0%; }
+      25%  { background-position: 30% 20%; }
+      50%  { background-position: 60% 40%; }
+      75%  { background-position: 30% 60%; }
+      100% { background-position: 0% 0%; }
+    }
+
+    .hero-texture {
+      position: absolute;
+      inset: 0;
+      background-image: url('./textura_Mesa de trabajo 1.jpg');
+      background-size: 160%;
+      background-position: 0% 0%;
+      opacity: .09;
+      pointer-events: none;
+      animation: textureDrift 28s ease-in-out infinite;
+    }
+
+    /* decorative amber line */
+    .hero-accent {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--amber);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 80px 60px 60px;
+      max-width: 980px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(247,165,25,.15);
+      border: 1px solid rgba(247,165,25,.3);
+      color: var(--amber);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      margin-bottom: 32px;
+      border-radius: 2px;
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(60px, 10vw, 136px);
+      line-height: .90;
+      color: var(--cream);
+      margin-bottom: 36px;
+      letter-spacing: .015em;
+    }
+    .hero-title em {
+      font-style: normal;
+      color: var(--amber);
+    }
+
+    .hero-sub {
+      font-size: clamp(16px, 1.8vw, 20px);
+      font-weight: 300;
+      color: rgba(244,241,232,.68);
+      max-width: 560px;
+      line-height: 1.65;
+      margin-bottom: 52px;
+    }
+
+    .hero-btns {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      font-family: 'Barlow', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      padding: 15px 30px;
+      text-decoration: none;
+      border-radius: 2px;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .btn-amber { background: var(--amber); color: var(--navy); }
+    .btn-amber:hover { background: var(--white); }
+    .btn-outline {
+      border: 1.5px solid rgba(244,241,232,.30);
+      color: var(--cream);
+    }
+    .btn-outline:hover {
+      border-color: var(--cream);
+      background: rgba(244,241,232,.08);
+    }
+    .btn-navy { background: var(--navy); color: var(--cream); }
+    .btn-navy:hover { background: rgba(15,15,35,.85); }
+
+    .hero-stats {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid rgba(244,241,232,.10);
+      margin-top: auto;
+    }
+    .stat {
+      padding: 28px 36px;
+      border-right: 1px solid rgba(244,241,232,.10);
+    }
+    .stat:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 44px;
+      color: var(--amber);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-num.stat-brand {
+      font-size: 22px;
+      letter-spacing: .04em;
+      line-height: 1.2;
+    }
+    .stat-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: rgba(244,241,232,.45);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    /* ─── SECTIONS SHARED ─── */
+    section { padding: 100px 60px; }
+
+    .s-tag {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--sage);
+      margin-bottom: 14px;
+    }
+    .s-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(40px, 5.5vw, 72px);
+      line-height: .94;
+      color: var(--navy);
+      margin-bottom: 18px;
+    }
+    .s-sub {
+      font-size: 17px;
+      font-weight: 300;
+      color: var(--gray);
+      max-width: 500px;
+      line-height: 1.65;
+      margin-bottom: 60px;
+    }
+
+    /* ─── SERVICIOS ─── */
+    #servicios { background: var(--cream); }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 3px;
+    }
+    .svc-card {
+      background: var(--white);
+      padding: 44px 36px;
+      border-left: 3px solid transparent;
+      transition: border-color .25s, transform .25s, box-shadow .25s;
+    }
+    .svc-card:hover {
+      border-left-color: var(--amber);
+      transform: translateY(-6px);
+      box-shadow: 0 16px 40px rgba(15,15,35,.08);
+    }
+    .svc-icon {
+      font-size: 36px;
+      display: block;
+      margin-bottom: 22px;
+    }
+    .svc-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px;
+      letter-spacing: .02em;
+      color: var(--navy);
+      margin-bottom: 14px;
+    }
+    .svc-desc {
+      font-size: 14px;
+      color: var(--gray);
+      line-height: 1.7;
+    }
+
+    /* ─── FILAMENTOS ─── */
+    #filamentos {
+      background: var(--navy);
+      position: relative;
+      overflow: hidden;
+    }
+    #filamentos .s-tag { color: var(--amber); }
+    #filamentos .s-title { color: var(--cream); }
+    #filamentos .s-sub { color: rgba(244,241,232,.55); }
+
+    @keyframes textureDriftReverse {
+      0%   { background-position: 60% 40%; }
+      50%  { background-position: 0% 0%; }
+      100% { background-position: 60% 40%; }
+    }
+
+    .fil-texture {
+      position: absolute;
+      inset: 0;
+      background-image: url('./textura_Mesa de trabajo 1.jpg');
+      background-size: 160%;
+      background-position: 60% 40%;
+      opacity: .06;
+      pointer-events: none;
+      animation: textureDriftReverse 32s ease-in-out infinite;
+    }
+    .fil-inner { position: relative; z-index: 2; }
+
+    .materials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+      margin-bottom: 52px;
+    }
+    .mat-card {
+      border: 1px solid rgba(244,241,232,.12);
+      padding: 28px 22px;
+      transition: border-color .2s, background .2s;
+    }
+    .mat-card:hover {
+      border-color: var(--amber);
+      background: rgba(247,165,25,.05);
+    }
+    .mat-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 32px;
+      color: var(--amber);
+      margin-bottom: 10px;
+      letter-spacing: .02em;
+    }
+    .mat-desc {
+      font-size: 13px;
+      color: rgba(244,241,232,.50);
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+    .mat-badge {
+      display: inline-block;
+      background: rgba(88,96,73,.5);
+      color: rgba(244,241,232,.7);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 2px;
+    }
+    .fil-cta {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .fil-cta-note {
+      font-size: 13px;
+      color: rgba(244,241,232,.35);
+      letter-spacing: .04em;
+    }
+
+    /* ─── PROCESO ─── */
+    #proceso { background: var(--white); }
+
+    .steps-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      position: relative;
+      margin-top: 60px;
+    }
+    .steps-row::before {
+      content: '';
+      position: absolute;
+      top: 31px;
+      left: calc(100% / 6);
+      right: calc(100% / 6);
+      height: 2px;
+      background: linear-gradient(90deg, var(--amber), rgba(247,165,25,.3));
+      z-index: 0;
+    }
+    .step {
+      text-align: center;
+      padding: 0 32px;
+      position: relative;
+      z-index: 1;
+    }
+    .step-num {
+      width: 64px; height: 64px;
+      background: var(--navy);
+      color: var(--amber);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 28px;
+      border-radius: 2px;
+    }
+    .step-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 24px;
+      color: var(--navy);
+      letter-spacing: .03em;
+      margin-bottom: 12px;
+    }
+    .step-desc {
+      font-size: 14px;
+      color: var(--gray);
+      line-height: 1.7;
+    }
+
+    /* ─── DIFERENCIAL ─── */
+    #diferencial {
+      background: var(--navy);
+      display: flex;
+      align-items: flex-start;
+      gap: 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    #diferencial::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url('./textura-02 (1).jpg');
+      background-size: cover;
+      opacity: .04;
+    }
+    .dif-left {
+      min-width: 260px;
+      position: relative;
+      z-index: 2;
+      flex-shrink: 0;
+    }
+    .dif-heading {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(44px, 6vw, 86px);
+      line-height: .92;
+      color: var(--cream);
+    }
+    .dif-heading em { font-style: normal; color: var(--amber); }
+
+    .dif-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      position: relative;
+      z-index: 2;
+    }
+    .dif-item { display: flex; gap: 14px; align-items: flex-start; }
+    .dif-arrow {
+      color: var(--amber);
+      font-size: 18px;
+      line-height: 1.4;
+      flex-shrink: 0;
+      font-weight: 700;
+    }
+    .dif-item strong {
+      display: block;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--cream);
+      margin-bottom: 5px;
+    }
+    .dif-item p {
+      font-size: 13px;
+      color: rgba(244,241,232,.45);
+      line-height: 1.6;
+    }
+
+    /* ─── CTA ─── */
+    #contacto {
+      background: var(--cream);
+      text-align: center;
+      position: relative;
+    }
+    #contacto::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--amber);
+    }
+    .cta-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(48px, 8vw, 110px);
+      line-height: .88;
+      color: var(--navy);
+      margin-bottom: 24px;
+    }
+    .cta-title em { font-style: normal; color: var(--amber); }
+    .cta-sub {
+      font-size: 18px;
+      font-weight: 300;
+      color: var(--gray);
+      max-width: 440px;
+      margin: 0 auto 48px;
+      line-height: 1.65;
+    }
+    .cta-loc {
+      margin-top: 36px;
+      font-size: 13px;
+      color: var(--gray);
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    /* ─── REDES / CONTACTO ─── */
+    #redes {
+      background: var(--navy);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    #redes::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url('./textura_Mesa de trabajo 1.jpg');
+      background-size: 160%;
+      opacity: .05;
+      pointer-events: none;
+    }
+    .redes-inner { position: relative; z-index: 2; }
+    #redes .s-tag { color: var(--amber); }
+    #redes .s-title { color: var(--cream); margin-bottom: 12px; }
+    #redes .s-sub { color: rgba(244,241,232,.50); margin: 0 auto 56px; text-align: center; }
+
+    .social-cards {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .social-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      border: 1px solid rgba(244,241,232,.12);
+      padding: 36px 40px;
+      min-width: 200px;
+      text-decoration: none;
+      transition: border-color .2s, background .2s, transform .2s;
+    }
+    .social-card:hover {
+      border-color: var(--amber);
+      background: rgba(247,165,25,.05);
+      transform: translateY(-4px);
+    }
+    .social-icon {
+      font-size: 36px;
+      line-height: 1;
+    }
+    .social-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      color: var(--amber);
+      letter-spacing: .04em;
+    }
+    .social-handle {
+      font-size: 13px;
+      color: rgba(244,241,232,.40);
+      letter-spacing: .04em;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--navy);
+      padding: 52px 60px 28px;
+    }
+    .footer-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 36px;
+      margin-bottom: 40px;
+    }
+    .footer-logo-wrap {
+      display: inline-block;
+    }
+    .footer-logo-wrap img { height: 52px; display: block; }
+    .footer-tagline {
+      font-size: 13px;
+      color: rgba(244,241,232,.35);
+      margin-top: 14px;
+      max-width: 220px;
+      line-height: 1.6;
+    }
+    .footer-nav { display: flex; flex-direction: column; gap: 12px; }
+    .footer-nav a {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(244,241,232,.45);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .footer-nav a:hover { color: var(--amber); }
+    .footer-contact { display: flex; flex-direction: column; gap: 10px; }
+    .footer-contact a {
+      font-size: 13px;
+      color: rgba(244,241,232,.4);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .footer-contact a:hover { color: var(--amber); }
+    .footer-bottom {
+      border-top: 1px solid rgba(244,241,232,.09);
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .footer-copy {
+      font-size: 12px;
+      color: rgba(244,241,232,.25);
+      letter-spacing: .04em;
+    }
+    .footer-social { display: flex; gap: 24px; }
+    .footer-social a {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: rgba(244,241,232,.3);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .footer-social a:hover { color: var(--amber); }
+
+    /* ─── SCROLL FADE ─── */
+    .fade {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity .65s ease, transform .65s ease;
+    }
+    .fade.in { opacity: 1; transform: none; }
+    .fade-d1 { transition-delay: .10s; }
+    .fade-d2 { transition-delay: .20s; }
+    .fade-d3 { transition-delay: .30s; }
+    .fade-d4 { transition-delay: .40s; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      nav#nav { height: 64px; }
+      .nav-right { padding-right: 20px; }
+      .nav-links { display: none; }
+      .nav-hamburger { display: flex; }
+      .nav-hamburger span { background: var(--navy); }
+      .nav-logo { height: 64px; }
+      .nav-logo img { height: 64px; width: auto; transform: scale(1.8); }
+
+      section { padding: 64px 20px; }
+      #hero { min-height: 100svh; padding-top: 64px; }
+      .hero-content { padding: 44px 20px 32px; }
+      .hero-btns { flex-direction: column; gap: 12px; }
+      .btn { justify-content: center; padding: 16px 24px; font-size: 14px; }
+
+      /* Stats 2×2 on mobile */
+      .hero-stats { grid-template-columns: repeat(2, 1fr); }
+      .stat {
+        border-right: 1px solid rgba(244,241,232,.10);
+        border-bottom: 1px solid rgba(244,241,232,.10);
+        padding: 20px;
+      }
+      .stat:nth-child(2) { border-right: none; }
+      .stat:nth-child(3) { border-bottom: none; }
+      .stat:nth-child(4) { border-right: none; border-bottom: none; }
+      .stat-num { font-size: 36px; }
+      .stat-num.stat-brand { font-size: 17px; }
+
+      .s-title { font-size: clamp(36px, 9vw, 56px); }
+      .s-sub { font-size: 15px; margin-bottom: 40px; }
+
+      .services-grid { grid-template-columns: 1fr; gap: 2px; }
+      .svc-card { padding: 32px 24px; }
+
+      .materials-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .mat-card { padding: 22px 18px; }
+
+      .steps-row { grid-template-columns: 1fr; gap: 32px; }
+      .steps-row::before { display: none; }
+      .step { text-align: left; display: flex; gap: 16px; align-items: flex-start; }
+      .step-num { flex-shrink: 0; margin: 0; width: 52px; height: 52px; font-size: 22px; }
+
+      #diferencial { flex-direction: column; gap: 40px; padding: 64px 20px; }
+      .dif-grid { grid-template-columns: 1fr; gap: 20px; }
+      .dif-heading { font-size: clamp(40px, 10vw, 64px); }
+
+      .cta-title { font-size: clamp(40px, 11vw, 72px); }
+      .cta-sub { font-size: 16px; }
+
+      .social-cards { flex-direction: column; align-items: stretch; }
+      .social-card { min-width: unset; width: 100%; flex-direction: row; justify-content: flex-start; gap: 20px; padding: 24px 20px; }
+
+      footer { padding: 48px 20px 28px; }
+      .footer-top { flex-direction: column; gap: 28px; }
+      .footer-contact { flex-direction: row; flex-wrap: wrap; gap: 16px; }
+    }
+
+    /* Extra small phones */
+    @media (max-width: 380px) {
+      .hero-title { font-size: 52px; }
+      .materials-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ─── MOBILE NAV OPEN ─── */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      inset: 64px 0 0 0;
+      background: var(--cream);
+      z-index: 199;
+      padding: 32px 24px;
+      flex-direction: column;
+      gap: 24px;
+      border-top: 1px solid rgba(15,15,35,.08);
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a {
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--navy);
+      text-decoration: none;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(15,15,35,.08);
+    }
+    .mobile-nav a:last-child { border-bottom: none; }
+    .mobile-nav .m-cta {
+      background: var(--amber);
+      color: var(--navy);
+      padding: 14px 24px;
+      border-bottom: none;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── NAV ─── -->
+  <nav id="nav">
+    <a href="#" class="nav-logo">
+      <img src="./Logo final_Mesa sin fondo.png" alt="Kafetin">
+    </a>
+    <div class="nav-right">
+      <ul class="nav-links">
+        <li><a href="#servicios">Servicios</a></li>
+        <li><a href="#filamentos">Filamentos</a></li>
+        <li><a href="#proceso">Cómo funciona</a></li>
+        <li><a href="#redes">Contacto</a></li>
+        <li>
+          <a href="https://wa.me/573155425240?text=Hola%20Kafetin%2C%20quiero%20cotizar%20un%20proyecto" class="nav-cta" target="_blank">
+            Cotizar →
+          </a>
+        </li>
+      </ul>
+      <div class="nav-hamburger" id="hamburger" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile nav -->
+  <div class="mobile-nav" id="mobile-nav">
+    <a href="#servicios">Servicios</a>
+    <a href="#filamentos">Filamentos</a>
+    <a href="#proceso">Cómo funciona</a>
+    <a href="#redes">Contacto</a>
+    <a href="https://wa.me/573155425240?text=Hola%20Kafetin%2C%20quiero%20cotizar%20un%20proyecto" class="m-cta" target="_blank">💬 Cotizar</a>
+  </div>
+
+  <!-- ─── HERO ─── -->
+  <section id="hero">
+    <div class="hero-accent"></div>
+    <div class="hero-texture"></div>
+
+    <div class="hero-content">
+      <span class="hero-badge">📍 Medellín, Colombia</span>
+      <h1 class="hero-title">
+        MANUFACTURA<br>
+        ADITIVA <em>PARA</em><br>
+        EMPRESAS
+      </h1>
+      <p class="hero-sub">
+        Convertimos tus ideas en productos físicos con rapidez, precisión y costos optimizados.
+        Prototipos, lotes pequeños y más — sin moldes, sin mínimos.
+      </p>
+      <div class="hero-btns">
+        <a href="https://wa.me/573155425240?text=Hola%20Kafetin%2C%20quiero%20cotizar%20un%20proyecto"
+           class="btn btn-amber" target="_blank">
+          💬 Cotizar proyecto
+        </a>
+        <a href="https://filamento-kafetin.netlify.app/"
+           class="btn btn-outline" target="_blank">
+          Ver filamentos →
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num">+50</div>
+        <div class="stat-label">Proyectos 2026</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num stat-brand">BAMBU<br>LAB</div>
+        <div class="stat-label">Tecnología última generación</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">2–5</div>
+        <div class="stat-label">Días de entrega</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">0</div>
+        <div class="stat-label">Mínimos de cantidad</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── SERVICIOS ─── -->
+  <section id="servicios">
+    <div class="fade">
+      <p class="s-tag">Servicios B2B</p>
+      <h2 class="s-title">LO QUE<br>HACEMOS</h2>
+      <p class="s-sub">Manufactura aditiva aplicada a problemas reales de empresa. No solo impresión — criterio técnico y visión de negocio.</p>
+    </div>
+    <div class="services-grid">
+      <div class="svc-card fade fade-d1">
+        <span class="svc-icon">⚡</span>
+        <div class="svc-name">Prototipado Rápido</div>
+        <p class="svc-desc">Del archivo al prototipo funcional en días. Iteraciones rápidas para validar diseños antes de invertir en moldes o producción masiva.</p>
+      </div>
+      <div class="svc-card fade fade-d2">
+        <span class="svc-icon">📦</span>
+        <div class="svc-name">Lotes Pequeños</div>
+        <p class="svc-desc">Producción bajo demanda sin mínimos de cantidad. Ideal para lanzamientos, pruebas de mercado y proyectos con volúmenes variables.</p>
+      </div>
+      <div class="svc-card fade fade-d3">
+        <span class="svc-icon">✏️</span>
+        <div class="svc-name">Diseño y CAD</div>
+        <p class="svc-desc">Diseño y optimización de piezas para impresión 3D. Rediseño para reducir material, mejorar resistencia o adaptar tolerancias.</p>
+      </div>
+      <div class="svc-card fade fade-d4">
+        <span class="svc-icon">🔧</span>
+        <div class="svc-name">Asesoría Técnica</div>
+        <p class="svc-desc">Acompañamiento en decisiones de material, proceso y geometría. Para empresas que quieren integrar manufactura aditiva en su operación.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FILAMENTOS ─── -->
+  <section id="filamentos">
+    <div class="fil-texture"></div>
+    <div class="fil-inner">
+      <div class="fade">
+        <p class="s-tag">Tienda de Filamentos</p>
+        <h2 class="s-title">MATERIALES<br>DE CALIDAD</h2>
+        <p class="s-sub">Stock disponible en Medellín. Precios y disponibilidad actualizados en tiempo real.</p>
+      </div>
+      <div class="materials-grid">
+        <div class="mat-card fade fade-d1">
+          <div class="mat-name">PLA</div>
+          <p class="mat-desc">El más versátil. Fácil de imprimir, acabado limpio, amplia paleta de colores.</p>
+          <span class="mat-badge">+20 colores</span>
+        </div>
+        <div class="mat-card fade fade-d1">
+          <div class="mat-name">PETG</div>
+          <p class="mat-desc">Mayor resistencia al calor e impacto. Ideal para piezas funcionales y estructurales.</p>
+          <span class="mat-badge">Resistente</span>
+        </div>
+        <div class="mat-card fade fade-d2">
+          <div class="mat-name">TPU</div>
+          <p class="mat-desc">Flexible y elástico. Para protecciones, sellos, empaques y piezas con absorción de impacto.</p>
+          <span class="mat-badge">Flexible</span>
+        </div>
+        <div class="mat-card fade fade-d2">
+          <div class="mat-name">ABS</div>
+          <p class="mat-desc">Alta resistencia mecánica y térmica. Para piezas técnicas en condiciones exigentes.</p>
+          <span class="mat-badge">Industrial</span>
+        </div>
+        <div class="mat-card fade fade-d3">
+          <div class="mat-name">BICOLOR</div>
+          <p class="mat-desc">Filamentos de dos colores con transición gradual. Piezas con carácter visual único.</p>
+          <span class="mat-badge">Especial</span>
+        </div>
+      </div>
+      <div class="fil-cta fade">
+        <a href="https://filamento-kafetin.netlify.app/" class="btn btn-amber" target="_blank">
+          Ver catálogo completo →
+        </a>
+        <span class="fil-cta-note">Precios actualizados · Disponibilidad en tiempo real</span>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ─── PROCESO ─── -->
+  <section id="proceso">
+    <div class="fade">
+      <p class="s-tag">Proceso</p>
+      <h2 class="s-title">ASÍ DE<br>SIMPLE</h2>
+    </div>
+    <div class="steps-row">
+      <div class="step fade fade-d1">
+        <div class="step-num">01</div>
+        <div>
+          <div class="step-title">Cuéntanos</div>
+          <p class="step-desc">Envíanos tu archivo, idea o descripción por WhatsApp. Te respondemos con una cotización el mismo día.</p>
+        </div>
+      </div>
+      <div class="step fade fade-d2">
+        <div class="step-num">02</div>
+        <div>
+          <div class="step-title">Producimos</div>
+          <p class="step-desc">Imprimimos con el material correcto para tu aplicación. Control de calidad pieza por pieza antes de empacar.</p>
+        </div>
+      </div>
+      <div class="step fade fade-d3">
+        <div class="step-num">03</div>
+        <div>
+          <div class="step-title">Entregamos</div>
+          <p class="step-desc">Envío a toda Colombia o recogida en Medellín. Normalmente en 2–5 días hábiles desde la aprobación.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── POR QUÉ KAFETIN ─── -->
+  <section id="diferencial">
+    <div class="dif-left">
+      <div class="dif-heading fade">
+        POR QUÉ<br><em>KAFETIN</em>
+      </div>
+    </div>
+    <div class="dif-grid">
+      <div class="dif-item fade fade-d1">
+        <span class="dif-arrow">→</span>
+        <div>
+          <strong>Sin mínimos de cantidad</strong>
+          <p>Una pieza o mil — el mismo compromiso de calidad en cada pedido.</p>
+        </div>
+      </div>
+      <div class="dif-item fade fade-d1">
+        <span class="dif-arrow">→</span>
+        <div>
+          <strong>Entrega en días, no semanas</strong>
+          <p>Procesos ágiles diseñados para equipos que iteran rápido y necesitan resultados ya.</p>
+        </div>
+      </div>
+      <div class="dif-item fade fade-d2">
+        <span class="dif-arrow">→</span>
+        <div>
+          <strong>Criterio técnico incluido</strong>
+          <p>No solo imprimimos — asesoramos sobre material, geometría y proceso desde el inicio.</p>
+        </div>
+      </div>
+      <div class="dif-item fade fade-d2">
+        <span class="dif-arrow">→</span>
+        <div>
+          <strong>Sin moldes, sin riesgo</strong>
+          <p>Valida antes de comprometer presupuesto en producción masiva o inyección.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CTA FINAL ─── -->
+  <section id="contacto">
+    <div class="fade">
+      <h2 class="cta-title">
+        ¿TIENES UN<br><em>PROYECTO?</em>
+      </h2>
+      <p class="cta-sub">
+        Cuéntanos qué necesitas. Te respondemos con una cotización el mismo día.
+      </p>
+      <a href="https://wa.me/573155425240?text=Hola%20Kafetin%2C%20quiero%20cotizar%20un%20proyecto"
+         class="btn btn-amber" target="_blank">
+        💬 Escribir por WhatsApp
+      </a>
+      <p class="cta-loc">📍 Medellín, Antioquia · kafetin.co</p>
+    </div>
+  </section>
+
+  <!-- ─── REDES / CONTACTO ─── -->
+  <section id="redes">
+    <div class="redes-inner">
+      <div class="fade">
+        <p class="s-tag">Contáctanos</p>
+        <h2 class="s-title">ENCUÉNTRANOS<br>AQUÍ</h2>
+        <p class="s-sub">Escríbenos directamente o síguenos en redes.<br>Respondemos rápido.</p>
+      </div>
+      <div class="social-cards fade">
+        <a href="https://wa.me/573155425240?text=Hola%20Kafetin%2C%20quiero%20cotizar%20un%20proyecto" class="social-card" target="_blank">
+          <span class="social-icon">💬</span>
+          <span class="social-name">WhatsApp</span>
+          <span class="social-handle">+57 315 542 5240</span>
+        </a>
+        <a href="https://www.instagram.com/kafetin.co/" class="social-card" target="_blank">
+          <span class="social-icon">📸</span>
+          <span class="social-name">Instagram</span>
+          <span class="social-handle">@kafetin.co</span>
+        </a>
+        <a href="https://www.linkedin.com/company/kafetin" class="social-card" target="_blank">
+          <span class="social-icon">💼</span>
+          <span class="social-name">LinkedIn</span>
+          <span class="social-handle">Kafetin</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ─── -->
+  <footer>
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo-wrap">
+          <img src="./Isotipo_Mesa de trabajo 1 sin fondo.png" alt="Kafetin">
+        </div>
+        <p class="footer-tagline">Manufactura aditiva para empresas.<br>Medellín, Colombia.</p>
+      </div>
+      <nav class="footer-nav">
+        <a href="#servicios">Servicios</a>
+        <a href="#filamentos">Filamentos</a>
+        <a href="#proceso">Cómo funciona</a>
+      </nav>
+      <div class="footer-contact">
+        <a href="https://wa.me/573155425240" target="_blank">WhatsApp →</a>
+        <a href="https://www.instagram.com/kafetin.co/" target="_blank">Instagram →</a>
+        <a href="https://www.linkedin.com/company/kafetin" target="_blank">LinkedIn →</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2026 Kafetin.co · Todos los derechos reservados</p>
+      <div class="footer-social">
+        <a href="https://www.instagram.com/kafetin.co/" target="_blank">IG</a>
+        <a href="https://wa.me/573155425240" target="_blank">WA</a>
+        <a href="https://www.linkedin.com/company/kafetin" target="_blank">LI</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ─ Scroll fade
+    const fadeEls = document.querySelectorAll('.fade');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.10 });
+    fadeEls.forEach(el => io.observe(el));
+
+
+    // ─ Mobile hamburger
+    const ham = document.getElementById('hamburger');
+    const mNav = document.getElementById('mobile-nav');
+    ham.addEventListener('click', () => {
+      mNav.classList.toggle('open');
+    });
+    mNav.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => mNav.classList.remove('open'));
+    });
+
+    // ─ Smooth scroll (mobile nav links)
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const t = document.querySelector(a.getAttribute('href'));
+        if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
+      });
+    });
+  </script>
+</body>
+</html>

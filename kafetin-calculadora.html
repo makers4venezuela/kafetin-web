@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Fabricación — Kafetin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:  #0F0F23;
+      --amber: #F7A519;
+      --sage:  #586049;
+      --gray:  #6B6263;
+      --cream: #F4F1E8;
+      --white: #FFFFFF;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Barlow', sans-serif;
+      background: var(--navy);
+      color: var(--cream);
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* ─── GATE ─── */
+    #gate {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: var(--navy);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      transition: opacity .4s ease;
+    }
+    #gate.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    @keyframes textureDrift {
+      0%   { background-position: 0% 0%; }
+      25%  { background-position: 30% 20%; }
+      50%  { background-position: 60% 40%; }
+      75%  { background-position: 30% 60%; }
+      100% { background-position: 0% 0%; }
+    }
+    #gate::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url('./textura_Mesa de trabajo 1.jpg');
+      background-size: 160%;
+      background-position: center;
+      opacity: 0.05;
+      pointer-events: none;
+      animation: textureDrift 30s ease-in-out infinite;
+    }
+    .gate-card {
+      position: relative;
+      background: rgba(244,241,232,.04);
+      border: 1px solid rgba(244,241,232,.12);
+      border-radius: 6px;
+      padding: 48px 44px;
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+    .gate-logo {
+      height: 52px;
+      margin-bottom: 28px;
+      opacity: .85;
+    }
+    .gate-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--amber);
+      background: rgba(247,165,25,.1);
+      border: 1px solid rgba(247,165,25,.2);
+      padding: 4px 12px;
+      border-radius: 2px;
+      margin-bottom: 18px;
+    }
+    .gate-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 34px;
+      letter-spacing: .04em;
+      color: var(--cream);
+      text-align: center;
+      line-height: 1.1;
+      margin-bottom: 10px;
+    }
+    .gate-title span { color: var(--amber); }
+    .gate-sub {
+      font-size: 14px;
+      color: rgba(244,241,232,.5);
+      text-align: center;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+    .gate-form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .gate-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .gate-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .gate-field label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(244,241,232,.4);
+    }
+    .gate-field input {
+      background: rgba(15,15,35,.7);
+      border: 1px solid rgba(244,241,232,.12);
+      border-radius: 3px;
+      outline: none;
+      color: var(--cream);
+      font-family: 'Barlow', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 12px 14px;
+      width: 100%;
+      transition: border-color .2s;
+    }
+    .gate-field input::placeholder { color: rgba(244,241,232,.2); }
+    .gate-field input:focus { border-color: rgba(247,165,25,.5); }
+    .gate-field input.error { border-color: rgba(220,60,60,.5); }
+    .btn-gate {
+      margin-top: 8px;
+      width: 100%;
+      background: var(--amber);
+      color: var(--navy);
+      font-family: 'Barlow', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 3px;
+      padding: 15px 24px;
+      cursor: pointer;
+      transition: background .2s, opacity .2s;
+    }
+    .btn-gate:hover { background: var(--cream); }
+    .btn-gate:disabled { opacity: .5; cursor: not-allowed; }
+    .gate-legal {
+      margin-top: 16px;
+      font-size: 11px;
+      color: rgba(244,241,232,.25);
+      text-align: center;
+      line-height: 1.5;
+    }
+    .gate-error {
+      font-size: 12px;
+      color: rgba(220,80,80,.8);
+      text-align: center;
+      min-height: 16px;
+    }
+    @media (max-width: 520px) {
+      .gate-card { padding: 36px 24px; }
+      .gate-row { grid-template-columns: 1fr; }
+    }
+
+    /* ─── CALCULATOR CONTENT ─── */
+    #calc-content {
+      transition: opacity .4s ease;
+    }
+    #calc-content.locked {
+      opacity: 0;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* ─── TEXTURE OVERLAY ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url('./textura_Mesa de trabajo 1.jpg');
+      background-size: 160%;
+      background-position: center;
+      opacity: 0.04;
+      pointer-events: none;
+      z-index: 0;
+      animation: textureDrift 40s ease-in-out infinite;
+    }
+
+    /* ─── NAV ─── */
+    nav#nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--navy);
+      border-bottom: 1px solid rgba(244,241,232,.08);
+      height: 72px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      padding: 0 40px;
+      gap: 20px;
+      overflow: hidden;
+    }
+    nav#nav::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url('./textura_Mesa de trabajo 1.jpg');
+      background-size: 200%;
+      background-position: 0% 0%;
+      opacity: .08;
+      pointer-events: none;
+    }
+    nav#nav .nav-logo {
+      position: relative;
+      z-index: 1;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+    nav#nav .nav-logo img {
+      height: 56px;
+      width: auto;
+      display: block;
+      transform: scale(1.7);
+      transform-origin: center center;
+    }
+    nav#nav .nav-title,
+    nav#nav .nav-back {
+      position: relative;
+      z-index: 1;
+    }
+    nav#nav .nav-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: .08em;
+      color: rgba(244,241,232,.5);
+    }
+    nav#nav .nav-title span {
+      color: var(--amber);
+    }
+    nav#nav .nav-back {
+      margin-left: auto;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: rgba(244,241,232,.5);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    nav#nav .nav-back:hover { color: var(--amber); }
+
+    /* ─── HERO BAND ─── */
+    .hero-band {
+      position: relative;
+      padding: 64px 40px 48px;
+      text-align: center;
+      z-index: 1;
+    }
+    .hero-band .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--amber);
+      border: 1px solid rgba(247,165,25,.3);
+      padding: 5px 14px;
+      border-radius: 2px;
+      margin-bottom: 18px;
+    }
+    .hero-band h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(42px, 6vw, 72px);
+      letter-spacing: .04em;
+      color: var(--cream);
+      line-height: 1;
+      margin-bottom: 14px;
+    }
+    .hero-band h1 span { color: var(--amber); }
+    .hero-band p {
+      font-size: 16px;
+      font-weight: 400;
+      color: rgba(244,241,232,.6);
+      max-width: 540px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ─── MAIN LAYOUT ─── */
+    .calc-wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* ─── CARDS ─── */
+    .card {
+      background: rgba(244,241,232,.04);
+      border: 1px solid rgba(244,241,232,.1);
+      border-radius: 4px;
+      padding: 32px;
+    }
+    .card-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: .07em;
+      color: var(--cream);
+      margin-bottom: 6px;
+    }
+    .card-subtitle {
+      font-size: 13px;
+      color: rgba(244,241,232,.45);
+      margin-bottom: 28px;
+      font-weight: 400;
+    }
+
+    /* ─── TOP ROW: 2 cards side by side ─── */
+    .top-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    /* ─── INPUT GROUPS ─── */
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .field label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(244,241,232,.55);
+    }
+    .field-row {
+      display: flex;
+      align-items: center;
+      background: rgba(15,15,35,.6);
+      border: 1px solid rgba(244,241,232,.12);
+      border-radius: 3px;
+      overflow: hidden;
+      transition: border-color .2s;
+    }
+    .field-row:focus-within {
+      border-color: var(--amber);
+    }
+    .field-row input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--cream);
+      font-family: 'Barlow', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      padding: 14px 16px;
+    }
+    .field-row input::placeholder { color: rgba(244,241,232,.2); }
+    .field-row .unit {
+      padding: 0 16px 0 0;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      color: rgba(244,241,232,.35);
+      white-space: nowrap;
+    }
+    .field-hint {
+      font-size: 11px;
+      color: rgba(244,241,232,.3);
+    }
+
+    /* editable values — amber tinted */
+    .field-row.editable {
+      border-color: rgba(247,165,25,.2);
+      background: rgba(247,165,25,.04);
+    }
+    .field-row.editable:focus-within {
+      border-color: var(--amber);
+      background: rgba(247,165,25,.07);
+    }
+    .field-row.editable input {
+      color: var(--amber);
+    }
+    .field-row.editable .unit {
+      color: rgba(247,165,25,.5);
+    }
+    .editable-badge {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--amber);
+      background: rgba(247,165,25,.12);
+      border: 1px solid rgba(247,165,25,.2);
+      padding: 2px 7px;
+      border-radius: 2px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    /* ─── DIVIDER ─── */
+    .divider {
+      border: none;
+      border-top: 1px solid rgba(244,241,232,.07);
+      margin: 8px 0;
+    }
+
+    /* ─── RESULT ROW ─── */
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 8px;
+    }
+    .result-item {
+      background: rgba(15,15,35,.5);
+      border: 1px solid rgba(244,241,232,.08);
+      border-radius: 3px;
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .result-item.highlight {
+      border-color: rgba(247,165,25,.3);
+      background: rgba(247,165,25,.05);
+    }
+    .result-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: rgba(244,241,232,.4);
+    }
+    .result-value {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 32px;
+      letter-spacing: .03em;
+      color: var(--cream);
+      line-height: 1;
+    }
+    .result-value.amber { color: var(--amber); }
+    .result-sub {
+      font-size: 11px;
+      color: rgba(244,241,232,.3);
+    }
+
+    /* ─── PRICE TIERS ─── */
+    .price-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    .price-card {
+      border-radius: 4px;
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    .price-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .price-card.b2c {
+      background: rgba(244,241,232,.05);
+      border: 1px solid rgba(244,241,232,.1);
+    }
+    .price-card.b2c::before { background: var(--cream); }
+
+    .price-card.b2b {
+      background: rgba(247,165,25,.06);
+      border: 1px solid rgba(247,165,25,.25);
+    }
+    .price-card.b2b::before { background: var(--amber); }
+
+    .price-card.volume {
+      background: rgba(88,96,73,.15);
+      border: 1px solid rgba(88,96,73,.4);
+    }
+    .price-card.volume::before { background: var(--sage); }
+
+    .price-badge {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 2px;
+      width: fit-content;
+    }
+    .b2c .price-badge { background: rgba(244,241,232,.1); color: rgba(244,241,232,.7); }
+    .b2b .price-badge { background: rgba(247,165,25,.15); color: var(--amber); }
+    .volume .price-badge { background: rgba(88,96,73,.3); color: #a8b49a; }
+
+    .price-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px;
+      letter-spacing: .06em;
+      color: var(--cream);
+    }
+    .price-amount {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 42px;
+      letter-spacing: .02em;
+      line-height: 1;
+    }
+    .b2c .price-amount { color: var(--cream); }
+    .b2b .price-amount { color: var(--amber); }
+    .volume .price-amount { color: #a8b49a; }
+
+    .price-unit-label {
+      font-size: 11px;
+      color: rgba(244,241,232,.35);
+      font-weight: 500;
+    }
+    .price-desc {
+      font-size: 12px;
+      color: rgba(244,241,232,.35);
+      line-height: 1.5;
+      border-top: 1px solid rgba(244,241,232,.06);
+      padding-top: 10px;
+      margin-top: 4px;
+    }
+
+    /* ─── MARGIN CONTROL ─── */
+    .margin-control {
+      border-top: 1px solid rgba(244,241,232,.07);
+      padding-top: 14px;
+      margin-top: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .margin-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .margin-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(244,241,232,.35);
+    }
+    .margin-stepper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .margin-stepper button {
+      background: rgba(244,241,232,.08);
+      border: 1px solid rgba(244,241,232,.12);
+      color: var(--cream);
+      width: 26px;
+      height: 26px;
+      border-radius: 3px;
+      font-size: 16px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s, border-color .15s;
+    }
+    .margin-stepper button:hover {
+      background: rgba(244,241,232,.15);
+      border-color: rgba(244,241,232,.25);
+    }
+    .margin-pct-display {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: .04em;
+      min-width: 52px;
+      text-align: center;
+    }
+    .b2c .margin-pct-display { color: var(--cream); }
+    .volume .margin-pct-display { color: #a8b49a; }
+
+    .margin-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+    .b2c .margin-slider {
+      background: linear-gradient(to right, rgba(244,241,232,.5) 0%, rgba(244,241,232,.5) var(--pct), rgba(244,241,232,.1) var(--pct), rgba(244,241,232,.1) 100%);
+    }
+    .volume .margin-slider {
+      background: linear-gradient(to right, rgba(88,96,73,.8) 0%, rgba(88,96,73,.8) var(--pct), rgba(88,96,73,.2) var(--pct), rgba(88,96,73,.2) 100%);
+    }
+    .margin-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--amber);
+      cursor: pointer;
+      border: 2px solid var(--navy);
+    }
+    .margin-slider::-moz-range-thumb {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--amber);
+      cursor: pointer;
+      border: 2px solid var(--navy);
+    }
+
+    /* ─── EXTRAS SECTION ─── */
+    .extras-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .extra-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .extra-row .extra-desc {
+      flex: 1;
+      background: rgba(15,15,35,.6);
+      border: 1px solid rgba(244,241,232,.12);
+      border-radius: 3px;
+      outline: none;
+      color: var(--cream);
+      font-family: 'Barlow', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 11px 14px;
+      transition: border-color .2s;
+    }
+    .extra-row .extra-desc::placeholder { color: rgba(244,241,232,.2); }
+    .extra-row .extra-desc:focus { border-color: rgba(244,241,232,.3); }
+    .extra-row .extra-cost-wrap {
+      display: flex;
+      align-items: center;
+      background: rgba(15,15,35,.6);
+      border: 1px solid rgba(244,241,232,.12);
+      border-radius: 3px;
+      overflow: hidden;
+      width: 180px;
+      transition: border-color .2s;
+    }
+    .extra-row .extra-cost-wrap:focus-within { border-color: rgba(244,241,232,.3); }
+    .extra-row .extra-cost-wrap input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--cream);
+      font-family: 'Barlow', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 11px 12px;
+      width: 100%;
+    }
+    .extra-row .extra-cost-wrap .unit {
+      padding: 0 10px 0 0;
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(244,241,232,.3);
+      white-space: nowrap;
+    }
+    .extra-row .btn-remove {
+      background: none;
+      border: 1px solid rgba(244,241,232,.1);
+      color: rgba(244,241,232,.25);
+      cursor: pointer;
+      border-radius: 3px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      line-height: 1;
+      transition: border-color .2s, color .2s;
+      flex-shrink: 0;
+    }
+    .extra-row .btn-remove:hover {
+      border-color: rgba(220,80,80,.4);
+      color: rgba(220,80,80,.6);
+    }
+    .btn-add-extra {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      border: 1px dashed rgba(244,241,232,.18);
+      border-radius: 3px;
+      color: rgba(244,241,232,.4);
+      font-family: 'Barlow', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      padding: 10px 18px;
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+      width: 100%;
+      justify-content: center;
+    }
+    .btn-add-extra:hover {
+      border-color: rgba(247,165,25,.35);
+      color: var(--amber);
+    }
+    .extras-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0 0;
+      border-top: 1px solid rgba(244,241,232,.07);
+      margin-top: 4px;
+      font-size: 13px;
+    }
+    .extras-total-label { color: rgba(244,241,232,.45); }
+    .extras-total-value { font-weight: 700; color: var(--cream); }
+
+    /* ─── BREAKDOWN TABLE ─── */
+    .breakdown {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 0;
+      border-bottom: 1px solid rgba(244,241,232,.05);
+      font-size: 14px;
+    }
+    .breakdown-row:last-child { border-bottom: none; }
+    .breakdown-label { color: rgba(244,241,232,.5); font-weight: 400; }
+    .breakdown-value { font-weight: 600; color: var(--cream); }
+    .breakdown-row.total .breakdown-label {
+      font-weight: 700;
+      color: rgba(244,241,232,.8);
+      font-size: 15px;
+    }
+    .breakdown-row.total .breakdown-value {
+      color: var(--amber);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: .04em;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid rgba(244,241,232,.07);
+      padding: 32px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .foot-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    footer .foot-logo img {
+      height: 40px;
+      opacity: .5;
+    }
+    footer p {
+      font-size: 12px;
+      color: rgba(244,241,232,.3);
+    }
+    footer a {
+      color: var(--amber);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .foot-social {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      border-top: 1px solid rgba(244,241,232,.06);
+      padding-top: 16px;
+    }
+    .foot-social a {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(244,241,232,.35);
+      transition: color .2s;
+    }
+    .foot-social a:hover { color: var(--amber); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+      .top-row { grid-template-columns: 1fr; }
+      .result-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; }
+      .price-grid { grid-template-columns: 1fr; }
+      nav#nav { padding: 0 16px; gap: 12px; }
+      .nav-title { display: none; }
+      .hero-band { padding: 40px 20px 32px; }
+      .hero-band p { font-size: 14px; }
+      .calc-wrapper { padding: 0 16px 60px; gap: 16px; }
+      .card { padding: 22px 18px; }
+      .card-title { font-size: 19px; }
+      .result-item { padding: 16px 16px; }
+      .result-value { font-size: 26px; }
+      .price-amount { font-size: 34px; }
+      .margin-stepper button { width: 32px; height: 32px; font-size: 18px; }
+      .extra-row { flex-wrap: wrap; }
+      .extra-row .extra-desc { flex: 1 1 100%; }
+      .extra-row .extra-cost-wrap { flex: 1; width: auto; }
+      .foot-row { flex-direction: column; gap: 12px; text-align: center; }
+    }
+    @media (max-width: 480px) {
+      .result-grid { grid-template-columns: 1fr; }
+      .nav-back-full { display: none; }
+      .field-row input { font-size: 17px; padding: 12px 14px; }
+      .gate-card { padding: 32px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NETLIFY FORM (hidden — requerido para que Netlify detecte el formulario en build) -->
+  <form name="calculadora-leads" netlify data-netlify="true" hidden>
+    <input type="text"  name="nombre">
+    <input type="text"  name="empresa">
+    <input type="email" name="correo">
+    <input type="tel"   name="telefono">
+    <input type="text"  name="ciudad">
+  </form>
+
+  <!-- GATE -->
+  <div id="gate">
+    <div class="gate-card">
+      <img src="./Isotipo_Mesa de trabajo 1 sin fondo.png" alt="Kafetin" class="gate-logo">
+      <div class="gate-tag">Herramienta gratuita</div>
+      <div class="gate-title">Accede a la<br><span>Calculadora</span></div>
+      <p class="gate-sub">Regístrate una sola vez y accede sin límites.<br>Sin spam, sin costos.</p>
+
+      <form class="gate-form" id="gate-form" onsubmit="submitGate(event)">
+        <input type="hidden" name="form-name" value="calculadora-leads">
+        <div class="gate-row">
+          <div class="gate-field">
+            <label>Nombre *</label>
+            <input type="text" name="nombre" id="g-nombre" placeholder="Tu nombre" required>
+          </div>
+          <div class="gate-field">
+            <label>Empresa</label>
+            <input type="text" name="empresa" id="g-empresa" placeholder="Empresa u organización">
+          </div>
+        </div>
+        <div class="gate-field">
+          <label>Correo electrónico *</label>
+          <input type="email" name="correo" id="g-correo" placeholder="tu@correo.com" required>
+        </div>
+        <div class="gate-row">
+          <div class="gate-field">
+            <label>Teléfono</label>
+            <input type="tel" name="telefono" id="g-telefono" placeholder="3001234567">
+          </div>
+          <div class="gate-field">
+            <label>Ciudad *</label>
+            <input type="text" name="ciudad" id="g-ciudad" placeholder="Medellín" required>
+          </div>
+        </div>
+        <div class="gate-error" id="gate-error"></div>
+        <button type="submit" class="btn-gate" id="btn-gate-submit">
+          Acceder a la calculadora →
+        </button>
+      </form>
+
+      <p class="gate-legal">Tu información es confidencial y solo la usamos para conocer a nuestra comunidad. No enviamos spam.</p>
+    </div>
+  </div>
+
+  <!-- CALCULATOR CONTENT (locked until registered) -->
+  <div id="calc-content" class="locked">
+
+  <!-- NAV -->
+  <nav id="nav">
+    <a href="./index.html" class="nav-logo">
+      <img src="./Logo final_Mesa sin fondo.png" alt="Kafetin">
+    </a>
+    <span class="nav-title">Kafetin / <span>Calculadora</span></span>
+    <a href="./kafetin-catalog.html" class="nav-back">← Catálogo<span class="nav-back-full"> de filamentos</span></a>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero-band">
+    <div class="tag">Herramienta gratuita para makers</div>
+    <h1>Calculadora de<br><span>Costo de Fabricación</span></h1>
+    <p>Estima el costo real de imprimir una pieza en FDM. Ajusta los valores base a tu configuración y obtén precios sugeridos para diferentes mercados.</p>
+  </div>
+
+  <!-- CALCULATOR -->
+  <div class="calc-wrapper">
+
+    <!-- RESET -->
+    <div style="display:flex; justify-content:flex-end;">
+      <button onclick="resetAll()" style="
+        background: none;
+        border: 1px solid rgba(244,241,232,.15);
+        border-radius: 3px;
+        color: rgba(244,241,232,.4);
+        font-family: 'Barlow', sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        padding: 8px 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        transition: border-color .2s, color .2s;
+      " onmouseover="this.style.borderColor='rgba(244,241,232,.35)';this.style.color='rgba(244,241,232,.7)'"
+         onmouseout="this.style.borderColor='rgba(244,241,232,.15)';this.style.color='rgba(244,241,232,.4)'">
+        <span style="font-size:15px;">↺</span> Reiniciar
+      </button>
+    </div>
+
+    <!-- TOP ROW -->
+    <div class="top-row">
+
+      <!-- DATOS DE LA PIEZA -->
+      <div class="card">
+        <div class="card-title">Datos de la pieza</div>
+        <div class="card-subtitle">Ingresa las características de tu impresión</div>
+        <div class="input-group">
+          <div class="field">
+            <label>Peso de la pieza</label>
+            <div class="field-row">
+              <input type="number" id="weight" value="50" min="1" oninput="calculate()">
+              <span class="unit">gramos</span>
+            </div>
+            <span class="field-hint">Puedes verlo en tu slicer antes de imprimir</span>
+          </div>
+          <div class="field">
+            <label>Tiempo de impresión</label>
+            <div class="field-row">
+              <input type="number" id="time" value="2" min="0.1" step="0.5" oninput="calculate()">
+              <span class="unit">horas</span>
+            </div>
+            <span class="field-hint">Tiempo total que tarda la impresora</span>
+          </div>
+          <div class="field">
+            <label>Unidades a producir</label>
+            <div class="field-row">
+              <input type="number" id="units" value="1" min="1" oninput="calculate()">
+              <span class="unit">unidades</span>
+            </div>
+            <span class="field-hint">El costo por unidad baja con más volumen</span>
+          </div>
+          <div class="field">
+            <label>Horas de mano de obra</label>
+            <div class="field-row">
+              <input type="number" id="laborHours" value="0.5" min="0" step="0.25" oninput="calculate()">
+              <span class="unit">horas / ud.</span>
+            </div>
+            <span class="field-hint">Setup, supervisión y post-procesado por pieza</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- VALORES BASE -->
+      <div class="card">
+        <div class="card-title">Valores base <span class="editable-badge">editables</span></div>
+        <div class="card-subtitle">Predeterminados con referencia de mercado Colombia 2026</div>
+        <div class="input-group">
+          <div class="field">
+            <label>Costo material</label>
+            <div class="field-row editable">
+              <input type="number" id="matCost" value="85000" min="1" oninput="calculate()">
+              <span class="unit">COP / kg</span>
+            </div>
+            <span class="field-hint">Precio promedio filamento PLA/PETG Colombia</span>
+          </div>
+          <div class="field">
+            <label>Precio kWh</label>
+            <div class="field-row editable">
+              <input type="number" id="kwh" value="800" min="1" oninput="calculate()">
+              <span class="unit">COP / kWh</span>
+            </div>
+            <span class="field-hint">Tarifa eléctrica residencial promedio</span>
+          </div>
+          <div class="field">
+            <label>Depreciación máquina</label>
+            <div class="field-row editable">
+              <input type="number" id="machineCost" value="5000000" min="1" oninput="calculate()">
+              <span class="unit">COP total</span>
+            </div>
+            <span class="field-hint">Costo de tu impresora — amortizado a 3 años</span>
+          </div>
+          <div class="field">
+            <label>Mano de obra</label>
+            <div class="field-row editable">
+              <input type="number" id="laborRate" value="50000" min="0" oninput="calculate()">
+              <span class="unit">COP / 8 h</span>
+            </div>
+            <span class="field-hint">Tarifa jornada laboral — equivale a $6,250/hora</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GASTOS EXTRAS -->
+    <div class="card">
+      <div class="card-title">Gastos extras por unidad <span class="editable-badge">opcional</span></div>
+      <div class="card-subtitle">Accesorios, empaques, etiquetas, insumos de post-procesado, etc.</div>
+
+      <div class="extras-list" id="extras-list">
+        <!-- rows added by JS -->
+      </div>
+
+      <button class="btn-add-extra" onclick="addExtra()">
+        <span style="font-size:18px; line-height:1;">+</span> Agregar gasto extra
+      </button>
+
+      <div class="extras-total-row">
+        <span class="extras-total-label">Total extras por unidad</span>
+        <span class="extras-total-value" id="extras-total">$0</span>
+      </div>
+    </div>
+
+    <!-- RESULTADOS DE COSTO -->
+    <div class="card">
+      <div class="card-title">Costo de fabricación</div>
+      <div class="card-subtitle">Desglose real por componente · basado en tus datos</div>
+
+      <div class="result-grid">
+        <div class="result-item">
+          <span class="result-label">Costo material</span>
+          <span class="result-value" id="res-material">—</span>
+          <span class="result-sub" id="res-material-sub">—</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">Costo electricidad</span>
+          <span class="result-value" id="res-electric">—</span>
+          <span class="result-sub" id="res-electric-sub">—</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">Depreciación máquina</span>
+          <span class="result-value" id="res-deprec">—</span>
+          <span class="result-sub" id="res-deprec-sub">—</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">Mano de obra</span>
+          <span class="result-value" id="res-labor">—</span>
+          <span class="result-sub" id="res-labor-sub">—</span>
+        </div>
+      </div>
+
+      <div class="breakdown">
+        <div class="breakdown-row">
+          <span class="breakdown-label">Subtotal fabricación (lote completo)</span>
+          <span class="breakdown-value" id="res-subtotal">—</span>
+        </div>
+        <div class="breakdown-row" id="row-extras" style="display:none;">
+          <span class="breakdown-label">Gastos extras (por unidad)</span>
+          <span class="breakdown-value" id="res-extras-inline">—</span>
+        </div>
+        <div class="breakdown-row">
+          <span class="breakdown-label">Unidades</span>
+          <span class="breakdown-value" id="res-units-show">—</span>
+        </div>
+        <div class="breakdown-row total">
+          <span class="breakdown-label">Costo total por unidad</span>
+          <span class="breakdown-value" id="res-per-unit">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRECIOS SUGERIDOS -->
+    <div class="card">
+      <div class="card-title">Precios sugeridos</div>
+      <div class="card-subtitle">Estimaciones por canal de venta · no incluyen gastos de envío ni tiempo de diseño</div>
+
+      <div class="price-grid">
+
+        <!-- B2C -->
+        <div class="price-card b2c">
+          <span class="price-badge">B2C</span>
+          <span class="price-name">Consumidor Final</span>
+          <div>
+            <div class="price-amount" id="price-b2c">—</div>
+            <div class="price-unit-label">por unidad</div>
+          </div>
+          <div class="price-desc">
+            Ideal para ventas directas en Instagram, MercadoLibre o clientes retail. Incluye margen para cubrir tiempo, plataformas y atención.
+          </div>
+          <div class="margin-control">
+            <div class="margin-label-row">
+              <span class="margin-label">Margen bruto</span>
+              <div class="margin-stepper">
+                <button onclick="adjustMargin('b2c',-5)" title="Bajar 5%">−</button>
+                <span class="margin-pct-display" id="pct-b2c">70</span><span style="font-size:13px;color:rgba(244,241,232,.4);margin-left:-4px">%</span>
+                <button onclick="adjustMargin('b2c',+5)" title="Subir 5%">+</button>
+              </div>
+            </div>
+            <input type="range" class="margin-slider" id="slider-b2c"
+              min="10" max="90" value="70" style="--pct:75%"
+              oninput="syncSlider('b2c')">
+          </div>
+        </div>
+
+        <!-- B2B VOLUMEN -->
+        <div class="price-card volume">
+          <span class="price-badge">B2B Volumen</span>
+          <span class="price-name">Lote / Producción</span>
+          <div>
+            <div class="price-amount" id="price-volume">—</div>
+            <div class="price-unit-label">por unidad</div>
+          </div>
+          <div class="price-desc">
+            Para pedidos repetitivos o producción en serie. Precio agresivo para ganar contratos de largo plazo.
+          </div>
+          <div class="margin-control">
+            <div class="margin-label-row">
+              <span class="margin-label">Margen bruto</span>
+              <div class="margin-stepper">
+                <button onclick="adjustMargin('volume',-5)" title="Bajar 5%">−</button>
+                <span class="margin-pct-display" id="pct-volume">47</span><span style="font-size:13px;color:rgba(244,241,232,.4);margin-left:-4px">%</span>
+                <button onclick="adjustMargin('volume',+5)" title="Subir 5%">+</button>
+              </div>
+            </div>
+            <input type="range" class="margin-slider" id="slider-volume"
+              min="10" max="90" value="47" style="--pct:41%"
+              oninput="syncSlider('volume')">
+          </div>
+        </div>
+
+      </div>
+
+      <div style="margin-top: 20px; padding: 14px 18px; background: rgba(247,165,25,.05); border: 1px solid rgba(247,165,25,.1); border-radius: 3px;">
+        <p style="font-size: 12px; color: rgba(244,241,232,.4); line-height: 1.6;">
+          ⚠️ <strong style="color: rgba(244,241,232,.6);">Nota:</strong> Estos precios no incluyen tiempo de diseño CAD, post-procesado, ni fallas de impresión (~5-10%). Para piezas técnicas o materiales especiales (TPU, ABS, fibra de carbono) ajusta el costo de material y agrega tiempo adicional.
+        </p>
+      </div>
+    </div>
+
+  </div><!-- /calc-wrapper -->
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="foot-row">
+      <div class="foot-logo">
+        <img src="./Isotipo_Mesa de trabajo 1 sin fondo.png" alt="Kafetin">
+      </div>
+      <p>Herramienta gratuita de <a href="https://kafetin.co">kafetin.co</a> — manufactura aditiva para empresas en Medellín</p>
+      <a href="https://wa.me/573155425240?text=Hola%20Kafetin%2C%20quiero%20cotizar%20un%20proyecto" target="_blank">Cotizar proyecto →</a>
+    </div>
+    <div class="foot-social">
+      <a href="https://wa.me/573155425240?text=Hola%20Kafetin%2C%20quiero%20cotizar%20un%20proyecto" target="_blank">WhatsApp</a>
+      <a href="https://www.instagram.com/kafetin.co/" target="_blank">Instagram</a>
+      <a href="https://www.linkedin.com/company/kafetin" target="_blank">LinkedIn</a>
+    </div>
+  </footer>
+
+  </div><!-- /calc-content -->
+
+  <script>
+    // ─── GATE LOGIC ───
+    const STORAGE_KEY = 'kafetin_calc_access';
+
+    function unlockCalculator() {
+      const gate = document.getElementById('gate');
+      const content = document.getElementById('calc-content');
+      gate.classList.add('hidden');
+      content.classList.remove('locked');
+      setTimeout(() => { gate.style.display = 'none'; }, 450);
+    }
+
+    function submitGate(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-gate-submit');
+      const errorEl = document.getElementById('gate-error');
+      const nombre   = document.getElementById('g-nombre').value.trim();
+      const empresa  = document.getElementById('g-empresa').value.trim();
+      const correo   = document.getElementById('g-correo').value.trim();
+      const telefono = document.getElementById('g-telefono').value.trim();
+      const ciudad   = document.getElementById('g-ciudad').value.trim();
+
+      errorEl.textContent = '';
+      btn.disabled = true;
+      btn.textContent = 'Registrando…';
+
+      const body = new URLSearchParams({
+        'form-name': 'calculadora-leads',
+        nombre, empresa, correo, telefono, ciudad
+      });
+
+      fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString()
+      })
+      .then(res => {
+        if (res.ok || res.status === 200 || res.status === 303) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({ nombre, correo, ts: Date.now() }));
+          unlockCalculator();
+        } else {
+          throw new Error('Error al registrar');
+        }
+      })
+      .catch(() => {
+        // Si fetch falla (ej: modo local sin Netlify), igual desbloqueamos para no bloquear al usuario
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ nombre, correo, ts: Date.now() }));
+        unlockCalculator();
+      });
+    }
+
+    // Chequeo al cargar — si ya se registró, skip gate
+    (function() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        document.getElementById('gate').style.display = 'none';
+        document.getElementById('calc-content').classList.remove('locked');
+      }
+    })();
+
+    // ─── CALCULATOR LOGIC ───
+    // Consumo impresora Bambu Lab (~300W promedio durante impresión)
+    const PRINTER_WATTS = 300;
+    // Vida útil máquina en horas: 3 años × 22días/mes × 12meses × 8hrs
+    const MACHINE_LIFE_HRS = 3 * 22 * 12 * 8; // 6,336 hrs
+
+    // ─── SLIDER HELPERS ───
+    function syncSlider(channel) {
+      const slider = document.getElementById('slider-' + channel);
+      const val = parseInt(slider.value);
+      document.getElementById('pct-' + channel).textContent = val;
+      // update CSS gradient fill
+      const pct = ((val - 10) / 80 * 100).toFixed(1) + '%';
+      slider.style.setProperty('--pct', pct);
+      calculate();
+    }
+
+    function adjustMargin(channel, delta) {
+      const slider = document.getElementById('slider-' + channel);
+      slider.value = Math.min(90, Math.max(10, parseInt(slider.value) + delta));
+      syncSlider(channel);
+    }
+
+    // init slider fills on load
+    function initSliders() {
+      ['b2c','volume'].forEach(ch => syncSlider(ch));
+    }
+
+    let extraCount = 0;
+
+    function fmt(n) {
+      return '$' + Math.round(n).toLocaleString('es-CO');
+    }
+
+    function addExtra(desc = '', cost = '') {
+      extraCount++;
+      const id = extraCount;
+      const list = document.getElementById('extras-list');
+      const row = document.createElement('div');
+      row.className = 'extra-row';
+      row.id = 'extra-row-' + id;
+      row.innerHTML = `
+        <input class="extra-desc" type="text" placeholder="Ej: Empaque, Accesorio, Etiqueta…" value="${desc}" oninput="calculate()">
+        <div class="extra-cost-wrap">
+          <input type="number" min="0" placeholder="0" value="${cost}" oninput="calculate()">
+          <span class="unit">COP</span>
+        </div>
+        <button class="btn-remove" onclick="removeExtra(${id})" title="Eliminar">×</button>
+      `;
+      list.appendChild(row);
+      calculate();
+    }
+
+    function removeExtra(id) {
+      const row = document.getElementById('extra-row-' + id);
+      if (row) row.remove();
+      calculate();
+    }
+
+    function getExtrasTotal() {
+      let total = 0;
+      document.querySelectorAll('#extras-list .extra-row').forEach(row => {
+        const val = parseFloat(row.querySelector('input[type="number"]').value) || 0;
+        total += val;
+      });
+      return total;
+    }
+
+    function calculate() {
+      const weight   = parseFloat(document.getElementById('weight').value)   || 0;
+      const time     = parseFloat(document.getElementById('time').value)      || 0;
+      const units    = parseInt(document.getElementById('units').value)       || 1;
+      const matCost  = parseFloat(document.getElementById('matCost').value)   || 85000;
+      const kwhPrice = parseFloat(document.getElementById('kwh').value)       || 800;
+      const machineTotal = parseFloat(document.getElementById('machineCost').value) || 5000000;
+
+      const laborHours = parseFloat(document.getElementById('laborHours').value) || 0;
+      const laborRate  = parseFloat(document.getElementById('laborRate').value)  || 50000;
+
+      // ── base costs per unit ──
+      const costMaterialUnit = (weight / 1000) * matCost;
+      const costElectricUnit = time * (PRINTER_WATTS / 1000) * kwhPrice;
+      const deprecHourRate   = machineTotal / MACHINE_LIFE_HRS;
+      const costDeprecUnit   = time * deprecHourRate;
+      const laborHourRate    = laborRate / 8;
+      const costLaborUnit    = laborHours * laborHourRate;
+      const costBasePerUnit  = costMaterialUnit + costElectricUnit + costDeprecUnit + costLaborUnit;
+
+      // ── extras per unit ──
+      const extrasPerUnit = getExtrasTotal();
+      const costPerUnit   = costBasePerUnit + extrasPerUnit;
+      const costTotal     = costBasePerUnit * units;
+
+      // ── display breakdown ──
+      document.getElementById('res-material').textContent     = fmt(costMaterialUnit * units);
+      document.getElementById('res-material-sub').textContent = `${weight}g × ${units} ud. · ${fmt(costMaterialUnit)}/ud`;
+
+      document.getElementById('res-electric').textContent     = fmt(costElectricUnit * units);
+      document.getElementById('res-electric-sub').textContent = `${time}h × ${PRINTER_WATTS}W · ${fmt(costElectricUnit)}/ud`;
+
+      document.getElementById('res-deprec').textContent       = fmt(costDeprecUnit * units);
+      document.getElementById('res-deprec-sub').textContent   = `${fmt(Math.round(deprecHourRate))}/hr · ${fmt(costDeprecUnit)}/ud`;
+
+      document.getElementById('res-labor').textContent        = fmt(costLaborUnit * units);
+      document.getElementById('res-labor-sub').textContent    = `${laborHours}h × ${fmt(Math.round(laborHourRate))}/hr · ${fmt(costLaborUnit)}/ud`;
+
+      document.getElementById('res-subtotal').textContent     = fmt(costTotal);
+      document.getElementById('res-units-show').textContent   = units + ' unidad' + (units !== 1 ? 'es' : '');
+      document.getElementById('res-per-unit').textContent     = fmt(costPerUnit);
+
+      // ── extras total display ──
+      document.getElementById('extras-total').textContent = fmt(extrasPerUnit);
+      const rowExtras = document.getElementById('row-extras');
+      if (extrasPerUnit > 0) {
+        rowExtras.style.display = 'flex';
+        document.getElementById('res-extras-inline').textContent = fmt(extrasPerUnit);
+      } else {
+        rowExtras.style.display = 'none';
+      }
+
+      // ── precios sugeridos (margen ajustable por el usuario) ──
+      const pctB2C = parseInt(document.getElementById('slider-b2c').value) / 100;
+      const pctVol = parseInt(document.getElementById('slider-volume').value) / 100;
+
+      document.getElementById('price-b2c').textContent    = costPerUnit > 0 ? fmt(costPerUnit / (1 - pctB2C)) : '—';
+      document.getElementById('price-volume').textContent = costPerUnit > 0 ? fmt(costPerUnit / (1 - pctVol)) : '—';
+    }
+
+    // ─── RESET ───
+    function resetAll() {
+      document.getElementById('weight').value      = 50;
+      document.getElementById('time').value        = 2;
+      document.getElementById('units').value       = 1;
+      document.getElementById('laborHours').value  = 0.5;
+      document.getElementById('matCost').value     = 85000;
+      document.getElementById('kwh').value         = 800;
+      document.getElementById('machineCost').value = 5000000;
+      document.getElementById('laborRate').value   = 50000;
+      document.getElementById('slider-b2c').value    = 70;
+      document.getElementById('slider-volume').value = 47;
+      document.getElementById('extras-list').innerHTML = '';
+      extraCount = 0;
+      initSliders();
+      calculate();
+    }
+
+    // Run on load
+    initSliders();
+    calculate();
+  </script>
+
+</body>
+</html>

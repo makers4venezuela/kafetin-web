@@ -193,11 +193,24 @@ body{font-family:"Barlow",sans-serif;color:var(--navy);overflow-x:hidden;backgro
 @media(max-width:600px){.mn-cart-btn span:not(#ct-cart-count){display:none;}}
 
 /* hero strip */
-#page-catalogo .ct-hero{position:relative;z-index:1;background:#0F0F23;color:#F4F1E8;padding:2.5rem 1rem 2rem;text-align:center;border-bottom:3px solid #F7A519;overflow:hidden;}
+#page-catalogo .ct-hero{position:relative;z-index:1;background:#0F0F23;color:#F4F1E8;padding:2.5rem 2rem 2rem;border-bottom:3px solid #F7A519;overflow:hidden;}
 #page-catalogo .ct-hero::before{content:"";position:absolute;inset:0;background-image:url("./textura_Mesa de trabajo 1.jpg");background-size:220%;background-position:center;opacity:.07;animation:textureDrift 35s ease-in-out infinite;pointer-events:none;}
-#page-catalogo .ct-hero h1{font-family:"Bebas Neue",sans-serif;font-size:clamp(3rem,10vw,5rem);letter-spacing:.04em;line-height:1;color:#F4F1E8;margin-bottom:.5rem;position:relative;z-index:1;}
+#page-catalogo .ct-hero-inner{position:relative;z-index:1;max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px;}
+#page-catalogo .ct-hero-left{flex:1;}
+#page-catalogo .ct-hero h1{font-family:"Bebas Neue",sans-serif;font-size:clamp(3rem,10vw,5rem);letter-spacing:.04em;line-height:1;color:#F4F1E8;margin-bottom:.5rem;}
 #page-catalogo .ct-hero h1 span{color:#F7A519;}
-#page-catalogo .ct-hero-sub{font-size:.88rem;font-weight:400;color:rgba(244,241,232,.72);letter-spacing:.06em;text-transform:uppercase;position:relative;z-index:1;}
+#page-catalogo .ct-hero-sub{font-size:.88rem;font-weight:400;color:rgba(244,241,232,.72);letter-spacing:.06em;text-transform:uppercase;}
+#page-catalogo .ct-hero-brand{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:8px;}
+#page-catalogo .ct-hero-brand img{height:80px;width:auto;}
+#page-catalogo .ct-hero-brand-tag{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(244,241,232,.4);}
+@media(max-width:600px){
+  #page-catalogo .ct-hero{padding:1.6rem 1rem 1.4rem;}
+  #page-catalogo .ct-hero-brand img{height:52px;}
+}
+@media(max-width:400px){
+  #page-catalogo .ct-hero-inner{flex-direction:column;align-items:flex-start;gap:16px;}
+  #page-catalogo .ct-hero-brand{flex-direction:row;align-items:center;}
+}
 
 /* filters */
 #page-catalogo .ct-filters-wrap{position:relative;z-index:1;background:#F4F1E8;border-bottom:1px solid rgba(15,15,35,.10);padding:.6rem 0;}
@@ -336,8 +349,16 @@ body{font-family:"Barlow",sans-serif;color:var(--navy);overflow-x:hidden;backgro
 
 <!-- hero strip -->
 <section class="ct-hero">
-  <h1>FILAMENTOS <span>PARA MAKERS</span></h1>
-  <p class="ct-hero-sub">Entrega en Medellín 24 horas &nbsp;·&nbsp; PLA · PETG · ABS · TPU</p>
+  <div class="ct-hero-inner">
+    <div class="ct-hero-left">
+      <h1>FILAMENTOS <span>PARA MAKERS</span></h1>
+      <p class="ct-hero-sub">Entrega en Medellín 24 horas &nbsp;·&nbsp; PLA · PETG · ABS · TPU</p>
+    </div>
+    <div class="ct-hero-brand">
+      <img src="./4DVRC.png" alt="4DLAB — Filamento colombiano">
+      <span class="ct-hero-brand-tag">🇨🇴 &nbsp;100% Colombiano</span>
+    </div>
+  </div>
 </section>
 
 <!-- filters -->
