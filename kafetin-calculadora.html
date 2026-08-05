@@ -982,7 +982,7 @@
               <input type="number" id="weight" value="50" min="1" oninput="calculate()">
               <span class="unit">gramos</span>
             </div>
-            <span class="field-hint">Puedes verlo en tu slicer antes de imprimir</span>
+            <span class="field-hint">Peso total del lote — puedes verlo en tu slicer</span>
           </div>
           <div class="field">
             <label>Tiempo de impresión</label>
@@ -1003,10 +1003,10 @@
           <div class="field">
             <label>Horas de mano de obra</label>
             <div class="field-row">
-              <input type="number" id="laborHours" value="0.5" min="0" step="0.25" oninput="calculate()">
-              <span class="unit">horas / ud.</span>
+              <input type="number" id="laborHours" value="2" min="0" step="0.25" oninput="calculate()">
+              <span class="unit">horas lote</span>
             </div>
-            <span class="field-hint">Setup, supervisión y post-procesado por pieza</span>
+            <span class="field-hint">Total de horas dedicadas al lote completo (arme, supervisión, post-proceso)</span>
           </div>
         </div>
       </div>
@@ -1347,12 +1347,16 @@
       const laborRate  = parseFloat(document.getElementById('laborRate').value)  || 50000;
 
       // ── base costs per unit ──
-      const costMaterialUnit = (weight / 1000) * matCost;
-      const costElectricUnit = time * (PRINTER_WATTS / 1000) * kwhPrice;
+      // weight, time and labor are all batch totals — divide by units to get per-unit cost
+      const weightPerUnit    = weight / units;
+      const timePerUnit      = time / units;
+      const laborHoursPerUnit = laborHours / units;
+      const costMaterialUnit = (weightPerUnit / 1000) * matCost;
+      const costElectricUnit = timePerUnit * (PRINTER_WATTS / 1000) * kwhPrice;
       const deprecHourRate   = machineTotal / MACHINE_LIFE_HRS;
-      const costDeprecUnit   = time * deprecHourRate;
+      const costDeprecUnit   = timePerUnit * deprecHourRate;
       const laborHourRate    = laborRate / 8;
-      const costLaborUnit    = laborHours * laborHourRate;
+      const costLaborUnit    = laborHoursPerUnit * laborHourRate;
       const costBasePerUnit  = costMaterialUnit + costElectricUnit + costDeprecUnit + costLaborUnit;
 
       // ── extras per unit ──
@@ -1362,16 +1366,16 @@
 
       // ── display breakdown ──
       document.getElementById('res-material').textContent     = fmt(costMaterialUnit * units);
-      document.getElementById('res-material-sub').textContent = `${weight}g × ${units} ud. · ${fmt(costMaterialUnit)}/ud`;
+      document.getElementById('res-material-sub').textContent = `${weight}g lote ÷ ${units} ud · ${fmt(costMaterialUnit)}/ud`;
 
       document.getElementById('res-electric').textContent     = fmt(costElectricUnit * units);
-      document.getElementById('res-electric-sub').textContent = `${time}h × ${PRINTER_WATTS}W · ${fmt(costElectricUnit)}/ud`;
+      document.getElementById('res-electric-sub').textContent = `${time}h lote ÷ ${units} ud · ${fmt(costElectricUnit)}/ud`;
 
       document.getElementById('res-deprec').textContent       = fmt(costDeprecUnit * units);
       document.getElementById('res-deprec-sub').textContent   = `${fmt(Math.round(deprecHourRate))}/hr · ${fmt(costDeprecUnit)}/ud`;
 
       document.getElementById('res-labor').textContent        = fmt(costLaborUnit * units);
-      document.getElementById('res-labor-sub').textContent    = `${laborHours}h × ${fmt(Math.round(laborHourRate))}/hr · ${fmt(costLaborUnit)}/ud`;
+      document.getElementById('res-labor-sub').textContent    = `${laborHours}h lote ÷ ${units} ud · ${fmt(costLaborUnit)}/ud`;
 
       document.getElementById('res-subtotal').textContent     = fmt(costTotal);
       document.getElementById('res-units-show').textContent   = units + ' unidad' + (units !== 1 ? 'es' : '');
@@ -1395,12 +1399,13 @@
       document.getElementById('price-volume').textContent = costPerUnit > 0 ? fmt(costPerUnit / (1 - pctVol)) : '—';
     }
 
+
     // ─── RESET ───
     function resetAll() {
       document.getElementById('weight').value      = 50;
       document.getElementById('time').value        = 2;
       document.getElementById('units').value       = 1;
-      document.getElementById('laborHours').value  = 0.5;
+      document.getElementById('laborHours').value  = 2;
       document.getElementById('matCost').value     = 85000;
       document.getElementById('kwh').value         = 800;
       document.getElementById('machineCost').value = 5000000;
