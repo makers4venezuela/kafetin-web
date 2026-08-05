@@ -845,10 +845,10 @@ body{font-family:"Barlow",sans-serif;color:var(--navy);overflow-x:hidden;backgro
         <div class="cb-card-title">Datos de la pieza</div>
         <div class="cb-card-sub">Ingresa las características de tu impresión</div>
         <div class="cb-input-group">
-          <div class="cb-field"><label>Peso de la pieza</label><div class="cb-field-row"><input type="number" id="cb-weight" value="50" min="1" oninput="cbCalculate()"><span class="unit">gramos</span></div><span class="cb-field-hint">Puedes verlo en tu slicer antes de imprimir</span></div>
-          <div class="cb-field"><label>Tiempo de impresión</label><div class="cb-field-row"><input type="number" id="cb-time" value="2" min="0.1" step="0.5" oninput="cbCalculate()"><span class="unit">horas</span></div></div>
+          <div class="cb-field"><label>Peso total del lote</label><div class="cb-field-row"><input type="number" id="cb-weight" value="50" min="1" oninput="cbCalculate()"><span class="unit">gramos</span></div><span class="cb-field-hint">Peso total del lote — puedes verlo en tu slicer</span></div>
+          <div class="cb-field"><label>Tiempo total del lote</label><div class="cb-field-row"><input type="number" id="cb-time" value="2" min="0.1" step="0.5" oninput="cbCalculate()"><span class="unit">horas</span></div><span class="cb-field-hint">Tiempo total de impresión del lote completo</span></div>
           <div class="cb-field"><label>Unidades a producir</label><div class="cb-field-row"><input type="number" id="cb-units" value="1" min="1" oninput="cbCalculate()"><span class="unit">unidades</span></div><span class="cb-field-hint">El costo por unidad baja con más volumen</span></div>
-          <div class="cb-field"><label>Horas de mano de obra</label><div class="cb-field-row"><input type="number" id="cb-laborHours" value="0.5" min="0" step="0.25" oninput="cbCalculate()"><span class="unit">horas / ud.</span></div><span class="cb-field-hint">Setup, supervisión y post-procesado por pieza</span></div>
+          <div class="cb-field"><label>Horas de mano de obra</label><div class="cb-field-row"><input type="number" id="cb-laborHours" value="2" min="0" step="0.25" oninput="cbCalculate()"><span class="unit">horas lote</span></div><span class="cb-field-hint">Total de horas dedicadas al lote (arme, supervisión, post-proceso)</span></div>
         </div>
       </div>
       <!-- valores base -->
@@ -1161,15 +1161,16 @@ function cbCalculate(){
   const mch=parseFloat(document.getElementById('cb-machineCost').value)||5000000;
   const lh=parseFloat(document.getElementById('cb-laborHours').value)||0;
   const lr=parseFloat(document.getElementById('cb-laborRate').value)||50000;
-  const costMat=(w/1000)*mc;const costEl=t*(CB_PRINTER_W/1000)*kp;
-  const deprecH=mch/CB_MACHINE_LIFE;const costDeprec=t*deprecH;
-  const laborHR=lr/8;const costLabor=lh*laborHR;
+  const wUnit=w/u;const tUnit=t/u;const lhUnit=lh/u;
+  const costMat=(wUnit/1000)*mc;const costEl=tUnit*(CB_PRINTER_W/1000)*kp;
+  const deprecH=mch/CB_MACHINE_LIFE;const costDeprec=tUnit*deprecH;
+  const laborHR=lr/8;const costLabor=lhUnit*laborHR;
   const costBase=costMat+costEl+costDeprec+costLabor;
   const extras=cbGetExtras();const costPer=costBase+extras;const costTotal=costBase*u;
-  document.getElementById('cb-res-material').textContent=cbFmt(costMat*u);document.getElementById('cb-res-material-sub').textContent=`${w}g × ${u} ud. · ${cbFmt(costMat)}/ud`;
-  document.getElementById('cb-res-electric').textContent=cbFmt(costEl*u);document.getElementById('cb-res-electric-sub').textContent=`${t}h × ${CB_PRINTER_W}W · ${cbFmt(costEl)}/ud`;
+  document.getElementById('cb-res-material').textContent=cbFmt(costMat*u);document.getElementById('cb-res-material-sub').textContent=`${w}g lote ÷ ${u} ud. · ${cbFmt(costMat)}/ud`;
+  document.getElementById('cb-res-electric').textContent=cbFmt(costEl*u);document.getElementById('cb-res-electric-sub').textContent=`${t}h lote ÷ ${u} ud. · ${cbFmt(costEl)}/ud`;
   document.getElementById('cb-res-deprec').textContent=cbFmt(costDeprec*u);document.getElementById('cb-res-deprec-sub').textContent=`${cbFmt(Math.round(deprecH))}/hr · ${cbFmt(costDeprec)}/ud`;
-  document.getElementById('cb-res-labor').textContent=cbFmt(costLabor*u);document.getElementById('cb-res-labor-sub').textContent=`${lh}h × ${cbFmt(Math.round(laborHR))}/hr · ${cbFmt(costLabor)}/ud`;
+  document.getElementById('cb-res-labor').textContent=cbFmt(costLabor*u);document.getElementById('cb-res-labor-sub').textContent=`${lh}h lote ÷ ${u} ud. · ${cbFmt(costLabor)}/ud`;
   document.getElementById('cb-res-subtotal').textContent=cbFmt(costTotal);
   document.getElementById('cb-res-units-show').textContent=u+' unidad'+(u!==1?'es':'');
   document.getElementById('cb-res-per-unit').textContent=cbFmt(costPer);
@@ -1182,7 +1183,7 @@ function cbCalculate(){
   document.getElementById('cb-price-volume').textContent=costPer>0?cbFmt(costPer/(1-pVol)):'—';
 }
 
-function cbResetAll(){['cb-weight','cb-time','cb-units','cb-laborHours'].forEach((id,i)=>{document.getElementById(id).value=[50,2,1,0.5][i];});['cb-matCost','cb-kwh','cb-machineCost','cb-laborRate'].forEach((id,i)=>{document.getElementById(id).value=[85000,800,5000000,50000][i];});document.getElementById('cb-slider-b2c').value=70;document.getElementById('cb-slider-volume').value=47;document.getElementById('cb-extras-list').innerHTML='';cbExtraCount=0;cbInitSliders();cbCalculate();}
+function cbResetAll(){['cb-weight','cb-time','cb-units','cb-laborHours'].forEach((id,i)=>{document.getElementById(id).value=[50,2,1,2][i];});['cb-matCost','cb-kwh','cb-machineCost','cb-laborRate'].forEach((id,i)=>{document.getElementById(id).value=[85000,800,5000000,50000][i];});document.getElementById('cb-slider-b2c').value=70;document.getElementById('cb-slider-volume').value=47;document.getElementById('cb-extras-list').innerHTML='';cbExtraCount=0;cbInitSliders();cbCalculate();}
 
 function submitIdea(e){
   e.preventDefault();
