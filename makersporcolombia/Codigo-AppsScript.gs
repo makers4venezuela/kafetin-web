@@ -37,25 +37,30 @@ function setup() {
 }
 
 var CATALOGO = [
-  ['Dedos', 'Fijación de dedo (V3)', 'FIXACE PRSTU V3.stl'],
-  ['Dedos', 'Fijación de dedo completo (V2)', 'FIXACE CELEHO PRSTU V2.stl'],
-  ['Dedos', 'Fijación pulgar–meñique (V3)', 'FIXACE PALEC-MALIK V3.stl'],
-  ['Mano y metacarpo', 'FTM Pequeña — Soporte metacarpo', 'FTM PEQUEÑA - Soporte Metacarpo.stl'],
-  ['Mano y metacarpo', 'FTM Mediana — Soporte metacarpo', 'FTM MEDIANA - Soporte Metacarpo.stl'],
-  ['Mano y metacarpo', 'FTM Grande — Derecha', 'FTM GRANDE.stl'],
-  ['Mano y metacarpo', 'FTM Grande — Izquierda', 'FTM GRANDE IZQ(1).stl'],
-  ['Mano y metacarpo', 'FTM — 4.º y 5.º metacarpo', 'FTM - Mano 4toy 5to metacarpo.stl'],
-  ['Mano y metacarpo', 'Férula Intrínseco Plus — Derecha', 'Férula Intrinseco Plus - Derecho.stl'],
-  ['Mano y metacarpo', 'Férula Intrínseco Plus — Izquierda', 'Férula Intrinseco Plus - Izquierdo.stl'],
-  ['Muñeca', 'Férula de muñeca panal (con logo)', 'wristSplint-honeycomb-h2 logo'],
-  ['Antebrazo y codo', 'Antebrazo — Braquiopalmar mediana', 'Antebrazo - Modelo Braquiopalmar Mediana.stl'],
-  ['Antebrazo y codo', 'Antebrazo infantil', 'Ante Brazo Infantil.stl'],
-  ['Antebrazo y codo', 'Codo — Braquiopalmar mediana', 'Codo - Modelo Braquiopalmar Mediana.stl'],
-  ['Antebrazo y codo', 'Codo infantil', 'Codo Infantil.stl'],
-  ['Antebrazo y codo', 'Codo infantil — contextura delgada', 'Codo Infantil - Contextura Delgada.stl'],
-  ['Pie', 'Fijación de pie / dedo gordo (V2)', 'FIXACE CHODIDLA - palec V2.stl']
+  ['Braquiopalmar', 'Braquiopalmar termoformada — Adulto', 'Braquiopalmar-Adulto.3mf'],
+  ['Braquiopalmar', 'Braquiopalmar termoformada — Infantil', 'Braquiopalmar-Infantil.3mf'],
+  ['Carpo-Palmar', 'Carpo-Palmar termoformada — Mediano', 'Carpo-Palmar-Mediano.3mf'],
+  ['Carpo-Palmar', 'Carpo-Palmar termoformada — Pequeño', 'Carpo-Palmar-Pequeno.3mf'],
+  ['Dedo', 'Fijación de dedo', 'Dedo.3mf'],
+  ['Archivo', 'Fijación de dedo (V3)', 'FIXACE PRSTU V3.stl'],
+  ['Archivo', 'Fijación de dedo completo (V2)', 'FIXACE CELEHO PRSTU V2.stl'],
+  ['Archivo', 'Fijación pulgar–meñique (V3)', 'FIXACE PALEC-MALIK V3.stl'],
+  ['Archivo', 'FTM Pequeña — Soporte metacarpo', 'FTM PEQUEÑA - Soporte Metacarpo.stl'],
+  ['Archivo', 'FTM Mediana — Soporte metacarpo', 'FTM MEDIANA - Soporte Metacarpo.stl'],
+  ['Archivo', 'FTM Grande — Derecha', 'FTM GRANDE.stl'],
+  ['Archivo', 'FTM Grande — Izquierda', 'FTM GRANDE IZQ(1).stl'],
+  ['Archivo', 'FTM — 4.º y 5.º metacarpo', 'FTM - Mano 4toy 5to metacarpo.stl'],
+  ['Archivo', 'Férula Intrínseco Plus — Derecha', 'Férula Intrinseco Plus - Derecho.stl'],
+  ['Archivo', 'Férula Intrínseco Plus — Izquierda', 'Férula Intrinseco Plus - Izquierdo.stl'],
+  ['Archivo', 'Férula de muñeca panal (con logo)', 'wristSplint-honeycomb-h2 logo'],
+  ['Archivo', 'Antebrazo — Braquiopalmar mediana', 'Antebrazo - Modelo Braquiopalmar Mediana.stl'],
+  ['Archivo', 'Antebrazo infantil', 'Ante Brazo Infantil.stl'],
+  ['Archivo', 'Codo — Braquiopalmar mediana', 'Codo - Modelo Braquiopalmar Mediana.stl'],
+  ['Archivo', 'Codo infantil', 'Codo Infantil.stl'],
+  ['Archivo', 'Codo infantil — contextura delgada', 'Codo Infantil - Contextura Delgada.stl'],
+  ['Archivo', 'Fijación de pie / dedo gordo (V2)', 'FIXACE CHODIDLA - palec V2.stl']
 ];
-var CATEGORIAS = ['Dedos', 'Mano y metacarpo', 'Muñeca', 'Antebrazo y codo', 'Pie', 'Otro'];
+var CATEGORIAS = ['Braquiopalmar', 'Carpo-Palmar', 'Dedo', 'Archivo', 'Otro'];
 
 function setupResumen_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -105,7 +110,7 @@ function setupResumen_() {
   sh.getRange(9, 4, 1, 2).setFontWeight('bold').setFontColor('#ffffff').setBackground('#1f3864');
 
   var ini = tot + 2;
-  sh.getRange(ini, 1).setValue('Por modelo del catalogo')
+  sh.getRange(ini, 1).setValue('Por producto')
     .setFontWeight('bold').setFontColor('#1f3864');
   sh.getRange(ini + 1, 1, 1, 4)
     .setValues([['Categoria','Modelo','Archivo .stl','Fabricadas']])
