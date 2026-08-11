@@ -23,6 +23,8 @@ function setup() {
     .setFontWeight('bold').setFontColor('#ffffff').setBackground('#1f3864');
   sh.setFrozenRows(1);
   sh.getRange('A:A').setNumberFormat('yyyy-mm-dd');
+  sh.getRange('M:M').setNumberFormat('@');   // Destino siempre texto
+  sh.getRange('L:L').setNumberFormat('0');
   var anchos = [95,150,190,130,170,110,95,150,230,230,180,90,150,220,190,220];
   for (var i = 0; i < anchos.length; i++) sh.setColumnWidth(i + 1, anchos[i]);
   if (sh.getMaxColumns() > CABECERA.length)
@@ -84,7 +86,8 @@ function setupResumen_() {
     '=IFERROR(SUMPRODUCT((Registro!M2:M5000<>"")/COUNTIF(Registro!M2:M5000,Registro!M2:M5000&"")),0)',
     '=IFERROR(SUMPRODUCT((Registro!I2:I5000<>"")/COUNTIF(Registro!I2:I5000,Registro!I2:I5000&"")),0)'
   ]]).setFontSize(16).setFontWeight('bold').setFontColor('#1f3864')
-    .setBackground('#fff2cc').setHorizontalAlignment('center');
+    .setBackground('#fff2cc').setHorizontalAlignment('center')
+    .setNumberFormat('0');   // sin esto hereda el % del Resumen anterior
 
   sh.getRange('A7').setValue('Por categoria').setFontWeight('bold').setFontColor('#1f3864');
   sh.getRange(8, 1, 1, 2).setValues([['Categoria','Fabricadas']])
@@ -104,7 +107,7 @@ function setupResumen_() {
     .setFontWeight('bold').setFontColor('#1f3864');
   sh.getRange(9, 4).setFormula(
     '=IFERROR(QUERY(Registro!L2:M, "select Col2, sum(Col1) ' +
-    'where Col2 is not null and Col2 <> \'\' group by Col2 ' +
+    'where Col2 is not null group by Col2 ' +
     'order by sum(Col1) desc label Col2 \'Destino\', sum(Col1) \'Fabricadas\'"), ' +
     '"Sin destinos registrados")');
   sh.getRange(9, 4, 1, 2).setFontWeight('bold').setFontColor('#ffffff').setBackground('#1f3864');

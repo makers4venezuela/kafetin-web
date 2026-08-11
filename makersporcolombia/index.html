@@ -264,6 +264,22 @@ a.btn{text-decoration:none}
 .sug button img{width:20px;height:20px;object-fit:contain;border-radius:5px;background:var(--bg);flex-shrink:0}
 .rank-row img{width:34px;height:34px;object-fit:contain;background:var(--bg2);border-radius:8px;flex-shrink:0}
 
+/* ---------- estado de la red en el panel ---------- */
+.red{
+  display:flex;align-items:center;gap:9px;font-size:12px;line-height:1.4;
+  border-radius:11px;padding:9px 12px;margin-bottom:13px;border:1px solid var(--line);
+}
+.red b{font-weight:700}
+.red.ok{background:rgba(141,181,128,.10);border-color:rgba(141,181,128,.30);color:var(--dim)}
+.red.ok b{color:var(--verde)}
+.red.cargando{color:var(--dim2)}
+.red.error{background:rgba(232,56,79,.09);border-color:rgba(232,56,79,.30);color:var(--dim)}
+.red.error b{color:#ff8f9e}
+.red button{
+  margin-left:auto;flex-shrink:0;font-size:11.5px;font-weight:700;color:var(--amarillo);
+  border:1px solid var(--line2);border-radius:8px;padding:5px 10px;
+}
+
 /* ---------- estado de conexión ---------- */
 .estado{display:flex;gap:11px;align-items:flex-start;border-radius:12px;padding:13px;border:1px solid var(--line)}
 .estado.ok{background:rgba(32,201,151,.10);border-color:rgba(32,201,151,.35)}
@@ -529,6 +545,8 @@ pre{
       <label for="f-pais">🌎 Filtrar por país</label>
       <select id="f-pais" class="inp"><option value="">Todos los países</option></select>
     </div>
+
+    <div class="red" id="red-estado"></div>
 
     <div class="kpis">
       <div class="kpi f"><b id="k-fab">0</b><span>🔧 Fabricadas</span></div>
@@ -991,6 +1009,8 @@ var APPS_SCRIPT = [
 '    .setFontWeight(\'bold\').setFontColor(\'#ffffff\').setBackground(\'#1f3864\');',
 '  sh.setFrozenRows(1);',
 '  sh.getRange(\'A:A\').setNumberFormat(\'yyyy-mm-dd\');',
+'  sh.getRange(\'M:M\').setNumberFormat(\'@\');   // Destino siempre texto',
+'  sh.getRange(\'L:L\').setNumberFormat(\'0\');',
 '  var anchos = [95,150,190,130,170,110,95,150,230,230,180,90,150,220,190,220];',
 '  for (var i = 0; i < anchos.length; i++) sh.setColumnWidth(i + 1, anchos[i]);',
 '  if (sh.getMaxColumns() > CABECERA.length)',
@@ -1052,7 +1072,8 @@ var APPS_SCRIPT = [
 '    \'=IFERROR(SUMPRODUCT((Registro!M2:M5000<>"")/COUNTIF(Registro!M2:M5000,Registro!M2:M5000&"")),0)\',',
 '    \'=IFERROR(SUMPRODUCT((Registro!I2:I5000<>"")/COUNTIF(Registro!I2:I5000,Registro!I2:I5000&"")),0)\'',
 '  ]]).setFontSize(16).setFontWeight(\'bold\').setFontColor(\'#1f3864\')',
-'    .setBackground(\'#fff2cc\').setHorizontalAlignment(\'center\');',
+'    .setBackground(\'#fff2cc\').setHorizontalAlignment(\'center\')',
+'    .setNumberFormat(\'0\');   // sin esto hereda el % del Resumen anterior',
 '',
 '  sh.getRange(\'A7\').setValue(\'Por categoria\').setFontWeight(\'bold\').setFontColor(\'#1f3864\');',
 '  sh.getRange(8, 1, 1, 2).setValues([[\'Categoria\',\'Fabricadas\']])',
@@ -1072,7 +1093,7 @@ var APPS_SCRIPT = [
 '    .setFontWeight(\'bold\').setFontColor(\'#1f3864\');',
 '  sh.getRange(9, 4).setFormula(',
 '    \'=IFERROR(QUERY(Registro!L2:M, "select Col2, sum(Col1) \' +',
-'    \'where Col2 is not null and Col2 <> \\\'\\\' group by Col2 \' +',
+'    \'where Col2 is not null group by Col2 \' +',
 '    \'order by sum(Col1) desc label Col2 \\\'Destino\\\', sum(Col1) \\\'Fabricadas\\\'"), \' +',
 '    \'"Sin destinos registrados")\');',
 '  sh.getRange(9, 4, 1, 2).setFontWeight(\'bold\').setFontColor(\'#ffffff\').setBackground(\'#1f3864\');',
@@ -1367,7 +1388,10 @@ $$("#nav button").forEach(function(b){
     var v = b.dataset.v;
     $("#v-reg").classList.toggle("hidden", v !== "reg");
     $("#v-tot").classList.toggle("hidden", v !== "tot");
-    if (v === "tot") pintarTotales();
+    if (v === "tot") {
+      if (sheetUrl && redEstado !== "ok") traerRemotos();
+      pintarTotales();
+    }
     window.scrollTo(0, 0);
   });
 });
@@ -1873,7 +1897,34 @@ function clave(r){
           r.fabricadas, normNombre(r.destino)].join("|");
 }
 
+/* El panel suma tus registros MÁS los de toda la red. Si la lectura de la red
+   falla, antes se veían solo los propios sin ninguna señal de que faltaba algo. */
+function pintarRed(){
+  var e = $("#red-estado");
+  if (!e) return;
+  if (redEstado === "ok") {
+    e.className = "red ok";
+    e.innerHTML = '<span>🌐</span><span>Mostrando los totales de <b>toda la red</b> · ' +
+                  redN + (redN === 1 ? ' registro' : ' registros') + ' en la hoja</span>';
+  } else if (redEstado === "cargando") {
+    e.className = "red cargando";
+    e.innerHTML = '<span class="spin">↻</span><span>Trayendo los totales de la red…</span>';
+  } else if (redEstado === "viejo") {
+    e.className = "red error";
+    e.innerHTML = '<span>⚠️</span><span><b>El servidor está desactualizado.</b> ' +
+                  'Devuelve datos del formato anterior, sin destino. Avisa a la coordinación: ' +
+                  'falta publicar una versión nueva del Apps Script.</span>';
+  } else {
+    e.className = "red error";
+    e.innerHTML = '<span>⚠️</span><span><b>Solo tus registros.</b> No se pudo leer la red.</span>' +
+                  '<button type="button" id="red-retry">Reintentar</button>';
+    var b = $("#red-retry");
+    if (b) b.addEventListener("click", function(){ traerRemotos(); });
+  }
+}
+
 function pintarTotales(){
+  pintarRed();
   var lim = desde(periodo);
   var datos = universo().filter(function(r){
     if (paisFiltro && r.pais !== paisFiltro) return false;
@@ -1986,11 +2037,19 @@ function enviar(lista){
   siguiente();
 }
 
+/* Estado de la lectura de la red. Antes fallaba en silencio y el panel
+   mostraba solo lo del propio teléfono sin avisar de nada. */
+var redEstado = "cargando";   // cargando · ok · error
+var redN = 0;
+
 function traerRemotos(cb){
-  if (!sheetUrl) { if (cb) cb(false); return; }
+  if (!sheetUrl) { redEstado = "error"; if (cb) cb(false); return; }
+  redEstado = "cargando"; pintarRed();
   var nombre = "m4coCB" + Date.now();
   var s = document.createElement("script");
-  var t = setTimeout(function(){ limpiar(); if (cb) cb(false); }, 15000);
+  var t = setTimeout(function(){
+    limpiar(); redEstado = "error"; pintarRed(); if (cb) cb(false);
+  }, 15000);
   function limpiar(){
     clearTimeout(t);
     try { delete window[nombre]; } catch(e){ window[nombre] = undefined; }
@@ -1999,13 +2058,22 @@ function traerRemotos(cb){
   window[nombre] = function(data){
     limpiar();
     if (Array.isArray(data)) {
-      remotos = data;
+      // Si vienen con "entregadas" y sin "destino", la implementación del
+      // Apps Script quedó en una versión anterior a la de destinos.
+      if (data.length && data[0].destino === undefined && "entregadas" in data[0]) {
+        remotos = []; redN = data.length; redEstado = "viejo";
+        pintarRed(); if (cb) cb(false); return;
+      }
+      remotos = data; redN = data.length; redEstado = "ok";
       save(K_REM, remotos);
       pintarTotales();
       if (cb) cb(true);
-    } else if (cb) cb(false);
+    } else {
+      redEstado = "error"; pintarRed();
+      if (cb) cb(false);
+    }
   };
-  s.onerror = function(){ limpiar(); if (cb) cb(false); };
+  s.onerror = function(){ limpiar(); redEstado = "error"; pintarRed(); if (cb) cb(false); };
   s.src = sheetUrl + (sheetUrl.indexOf("?") > -1 ? "&" : "?") + "callback=" + nombre + "&t=" + Date.now();
   document.body.appendChild(s);
 }
