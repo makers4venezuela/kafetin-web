@@ -124,6 +124,30 @@ details.extra summary::-webkit-details-marker{display:none}
 details.extra summary::before{content:"▸ ";display:inline-block;transition:transform .2s}
 details.extra[open] summary::before{content:"▾ "}
 
+/* ---------- descarga de archivos ---------- */
+.cta-files{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin-bottom:14px;
+  background:linear-gradient(135deg,rgba(141,181,128,.14),rgba(251,186,0,.09));
+  border:1px solid rgba(141,181,128,.34);border-radius:14px;padding:13px 14px;
+  transition:border-color .15s,transform .1s;
+}
+.cta-files:active{transform:scale(.99)}
+.cta-files .ic{font-size:23px;line-height:1;flex-shrink:0}
+.cta-files .tx{flex:1;min-width:0}
+.cta-files .tx b{display:block;font-size:14.5px;margin-bottom:2px}
+.cta-files .tx span{display:block;font-size:11.5px;color:var(--dim)}
+.cta-files .ar{font-size:22px;color:var(--verde);flex-shrink:0;line-height:1}
+
+.file-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:11px}
+.file-card .top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:3px}
+.file-card .top b{font-size:15px}
+.file-card .top em{font-style:normal;font-size:11.5px;color:var(--dim2);white-space:nowrap}
+.file-card .meta{font-size:12px;color:var(--verde);font-weight:600;margin-bottom:9px}
+.file-card ul{margin:0 0 12px;padding-left:17px;font-size:12px;color:var(--dim);line-height:1.6}
+.file-card ul li::marker{color:var(--dim2)}
+.file-card .btn{padding:11px;font-size:14px}
+a.btn{text-decoration:none}
+
 /* ---------- consentimiento ---------- */
 .consent{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px;margin:4px 0 15px;transition:border-color .15s}
 .consent.err{border-color:var(--rojo);background:rgba(232,56,79,.07)}
@@ -365,6 +389,15 @@ pre{
     <p>Registro de Donación Médica</p>
   </div>
 
+  <button type="button" class="cta-files" id="l-files">
+    <span class="ic">🖨️</span>
+    <span class="tx">
+      <b>Archivos para imprimir</b>
+      <span>3 proyectos de Bambu Studio · 17 modelos listos</span>
+    </span>
+    <span class="ar">›</span>
+  </button>
+
   <div class="card">
     <h2>Identificación del voluntario</h2>
     <p class="muted small" style="margin:0 0 16px">Completa tus datos para registrar la producción.</p>
@@ -544,6 +577,68 @@ pre{
   </div>
 </div>
 
+<!-- ================= MODAL: ARCHIVOS PARA IMPRIMIR ================= -->
+<div class="sheet hidden" id="m-files">
+  <div class="back" data-close></div>
+  <div class="body">
+    <div class="grab"></div>
+    <h2>🖨️ Archivos para imprimir</h2>
+    <p class="lead">Proyectos de Bambu Studio con las placas ya montadas y orientadas. Ábrelos, elige la placa y manda a imprimir.</p>
+
+    <div class="file-card">
+      <div class="top"><b>3DP Pequeña</b><em>0,6 MB · 3 placas</em></div>
+      <div class="meta">16 piezas · 3 modelos</div>
+      <ul>
+        <li>Fijación de dedo (V3) — ×7</li>
+        <li>Fijación de dedo completo (V2) — ×8</li>
+        <li>Fijación pulgar–meñique (V3) — ×1</li>
+      </ul>
+      <a class="btn btn-g" href="archivos/3DP-Pequena.3mf" download="3DP Pequena.3mf">⬇ Descargar</a>
+    </div>
+
+    <div class="file-card">
+      <div class="top"><b>3DP Mediana</b><em>1,9 MB · 11 placas</em></div>
+      <div class="meta">29 piezas · 10 modelos</div>
+      <ul>
+        <li>Fijaciones de dedo, dedo completo y pulgar–meñique</li>
+        <li>Férula de muñeca panal (con logo) — ×2</li>
+        <li>Fijación de pie / dedo gordo (V2) — ×2</li>
+        <li>Antebrazo braquiopalmar mediana — ×2</li>
+        <li>Antebrazo infantil · FTM Pequeña — Soporte metacarpo</li>
+        <li>Codo infantil y codo infantil contextura delgada</li>
+      </ul>
+      <a class="btn btn-g" href="archivos/3DP-Mediana.3mf" download="3DP Mediana.3mf">⬇ Descargar</a>
+    </div>
+
+    <div class="file-card">
+      <div class="top"><b>3DP Grande</b><em>1,0 MB · 7 placas</em></div>
+      <div class="meta">7 piezas · 7 modelos</div>
+      <ul>
+        <li>Férula Intrínseco Plus — derecha e izquierda</li>
+        <li>FTM Grande — derecha e izquierda</li>
+        <li>FTM Mediana — Soporte metacarpo</li>
+        <li>FTM — 4.º y 5.º metacarpo</li>
+        <li>Codo — braquiopalmar mediana</li>
+      </ul>
+      <a class="btn btn-g" href="archivos/3DP-Grande.3mf" download="3DP Grande.3mf">⬇ Descargar</a>
+    </div>
+
+    <div class="estado" style="margin-top:16px">
+      <span class="ic">💡</span>
+      <div>
+        <b>Cómo usarlos</b>
+        <span>Los <code>.3mf</code> se abren con <b>Bambu Studio</b> u <b>Orca Slicer</b>. Traen las piezas ya orientadas y repartidas por placas: no hay que reacomodar nada. Al terminar, registra lo que imprimiste con el mismo nombre de modelo que aparece en el catálogo de la app.</span>
+      </div>
+    </div>
+
+    <p class="tiny muted" style="margin:14px 0 0">
+      Los modelos provienen de proyectos de la comunidad maker internacional y se comparten para uso humanitario sin ánimo de lucro. Si eres autor de alguno y quieres que se retire o se le añada crédito, escríbenos.
+    </p>
+
+    <button class="btn btn-s" style="margin-top:16px" data-close>Cerrar</button>
+  </div>
+</div>
+
 <!-- ================= MODAL: CATÁLOGO ================= -->
 <div class="sheet hidden" id="m-cat">
   <div class="back" data-close></div>
@@ -552,6 +647,9 @@ pre{
     <h2>🗂️ Catálogo de férulas</h2>
     <p class="lead">17 modelos de los proyectos 3DP Pequeña, Mediana y Grande.</p>
     <input id="cat-q" class="inp" placeholder="🔍 Buscar por nombre o archivo…" autocomplete="off">
+    <p class="tiny muted" style="margin:10px 0 0">
+      ¿Aún no tienes los modelos? <a href="#" id="cat-files" style="color:var(--verde);font-weight:600">Descarga los .3mf</a>
+    </p>
     <div id="cat-body" style="margin-top:14px"></div>
     <button class="btn btn-s" style="margin-top:16px" data-close>Cancelar</button>
   </div>
@@ -577,6 +675,7 @@ pre{
     </div>
 
     <button class="btn btn-g" id="c-sync">↻ Sincronizar ahora</button>
+    <button class="btn btn-s" style="margin-top:9px" id="c-files">🖨️ Archivos para imprimir</button>
 
     <details class="extra" style="margin-top:18px">
       <summary>Para la coordinación · código del backend</summary>
@@ -1062,6 +1161,12 @@ if (perfilCompleto(perfil)) {
 
 /* ============ login ============ */
 $("#ver-politica").addEventListener("click", function(e){ e.preventDefault(); abrir("#m-pol"); });
+
+/* Los .3mf se pueden descargar sin registrarse: la idea es que alguien
+   llegue, imprima, y solo después decida registrar lo que hizo. */
+$("#l-files").addEventListener("click", function(){ abrir("#m-files"); });
+$("#c-files").addEventListener("click", function(){ cerrar("#m-cfg"); abrir("#m-files"); });
+$("#cat-files").addEventListener("click", function(e){ e.preventDefault(); cerrar("#m-cat"); abrir("#m-files"); });
 
 $("#l-consent").addEventListener("change", function(){
   if (this.checked) $("#l-consent-box").classList.remove("err");
