@@ -124,6 +124,20 @@ details.extra summary::-webkit-details-marker{display:none}
 details.extra summary::before{content:"▸ ";display:inline-block;transition:transform .2s}
 details.extra[open] summary::before{content:"▾ "}
 
+/* ---------- aviso de navegador interno ---------- */
+.aviso{
+  display:flex;gap:11px;align-items:flex-start;border-radius:13px;padding:13px 14px;margin-bottom:14px;
+  background:rgba(251,186,0,.10);border:1px solid rgba(251,186,0,.34);
+}
+.aviso .ic{font-size:20px;line-height:1.2;flex-shrink:0}
+.aviso b{display:block;font-size:14px;margin-bottom:3px;color:var(--amarillo)}
+.aviso p{margin:0;font-size:12.5px;color:var(--dim);line-height:1.5}
+.aviso .pasos{margin:8px 0 0;padding-left:17px;font-size:12.5px;color:var(--dim);line-height:1.6}
+.aviso button{
+  margin-top:10px;font-size:12px;font-weight:700;color:var(--amarillo);
+  border:1px solid var(--line2);border-radius:9px;padding:7px 12px;
+}
+
 /* ---------- descarga de archivos ---------- */
 .cta-files{
   display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin-bottom:14px;
@@ -437,6 +451,8 @@ pre{
     <p>Registro de Donación Médica</p>
   </div>
 
+  <div class="aviso hidden" id="l-aviso"></div>
+
   <button type="button" class="cta-files" id="l-files">
     <span class="ic">🖨️</span>
     <span class="tx">
@@ -471,13 +487,10 @@ pre{
       <input id="l-mail" class="inp" type="email" placeholder="tu@correo.com" autocomplete="email" inputmode="email">
     </div>
 
-    <details class="extra">
-      <summary>Información adicional (opcional)</summary>
-      <div class="field" style="margin-top:8px">
-        <label for="l-tel">📱 Teléfono / WhatsApp</label>
-        <input id="l-tel" class="inp" type="tel" placeholder="+57 300 000 0000" autocomplete="tel">
-      </div>
-    </details>
+    <div class="field">
+      <label for="l-tel">📱 Teléfono / WhatsApp *</label>
+      <input id="l-tel" class="inp" type="tel" placeholder="300 000 0000" autocomplete="tel" inputmode="tel">
+    </div>
 
     <div class="consent" id="l-consent-box">
       <label class="chk">
@@ -814,7 +827,7 @@ pre{
       <p><b>Qué datos recogemos.</b></p>
       <ul>
         <li>Nombre, correo, ciudad, país y taller del voluntario</li>
-        <li>Teléfono, solo si decides darlo</li>
+        <li>Teléfono de contacto y WhatsApp</li>
         <li>Modelo, cantidades, fechas y fotos de las férulas fabricadas, que se almacenan en Google Drive</li>
       </ul>
 
@@ -823,7 +836,7 @@ pre{
         <li>Consolidar los totales de producción y entrega de la red</li>
         <li>Coordinar la logística de entrega a instituciones de salud</li>
         <li>Elaborar reportes agregados para aliados y donantes</li>
-        <li>Contactarte sobre la operación de la iniciativa</li>
+        <li>Contactarte sobre la operación de la iniciativa y sobre reconocimientos a quienes fabrican</li>
       </ul>
 
       <p><b>Qué NO hacemos.</b> No vendemos ni cedemos tus datos con fines comerciales, y no recogemos datos de pacientes: las fotos son de las piezas fabricadas, no de personas. No fotografíes a un paciente ni su historia clínica.</p>
@@ -1249,6 +1262,45 @@ function save(k, v){
   try { localStorage.setItem(k, JSON.stringify(v)); return true; }
   catch(e){ toast("Sin espacio para guardar la foto", "bad"); return false; }
 }
+/* ---- ¿el navegador va a recordar quién es esta persona? ----
+   Abrir el link desde WhatsApp usa un navegador interno con almacenamiento
+   propio y efímero: cada visita empieza de cero y toca registrarse otra vez. */
+function almacenaBien(){
+  try {
+    localStorage.setItem("m4co.test", "1");
+    var ok = localStorage.getItem("m4co.test") === "1";
+    localStorage.removeItem("m4co.test");
+    return ok;
+  } catch(e){ return false; }
+}
+
+function navegadorInterno(){
+  var ua = navigator.userAgent || "";
+  return /\bwv\b|FBAN|FBAV|FB_IAB|Instagram|MicroMessenger|Line\/|WhatsApp/i.test(ua);
+}
+
+function pintarAviso(){
+  var e = $("#l-aviso");
+  if (!e) return;
+  var sinMemoria = !almacenaBien(), interno = navegadorInterno();
+  if (!sinMemoria && !interno) { e.classList.add("hidden"); return; }
+  e.classList.remove("hidden");
+  e.innerHTML =
+    '<span class="ic">⚠️</span><div>' +
+    '<b>Vas a tener que registrarte cada vez</b>' +
+    '<p>Abriste el link dentro de otra app (WhatsApp, Instagram…) y ese navegador ' +
+    'no guarda tus datos. Ábrelo en tu navegador de siempre:</p>' +
+    '<ol class="pasos">' +
+      '<li>Toca los tres puntos ⋮ arriba a la derecha</li>' +
+      '<li>Elige <b>Abrir en Chrome</b> o <b>Abrir en el navegador</b></li>' +
+      '<li>Allí: <b>Compartir → Añadir a pantalla de inicio</b></li>' +
+    '</ol>' +
+    '<button type="button" id="l-copiar">📋 Copiar el link</button>' +
+    '</div>';
+  var b = $("#l-copiar");
+  if (b) b.addEventListener("click", function(){ copiar(b, location.href, "📋 Copiar el link"); });
+}
+
 function hoyISO(){
   var d = new Date();
   return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
@@ -1285,7 +1337,7 @@ $("#f-fecha").value = hoyISO();
 // Perfiles creados antes de que correo/ciudad/consentimiento fueran obligatorios:
 // se vuelve a pedir el dato que falte, con lo demás ya escrito.
 function perfilCompleto(p){
-  return !!(p && p.nombre && p.taller && p.ciudad && p.mail && p.consentimiento);
+  return !!(p && p.nombre && p.taller && p.ciudad && p.mail && p.tel && p.consentimiento);
 }
 if (perfilCompleto(perfil)) {
   entrar();
@@ -1300,6 +1352,7 @@ if (perfilCompleto(perfil)) {
     toast("Faltan datos obligatorios — complétalos para continuar");
   }
   $("#login").classList.remove("hidden");
+  pintarAviso();
 }
 
 /* ============ login ============ */
@@ -1332,7 +1385,7 @@ $("#l-consent").addEventListener("change", function(){
 });
 
 $("#l-go").addEventListener("click", function(){
-  var reqs = ["#l-nombre", "#l-taller", "#l-ciudad", "#l-mail"];
+  var reqs = ["#l-nombre", "#l-taller", "#l-ciudad", "#l-mail", "#l-tel"];
   var falta = null;
   reqs.forEach(function(s){
     var el = $(s);
@@ -1345,6 +1398,14 @@ $("#l-go").addEventListener("click", function(){
   if (!/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(mail)) {
     $("#l-mail").classList.add("err"); $("#l-mail").focus();
     toast("Revisa el correo electrónico", "bad"); return;
+  }
+
+  // Teléfono: se aceptan formatos varios, pero debe traer dígitos suficientes
+  // para poder llamar. Un móvil colombiano son 10.
+  var tel = $("#l-tel").value.trim();
+  if (tel.replace(/\D/g, "").length < 7) {
+    $("#l-tel").classList.add("err"); $("#l-tel").focus();
+    toast("Revisa el teléfono", "bad"); return;
   }
 
   if (!$("#l-consent").checked) {
@@ -1360,11 +1421,19 @@ $("#l-go").addEventListener("click", function(){
     taller: $("#l-taller").value.trim(),
     ciudad: $("#l-ciudad").value.trim(),
     mail:   mail,
-    tel:    $("#l-tel").value.trim(),
+    tel:    tel,
     consentimiento: true,
     consentidoEn: new Date().toISOString()
   };
   save(K_PROF, perfil);
+  // Si el navegador no lo retuvo, avisamos ahora y no cuando vuelva y
+  // se encuentre el formulario en blanco otra vez.
+  if (!load(K_PROF, null)) {
+    toast("Tu navegador no guardó los datos — mira el aviso de arriba", "bad");
+    pintarAviso();
+    var a = $("#l-aviso");
+    if (a && a.scrollIntoView) a.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
   $("#login").classList.add("hidden");
   entrar();
 });
