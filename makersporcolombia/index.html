@@ -159,6 +159,15 @@ details.extra[open] summary::before{content:"▾ "}
 .file-card .meta{font-size:12px;color:var(--verde);font-weight:600;margin-bottom:9px}
 .file-card ul{margin:0 0 12px;padding-left:17px;font-size:12px;color:var(--dim);line-height:1.6}
 .file-card ul li::marker{color:var(--dim2)}
+.ajustes{
+  background:rgba(251,186,0,.09);border:1px solid rgba(251,186,0,.30);
+  border-radius:11px;padding:10px 12px;margin:0 0 12px;
+}
+.ajustes>b{display:block;font-size:12px;color:var(--amarillo);margin-bottom:7px}
+.ajustes .fila{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:3px 0}
+.ajustes .fila span{color:var(--dim)}
+.ajustes .fila b{color:var(--txt);text-align:right}
+
 .file-card .btn{padding:11px;font-size:14px}
 a.btn{text-decoration:none}
 
@@ -457,7 +466,7 @@ pre{
     <span class="ic">🖨️</span>
     <span class="tx">
       <b>Archivos para imprimir</b>
-      <span>Gancho para botellas · instrucciones y etiquetas</span>
+      <span>Gancho para botellas · guía de uso e instrucciones</span>
     </span>
     <span class="ar">›</span>
   </button>
@@ -674,10 +683,15 @@ pre{
       <div class="meta">1 placa · 3 piezas · se ensamblan entre sí</div>
       <ul>
         <li>Diseño de <a href="https://makerworld.com/en/@Jabawork" target="_blank" rel="noopener" style="color:var(--verde);font-weight:600">@Jabawork</a> en MakerWorld</li>
-        <li>Imprime en PLA. Entra en cualquier impresora</li>
       </ul>
-      <a class="btn btn-g" href="archivos/Gancho-Botella.3mf" download="Gancho Botella PLA.3mf">⬇ Descargar · 1,9 MB</a>
-      <a class="btn btn-s" style="margin-top:8px" id="ver-video" href="archivos/Gancho-Botella-ensamblaje.mp4" target="_blank" rel="noopener">▶ Ver el ensamblaje · 1 min</a>
+      <div class="ajustes">
+        <b>⚙️ Ajustes de impresión</b>
+        <div class="fila"><span>Material principal</span><b>PETG</b></div>
+        <div class="fila"><span>Si usas PLA</span><b>30 % relleno · 4 paredes</b></div>
+      </div>
+      <a class="btn btn-g" href="archivos/Gancho-Botella.3mf" download="Gancho Botella.3mf">⬇ Descargar · 1,9 MB</a>
+      <a class="btn btn-s" style="margin-top:8px" href="archivos/Gancho-Botella-ensamblaje.mp4" target="_blank" rel="noopener">▶ Ver el ensamblaje · 1 min</a>
+      <a class="btn btn-s" style="margin-top:8px" href="archivos/Gancho-Botella-guia-de-uso.pdf" download="Guia de uso - Porta botella clip.pdf">⬇ Guía de uso · 6 por hoja</a>
     </div>
 
     <div class="estado" style="margin-top:14px">
