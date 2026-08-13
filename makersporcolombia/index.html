@@ -138,6 +138,28 @@ details.extra[open] summary::before{content:"▾ "}
   border:1px solid var(--line2);border-radius:9px;padding:7px 12px;
 }
 
+/* ---------- pedidos ---------- */
+.cta-pedido{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin-bottom:10px;
+  background:linear-gradient(135deg,rgba(232,56,79,.16),rgba(251,186,0,.08));
+  border:1px solid rgba(232,56,79,.36);border-radius:14px;padding:13px 14px;
+  transition:transform .1s;
+}
+.cta-pedido:active{transform:scale(.99)}
+.cta-pedido .ic{font-size:23px;line-height:1;flex-shrink:0}
+.cta-pedido .tx{flex:1;min-width:0}
+.cta-pedido .tx b{display:block;font-size:14.5px;margin-bottom:2px}
+.cta-pedido .tx span{display:block;font-size:11.5px;color:var(--dim)}
+.cta-pedido .ar{font-size:22px;color:#ff8f9e;flex-shrink:0;line-height:1}
+.grupo{
+  border:1px solid var(--line);border-radius:13px;padding:13px;margin-bottom:13px;
+  background:rgba(255,255,255,.02);
+}
+.grupo>.t{
+  font-size:11px;font-weight:700;color:var(--dim2);text-transform:uppercase;
+  letter-spacing:.06em;margin-bottom:11px;
+}
+
 /* ---------- descarga de archivos ---------- */
 .cta-files{
   display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin-bottom:14px;
@@ -462,6 +484,15 @@ pre{
 
   <div class="aviso hidden" id="l-aviso"></div>
 
+  <button type="button" class="cta-pedido" id="l-pedido">
+    <span class="ic">📋</span>
+    <span class="tx">
+      <b>¿Necesitas piezas?</b>
+      <span>Hospitales, fundaciones, brigadas · solicítalas aquí</span>
+    </span>
+    <span class="ar">›</span>
+  </button>
+
   <button type="button" class="cta-files" id="l-files">
     <span class="ic">🖨️</span>
     <span class="tx">
@@ -656,6 +687,112 @@ pre{
   </div>
 </div>
 
+<!-- ================= MODAL: PEDIDO ================= -->
+<div class="sheet hidden" id="m-pedido">
+  <div class="back" data-close></div>
+  <div class="body">
+    <div class="grab"></div>
+    <h2>📋 Solicitar piezas</h2>
+    <p class="lead">Para hospitales, fundaciones, alcaldías, brigadas y organizaciones que necesiten piezas impresas. La coordinación revisa cada solicitud y busca talleres cerca de ti.</p>
+
+    <div class="grupo">
+      <div class="t">Quién solicita</div>
+      <div class="field">
+        <label for="p-inst">🏥 Institución u organización *</label>
+        <input id="p-inst" class="inp" placeholder="Ej. Hospital San Jorge">
+      </div>
+      <div class="field">
+        <label for="p-tipo">Tipo</label>
+        <select id="p-tipo" class="inp">
+          <option>Hospital o centro de salud</option>
+          <option>Fundación u ONG</option>
+          <option>Entidad pública / alcaldía</option>
+          <option>Brigada o misión médica</option>
+          <option>Empresa</option>
+          <option>Persona natural</option>
+          <option>Otro</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="p-contacto">👤 Persona de contacto *</label>
+        <input id="p-contacto" class="inp" placeholder="Nombre y apellido">
+      </div>
+      <div class="field">
+        <label for="p-tel">📱 Teléfono / WhatsApp *</label>
+        <input id="p-tel" class="inp" type="tel" inputmode="tel" placeholder="300 000 0000">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="p-mail">✉️ Correo</label>
+        <input id="p-mail" class="inp" type="email" inputmode="email" placeholder="contacto@institucion.co">
+      </div>
+    </div>
+
+    <div class="grupo">
+      <div class="t">Dónde se recibe</div>
+      <div class="row">
+        <div class="field"><label for="p-depto">Departamento *</label><input id="p-depto" class="inp" placeholder="Chocó"></div>
+        <div class="field"><label for="p-ciudad">Ciudad *</label><input id="p-ciudad" class="inp" placeholder="Quibdó"></div>
+      </div>
+      <div class="field">
+        <label for="p-dir">📍 Dirección exacta de entrega *</label>
+        <input id="p-dir" class="inp" placeholder="Calle 00 #00-00, barrio, referencia">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="p-horario">🕐 Horario en que pueden recibir</label>
+        <input id="p-horario" class="inp" placeholder="Ej. lunes a viernes, 8 a 5">
+      </div>
+    </div>
+
+    <div class="grupo">
+      <div class="t">Qué se necesita</div>
+      <div class="field">
+        <label for="p-necesita">🧩 Pieza o solución *</label>
+        <input id="p-necesita" class="inp" placeholder="Ej. base PETG para solución salina">
+        <div class="sug" id="p-sug"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="p-cant">Cantidad aprox. *</label><input id="p-cant" class="inp" type="number" min="1" inputmode="numeric" placeholder="50"></div>
+        <div class="field"><label for="p-cuando">¿Para cuándo?</label><input id="p-cuando" class="inp" placeholder="Esta semana"></div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="p-notas">Detalles</label>
+        <textarea id="p-notas" class="inp" placeholder="Medidas, uso previsto, si tienes un archivo o referencia, a quién va dirigido…"></textarea>
+      </div>
+    </div>
+
+    <div class="consent" id="p-consent-box">
+      <label class="chk">
+        <input type="checkbox" id="p-consent">
+        <span class="box" aria-hidden="true"></span>
+        <span class="tx">
+          Autorizo el tratamiento de estos datos para gestionar la solicitud,
+          conforme a la <b>Ley 1581 de 2012</b>. *
+          <a href="#" id="p-politica">Ver política</a>
+        </span>
+      </label>
+    </div>
+
+    <button class="btn btn-p" id="p-enviar">📨 Enviar solicitud</button>
+    <button class="btn btn-s" style="margin-top:9px" data-close>Cancelar</button>
+  </div>
+</div>
+
+<!-- ================= MODAL: PEDIDO ENVIADO ================= -->
+<div class="sheet hidden" id="p-listo">
+  <div class="back" data-close></div>
+  <div class="body">
+    <div class="grab"></div>
+    <div class="tick">📨</div>
+    <h2 class="center">Solicitud enviada</h2>
+    <p class="lead center" id="p-listo-l"></p>
+    <div class="estado" style="margin-bottom:14px">
+      <span class="ic">⏱️</span>
+      <div><b>Qué sigue</b><span>La coordinación revisa la solicitud y contacta al número que dejaste para confirmar la logística. Si es urgente, escríbenos también por el grupo de WhatsApp.</span></div>
+    </div>
+    <button class="btn btn-s" data-close>Cerrar</button>
+  </div>
+</div>
+
 <!-- ================= MODAL: PATROCINADORES ================= -->
 <div class="sheet hidden" id="m-apoyo">
   <div class="back" data-close></div>
@@ -817,6 +954,7 @@ pre{
       <p><b>Qué datos recogemos.</b></p>
       <ul>
         <li>Nombre, correo, ciudad, país y taller del voluntario</li>
+        <li>De quien solicita piezas: institución, contacto, teléfono, correo y dirección de entrega</li>
         <li>Teléfono de contacto y WhatsApp</li>
         <li>Modelo, cantidades, fechas y fotos de las férulas fabricadas, que se almacenan en Google Drive</li>
       </ul>
@@ -824,7 +962,7 @@ pre{
       <p><b>Para qué los usamos.</b></p>
       <ul>
         <li>Consolidar los totales de producción y entrega de la red</li>
-        <li>Coordinar la logística de entrega a instituciones de salud</li>
+        <li>Coordinar la logística: poner en contacto a quien necesita piezas con talleres cercanos</li>
         <li>Elaborar reportes agregados para aliados y donantes</li>
         <li>Contactarte sobre la operación de la iniciativa y sobre reconocimientos a quienes fabrican</li>
       </ul>
@@ -1003,6 +1141,10 @@ var APPS_SCRIPT = [
 ' */',
 'var HOJA     = \'Registro\';',
 'var CARPETA  = \'Makers por Colombia - Fotos\';',
+'var HOJA_PED = \'Pedidos\';',
+'var CAB_PED  = [\'Fecha\',\'Estado\',\'Institucion\',\'Tipo\',\'Contacto\',\'Telefono\',\'Correo\',',
+'                \'Departamento\',\'Ciudad\',\'Direccion\',\'Horario de recepcion\',',
+'                \'Que se necesita\',\'Cantidad\',\'Para cuando\',\'Notas\',\'Consentimiento\'];',
 'var CABECERA = [\'Fecha\',\'Voluntario\',\'Correo\',\'Telefono\',\'Taller\',\'Ciudad\',\'Pais\',',
 '                \'Categoria\',\'Modelo\',\'Archivo\',\'Variante\',\'Fabricadas\',\'Destino\',',
 '                \'Notas\',\'Consentimiento\',\'Foto\'];',
@@ -1025,6 +1167,7 @@ var APPS_SCRIPT = [
 '    sh.deleteColumns(CABECERA.length + 1, sh.getMaxColumns() - CABECERA.length);',
 '  try { if (!sh.getFilter()) sh.getRange(1, 1, sh.getMaxRows(), CABECERA.length).createFilter(); } catch (e) {}',
 '',
+'  setupPedidos_();',
 '  setupResumen_();',
 '  var f = carpeta_();',
 '  SpreadsheetApp.getActiveSpreadsheet().toast(',
@@ -1175,12 +1318,47 @@ var APPS_SCRIPT = [
 '  } catch (err) { return \'\'; }',
 '}',
 '',
+'function setupPedidos_() {',
+'  var ss = SpreadsheetApp.getActiveSpreadsheet();',
+'  var sh = ss.getSheetByName(HOJA_PED) || ss.insertSheet(HOJA_PED);',
+'  sh.getRange(1, 1, 1, CAB_PED.length)',
+'    .setValues([CAB_PED])',
+'    .setFontWeight(\'bold\').setFontColor(\'#ffffff\').setBackground(\'#a42b2b\');',
+'  sh.setFrozenRows(1);',
+'  sh.getRange(\'A:A\').setNumberFormat(\'yyyy-mm-dd hh:mm\');',
+'  var anchos = [140,110,200,130,160,130,200,140,130,280,180,240,90,140,260,190];',
+'  for (var i = 0; i < anchos.length; i++) sh.setColumnWidth(i + 1, anchos[i]);',
+'  // La coordinacion trabaja sobre la columna Estado',
+'  var v = SpreadsheetApp.newDataValidation()',
+'    .requireValueInList([\'Pendiente\',\'En gestion\',\'Asignado\',\'Entregado\',\'Descartado\'], true)',
+'    .setAllowInvalid(true).build();',
+'  sh.getRange(2, 2, Math.max(sh.getMaxRows() - 1, 1), 1).setDataValidation(v);',
+'  try { if (!sh.getFilter()) sh.getRange(1, 1, sh.getMaxRows(), CAB_PED.length).createFilter(); } catch (e) {}',
+'}',
+'',
+'function hojaPed_() {',
+'  var ss = SpreadsheetApp.getActiveSpreadsheet();',
+'  var sh = ss.getSheetByName(HOJA_PED);',
+'  if (!sh) { setupPedidos_(); sh = ss.getSheetByName(HOJA_PED); }',
+'  return sh;',
+'}',
+'',
+'function guardarPedido_(r) {',
+'  var sh = hojaPed_();',
+'  sh.appendRow([new Date(), \'Pendiente\', r.institucion, r.tipo, r.contacto, r.telefono,',
+'                r.correo, r.departamento, r.ciudad, r.direccion, r.horario,',
+'                r.necesita, r.cantidad, r.cuando, r.notas, r.consentimiento]);',
+'  return { ok: true, tipo: \'pedido\' };',
+'}',
+'',
 'function doPost(e) {',
 '  var lock = LockService.getScriptLock();',
 '  try { lock.waitLock(30000); } catch (err) { return json_({ ok: false, error: \'ocupado\' }); }',
 '  try {',
+'    var d = JSON.parse(e.postData.contents);',
+'    // Un pedido llega solo y marcado; la produccion llega en lotes.',
+'    if (!Array.isArray(d) && d.tipo_envio === \'pedido\') return json_(guardarPedido_(d));',
 '    var sh = hoja_();',
-'    var d  = JSON.parse(e.postData.contents);',
 '    var f  = Array.isArray(d) ? d : [d];',
 '    var filas = [];',
 '    for (var i = 0; i < f.length; i++) {',
@@ -1359,6 +1537,117 @@ $("#ver-politica").addEventListener("click", function(e){ e.preventDefault(); ab
 /* Los .3mf se pueden descargar sin registrarse: la idea es que alguien
    llegue, imprima, y solo después decida registrar lo que hizo. */
 $("#l-files").addEventListener("click", function(){ abrir("#m-files"); });
+
+/* ---------------- pedidos ----------------
+   Van a la pestaña «Pedidos» del mismo Sheet, no al registro de producción.
+   Lo difícil de un pedido no es qué se necesita, sino dónde entregarlo:
+   por eso dirección, ciudad, horario y teléfono son obligatorios. */
+$("#l-pedido").addEventListener("click", function(){ abrir("#m-pedido"); });
+$("#p-politica").addEventListener("click", function(e){ e.preventDefault(); abrir("#m-pol"); });
+$("#p-consent").addEventListener("change", function(){
+  if (this.checked) $("#p-consent-box").classList.remove("err");
+});
+
+// sugerencias con lo que ya se está fabricando
+$("#p-necesita").addEventListener("input", function(){
+  var cont = $("#p-sug"), q = normNombre(this.value);
+  cont.innerHTML = "";
+  if (q.length < 3) return;
+  var cand = [];
+  MODELOS.forEach(function(g){
+    if (g.cat.indexOf("Archivo") > -1) return;
+    g.items.forEach(function(it){
+      if (normNombre(it.n).indexOf(q) > -1) cand.push({ n: it.n, img: thumb(it.a) });
+    });
+  });
+  cand = cand.slice(0, 3);
+  if (!cand.length) return;
+  cont.innerHTML = '<span class="t">De lo que ya fabricamos:</span>' +
+    cand.map(function(c, i){
+      return '<button type="button" data-i="' + i + '">' +
+        (c.img ? '<img src="' + c.img + '" alt="">' : '') +
+        '<span>' + esc(c.n) + '</span></button>';
+    }).join("");
+  cont.querySelectorAll("button").forEach(function(b){
+    b.addEventListener("click", function(){
+      $("#p-necesita").value = cand[+b.dataset.i].n;
+      cont.innerHTML = "";
+    });
+  });
+});
+
+$("#p-enviar").addEventListener("click", function(){
+  var reqs = [["#p-inst","la institución"], ["#p-contacto","la persona de contacto"],
+              ["#p-tel","el teléfono"], ["#p-depto","el departamento"],
+              ["#p-ciudad","la ciudad"], ["#p-dir","la dirección de entrega"],
+              ["#p-necesita","qué se necesita"], ["#p-cant","la cantidad"]];
+  var falta = null;
+  reqs.forEach(function(r){
+    var el = $(r[0]);
+    if (!el.value.trim()) { el.classList.add("err"); if (!falta) falta = r; }
+    else el.classList.remove("err");
+  });
+  if (falta) { $(falta[0]).focus(); toast("Falta " + falta[1], "bad"); return; }
+
+  if ($("#p-tel").value.replace(/\D/g, "").length < 7) {
+    $("#p-tel").classList.add("err"); $("#p-tel").focus();
+    toast("Revisa el teléfono", "bad"); return;
+  }
+  var mail = $("#p-mail").value.trim();
+  if (mail && !/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(mail)) {
+    $("#p-mail").classList.add("err"); $("#p-mail").focus();
+    toast("Revisa el correo", "bad"); return;
+  }
+  if (!$("#p-consent").checked) {
+    var c = $("#p-consent-box"); c.classList.add("err");
+    if (c.scrollIntoView) c.scrollIntoView({ behavior:"smooth", block:"center" });
+    toast("Debes autorizar el tratamiento de datos", "bad"); return;
+  }
+
+  var ped = {
+    tipo_envio: "pedido",
+    institucion: $("#p-inst").value.trim(),
+    tipo: $("#p-tipo").value,
+    contacto: $("#p-contacto").value.trim(),
+    telefono: $("#p-tel").value.trim(),
+    correo: mail,
+    departamento: $("#p-depto").value.trim(),
+    ciudad: $("#p-ciudad").value.trim(),
+    direccion: $("#p-dir").value.trim(),
+    horario: $("#p-horario").value.trim(),
+    necesita: $("#p-necesita").value.trim(),
+    cantidad: Math.max(1, parseInt($("#p-cant").value, 10) || 0),
+    cuando: $("#p-cuando").value.trim(),
+    notas: $("#p-notas").value.trim(),
+    consentimiento: new Date().toISOString()
+  };
+
+  var b = this, txt = b.textContent;
+  b.innerHTML = '<span class="spin">↻</span> Enviando…'; b.disabled = true;
+
+  function terminar(ok){
+    b.disabled = false; b.textContent = txt;
+    if (!ok) { toast("No se pudo enviar — revisa tu conexión", "bad"); return; }
+    // copia local por si hay que reclamarla
+    try {
+      var g = load("m4co.pedidos", []); g.unshift(ped); save("m4co.pedidos", g.slice(0, 20));
+    } catch(e){}
+    cerrar("#m-pedido");
+    $("#p-listo-l").textContent = ped.cantidad + " × " + ped.necesita + " para " +
+      ped.institucion + " · " + ped.ciudad;
+    abrir("#p-listo");
+    ["#p-inst","#p-contacto","#p-tel","#p-mail","#p-depto","#p-ciudad","#p-dir",
+     "#p-horario","#p-necesita","#p-cant","#p-cuando","#p-notas"].forEach(function(s){ $(s).value = ""; });
+    $("#p-consent").checked = false;
+  }
+
+  if (!sheetUrl) { terminar(false); return; }
+  fetch(sheetUrl, {
+    method: "POST", mode: "no-cors",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify(ped)
+  }).then(function(){ terminar(true); }).catch(function(){ terminar(false); });
+});
 
 /* Los logos se inyectan desde PATROC para no duplicar los data URI
    entre la franja y el modal: 70 KB en vez de 140. */
