@@ -39,6 +39,7 @@ function setup() {
 }
 
 var CATALOGO = [
+  ['Ganchos', 'Gancho para botellas', 'Gancho-Botella.3mf'],
   ['Braquiopalmar', 'Braquiopalmar termoformada — Adulto', 'Braquiopalmar-Adulto.3mf'],
   ['Braquiopalmar', 'Braquiopalmar termoformada — Infantil', 'Braquiopalmar-Infantil.3mf'],
   ['Carpo-Palmar', 'Carpo-Palmar termoformada — Mediano', 'Carpo-Palmar-Mediano.3mf'],
@@ -62,7 +63,7 @@ var CATALOGO = [
   ['Archivo', 'Codo infantil — contextura delgada', 'Codo Infantil - Contextura Delgada.stl'],
   ['Archivo', 'Fijación de pie / dedo gordo (V2)', 'FIXACE CHODIDLA - palec V2.stl']
 ];
-var CATEGORIAS = ['Braquiopalmar', 'Carpo-Palmar', 'Dedo', 'Archivo', 'Otro'];
+var CATEGORIAS = ['Ganchos', 'Braquiopalmar', 'Carpo-Palmar', 'Dedo', 'Archivo', 'Otro'];
 
 function setupResumen_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -102,15 +103,17 @@ function setupResumen_() {
   sh.getRange(9, 1, f.length, 2).setValues(f);
   sh.getRange(tot, 1, 1, 2).setFontWeight('bold').setBackground('#f2f2f2');
 
-  // Por destino: la lista crece sola, asi que se resuelve con QUERY
-  sh.getRange(8, 4).setValue('Por destino')
+  // Por destino: la lista crece sola, asi que se resuelve con QUERY.
+  // Va en la columna G, lejos de la tabla de productos: el resultado se
+  // expande hacia abajo y si choca con datos, Sheets devuelve #REF!
+  sh.getRange(8, 7).setValue('Por destino')
     .setFontWeight('bold').setFontColor('#1f3864');
-  sh.getRange(9, 4).setFormula(
+  sh.getRange(9, 7).setFormula(
     '=IFERROR(QUERY(Registro!L2:M, "select Col2, sum(Col1) ' +
     'where Col2 is not null group by Col2 ' +
     'order by sum(Col1) desc label Col2 \'Destino\', sum(Col1) \'Fabricadas\'"), ' +
     '"Sin destinos registrados")');
-  sh.getRange(9, 4, 1, 2).setFontWeight('bold').setFontColor('#ffffff').setBackground('#1f3864');
+  sh.getRange(9, 7, 1, 2).setFontWeight('bold').setFontColor('#ffffff').setBackground('#1f3864');
 
   var ini = tot + 2;
   sh.getRange(ini, 1).setValue('Por producto')
@@ -135,7 +138,7 @@ function setupResumen_() {
     'Para desglosar por taller o ciudad usa Datos - Tabla dinamica sobre la hoja Registro.')
     .setFontColor('#888888');
 
-  var anchos = [220, 300, 300, 140, 110, 130, 110];
+  var anchos = [220, 300, 300, 140, 110, 40, 210, 110];
   for (var k = 0; k < anchos.length; k++) sh.setColumnWidth(k + 1, anchos[k]);
   sh.setFrozenRows(2);
 }
