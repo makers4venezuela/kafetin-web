@@ -1466,6 +1466,11 @@ var APPS_SCRIPT = [
 /* ============ helpers ============ */
 var $ = function(s){ return document.querySelector(s); };
 var $$ = function(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); };
+/* Sheets devuelve números cuando alguien escribe solo dígitos en un campo
+   de texto (una cédula en «taller», por ejemplo). Sin forzar a cadena,
+   cualquier .trim() o .toLowerCase() revienta y tumba todo el panel. */
+function txt(v){ return v == null ? "" : String(v); }
+
 function esc(s){
   return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
     return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];
@@ -1728,6 +1733,19 @@ $("#l-go").addEventListener("click", function(){
     toast("Revisa el correo electrónico", "bad"); return;
   }
 
+  // El autocompletado del navegador rellena «taller» o «ciudad» con la cédula.
+  // Además de ser un dato inútil, Sheets lo guarda como número y eso rompía
+  // el panel al intentar tratarlo como texto.
+  var soloDigitos = [["#l-taller","el taller"], ["#l-ciudad","la ciudad"]];
+  for (var i = 0; i < soloDigitos.length; i++) {
+    var el = $(soloDigitos[i][0]);
+    if (/^[\d\s.-]+$/.test(el.value.trim())) {
+      el.classList.add("err"); el.focus();
+      toast("Escribe el nombre de " + soloDigitos[i][1] + ", no un número", "bad");
+      return;
+    }
+  }
+
   // Teléfono: se aceptan formatos varios, pero debe traer dígitos suficientes
   // para poder llamar. Un móvil colombiano son 10.
   var tel = $("#l-tel").value.trim();
@@ -1982,7 +2000,7 @@ $("#f-otro").addEventListener("input", function(){
 function destinosUsados(){
   var m = {};
   universo().forEach(function(r){
-    var d = String(r.destino || "").trim();
+    var d = txt(r.destino).trim();
     if (!d) return;
     var k = normNombre(d);
     if (!m[k]) m[k] = { d: d, fab: 0 };
@@ -2214,7 +2232,7 @@ function pintarLista(){
   // agrupar por modelo
   var mapa = {};
   recs.forEach(function(r){
-    var k = r.modelo.toLowerCase();
+    var k = txt(r.modelo).toLowerCase();
     if (!mapa[k]) mapa[k] = { modelo: r.modelo, variante: r.variante, archivo: r.archivo || "", foto: r.foto, fab: 0, dest: {}, n: 0, ult: r.fecha };
     var g = mapa[k];
     g.fab += r.fabricadas; g.n++;
@@ -2276,7 +2294,7 @@ function desde(p){
   return null;
 }
 function fechaDe(r){
-  var p = String(r.fecha || "").split("-");
+  var p = txt(r.fecha).split("-");
   if (p.length !== 3) return null;
   var d = new Date(+p[0], +p[1] - 1, +p[2]);
   return isNaN(d.getTime()) ? null : d;
@@ -2290,7 +2308,7 @@ function universo(){
   return recs.concat(extra);
 }
 function clave(r){
-  return [r.fecha, (r.voluntario||"").toLowerCase(), (r.modelo||"").toLowerCase(),
+  return [txt(r.fecha), txt(r.voluntario).toLowerCase(), txt(r.modelo).toLowerCase(),
           r.fabricadas, normNombre(r.destino)].join("|");
 }
 
@@ -2313,8 +2331,11 @@ function pintarRed(){
                   'falta publicar una versión nueva del Apps Script.</span>';
   } else {
     e.className = "red error";
-    e.innerHTML = '<span>⚠️</span><span><b>Solo tus registros.</b> No se pudo leer la red.</span>' +
-                  '<button type="button" id="red-retry">Reintentar</button>';
+    var hay = remotos && remotos.length;
+    e.innerHTML = '<span>⚠️</span><span>' + (hay
+      ? '<b>Totales de la última sincronización.</b> Ahora no se pudo leer la red.'
+      : '<b>Solo tus registros.</b> No se pudo leer la red.') + '</span>' +
+      '<button type="button" id="red-retry">Reintentar</button>';
     var b = $("#red-retry");
     if (b) b.addEventListener("click", function(){ traerRemotos(); });
   }
@@ -2334,9 +2355,9 @@ function pintarTotales(){
   datos.forEach(function(r){
     var n = (+r.fabricadas || 0);
     fab += n;
-    var km = (r.modelo || "—").trim();
-    var kt = (r.taller || "—").trim();
-    var kd = String(r.destino || "").trim();
+    var km = txt(r.modelo).trim() || "—";
+    var kt = txt(r.taller).trim() || "—";
+    var kd = txt(r.destino).trim();
     if (!mods[km]) mods[km] = { fab:0, dest:{} };
     mods[km].fab += n;
     if (kd) mods[km].dest[kd] = true;
@@ -2439,14 +2460,20 @@ function enviar(lista){
 var redEstado = "cargando";   // cargando · ok · error
 var redN = 0;
 
-function traerRemotos(cb){
+var redIntento = 0;
+
+function traerRemotos(cb, reintento){
   if (!sheetUrl) { redEstado = "error"; if (cb) cb(false); return; }
   redEstado = "cargando"; pintarRed();
   var nombre = "m4coCB" + Date.now();
   var s = document.createElement("script");
+  // Con la hoja ya en cientos de registros y datos móviles flojos, 15 s
+  // se quedaban cortos. Se espera más y se reintenta una vez sin avisar.
   var t = setTimeout(function(){
-    limpiar(); redEstado = "error"; pintarRed(); if (cb) cb(false);
-  }, 15000);
+    limpiar();
+    if (!reintento) { redIntento++; traerRemotos(cb, true); return; }
+    redEstado = "error"; pintarRed(); if (cb) cb(false);
+  }, 35000);
   function limpiar(){
     clearTimeout(t);
     try { delete window[nombre]; } catch(e){ window[nombre] = undefined; }
@@ -2470,7 +2497,11 @@ function traerRemotos(cb){
       if (cb) cb(false);
     }
   };
-  s.onerror = function(){ limpiar(); redEstado = "error"; pintarRed(); if (cb) cb(false); };
+  s.onerror = function(){
+    limpiar();
+    if (!reintento) { redIntento++; traerRemotos(cb, true); return; }
+    redEstado = "error"; pintarRed(); if (cb) cb(false);
+  };
   s.src = sheetUrl + (sheetUrl.indexOf("?") > -1 ? "&" : "?") + "callback=" + nombre + "&t=" + Date.now();
   document.body.appendChild(s);
 }
