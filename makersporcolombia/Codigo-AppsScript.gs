@@ -46,6 +46,7 @@ function setup() {
 var CATALOGO = [
   ['Ganchos', 'Gancho para botellas', 'Gancho-Botella.3mf'],
   ['Hospitalario', 'Tope de paral de suero', 'Paral-Suero.3mf'],
+  ['Protección personal', 'Soporte para tapabocas', 'Soporte-Tapabocas.3mf'],
   ['Mascotas', 'Láminas para férulas', 'Laminas-Ferulas.3mf'],
   ['Braquiopalmar', 'Braquiopalmar termoformada — Adulto', 'Braquiopalmar-Adulto.3mf'],
   ['Braquiopalmar', 'Braquiopalmar termoformada — Infantil', 'Braquiopalmar-Infantil.3mf'],
@@ -70,7 +71,7 @@ var CATALOGO = [
   ['Archivo', 'Codo infantil — contextura delgada', 'Codo Infantil - Contextura Delgada.stl'],
   ['Archivo', 'Fijación de pie / dedo gordo (V2)', 'FIXACE CHODIDLA - palec V2.stl']
 ];
-var CATEGORIAS = ['Ganchos', 'Hospitalario', 'Mascotas', 'Braquiopalmar', 'Carpo-Palmar', 'Dedo', 'Archivo', 'Otro'];
+var CATEGORIAS = ['Ganchos', 'Hospitalario', 'Protección personal', 'Mascotas', 'Braquiopalmar', 'Carpo-Palmar', 'Dedo', 'Archivo', 'Otro'];
 
 function setupResumen_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
