@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>KAFETIN App</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --verde:#7BAE7F;--verde-d:#5a8f5e;--verde-l:#e8f4e9;
+  --amarillo:#F5A623;--amarillo-l:#fff8ec;
+  --dark:#1a1a1a;--gray:#6b6b6b;--light:#f5f5f5;--border:#e0e0e0;
+  --red:#e53935;--red-l:#ffebee;--white:#fff;
+  --nav-h:60px;--hdr-h:52px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--light);color:var(--dark);min-height:100vh;padding-bottom:var(--nav-h)}
+.hdr{position:fixed;top:0;left:0;right:0;height:var(--hdr-h);background:var(--dark);display:flex;align-items:center;padding:0 14px;z-index:100;gap:8px}
+.logo{width:28px;height:35px;flex-shrink:0;object-fit:contain}
+.hdr-title{color:#fff;font-size:15px;font-weight:700;letter-spacing:.5px}
+.hdr-title span{color:var(--amarillo)}
+.badge{margin-left:auto;background:var(--red);color:#fff;border-radius:12px;padding:2px 8px;font-size:11px;font-weight:700;display:none}
+.nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);background:#fff;border-top:1px solid var(--border);display:flex;z-index:100}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer;color:var(--gray);font-size:9px;font-weight:500;padding:4px 0}
+.nb.on{color:var(--verde-d)}
+.nb svg{width:20px;height:20px;stroke-width:1.8;stroke:currentColor;fill:none}
+.nb.on svg{stroke-width:2.2}
+.pg{display:none;padding-top:calc(var(--hdr-h)+10px);padding-bottom:6px}
+.pg.on{display:block}
+.pc{padding:0 10px}
+.card{background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid var(--border)}
+.ct{font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+.fg{margin-bottom:12px}
+label{display:block;font-size:12px;font-weight:600;color:var(--gray);margin-bottom:5px}
+select,input{width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;color:var(--dark);background:#fff;appearance:none;-webkit-appearance:none;outline:none;transition:.15s}
+select:focus,input:focus{border-color:var(--verde)}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.btn{width:100%;padding:13px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:.15s}
+.btn-g{background:var(--verde);color:#fff}.btn-g:active{background:var(--verde-d)}
+.btn-y{background:var(--amarillo);color:#fff}
+.btn-o{background:transparent;border:1.5px solid var(--verde);color:var(--verde-d)}
+.btn-r{background:transparent;border:1.5px solid var(--red);color:var(--red)}
+.scan-row{display:flex;gap:8px;margin-bottom:12px}
+.scan-row select{flex:1}
+.scan-btn{padding:11px 12px;border:1.5px solid var(--verde);border-radius:8px;background:var(--verde-l);color:var(--verde-d);font-size:20px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.scan-btn:active{background:var(--verde);color:#fff}
+.bc-pill{display:flex;align-items:center;gap:6px;background:var(--verde-l);border:1px solid var(--verde);border-radius:7px;padding:6px 10px;font-size:12px;font-weight:600;color:var(--verde-d);margin-bottom:10px}
+.price-hint{display:flex;gap:8px;margin-bottom:12px}
+.ph{flex:1;background:var(--light);border-radius:7px;padding:8px 10px;text-align:center}
+.ph-v{font-size:16px;font-weight:700}
+.ph-l{font-size:10px;color:var(--gray);margin-top:1px}
+.ph.costo .ph-v{color:var(--gray)}
+.ph.venta .ph-v{color:var(--verde-d)}
+.cli-wrap{position:relative}
+.cli-results{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--verde);border-radius:0 0 8px 8px;z-index:50;max-height:180px;overflow-y:auto;display:none}
+.cli-item{padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);font-size:13px}
+.cli-item:last-child{border-bottom:none}
+.cli-item:active,.cli-item:hover{background:var(--verde-l)}
+.cli-item strong{display:block;font-size:13px}
+.cli-item span{font-size:11px;color:var(--gray)}
+.cli-tag{display:flex;align-items:center;gap:8px;background:var(--verde-l);border:1px solid var(--verde);border-radius:7px;padding:8px 12px;margin-bottom:10px}
+.cli-tag .name{font-weight:700;font-size:14px;flex:1}
+.cli-tag .tel{font-size:12px;color:var(--gray)}
+.cli-tag button{background:none;border:none;color:var(--gray);font-size:18px;cursor:pointer;padding:0;line-height:1}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:none;flex-direction:column}
+.modal-overlay.on{display:flex}
+.modal-header{padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+.modal-header h2{color:#fff;font-size:15px}
+.close-btn{background:none;border:none;color:#fff;font-size:26px;cursor:pointer;padding:4px 8px;line-height:1}
+.scan-wrap{position:relative;flex:1;overflow:hidden}
+#scanVideo{width:100%;height:100%;object-fit:cover}
+.scan-frame{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.scan-box{width:72%;max-width:290px;aspect-ratio:3/1;border:3px solid var(--amarillo);border-radius:8px;box-shadow:0 0 0 2000px rgba(0,0,0,.4)}
+.scan-line{position:absolute;left:14%;right:14%;height:2px;background:var(--amarillo);animation:scanline 1.5s ease-in-out infinite}
+@keyframes scanline{0%,100%{top:28%}50%{top:72%}}
+.scan-hint{color:#fff;text-align:center;padding:14px;font-size:13px;opacity:.8}
+.bsheet{background:#fff;border-radius:18px 18px 0 0;padding:20px 16px;position:fixed;bottom:0;left:0;right:0;z-index:300;display:none;transform:translateY(100%);transition:.28s ease}
+.bsheet.on{display:block;transform:translateY(0)}
+.bsheet h3{font-size:16px;font-weight:700;margin-bottom:4px}
+.bsheet p{font-size:12px;color:var(--gray);margin-bottom:14px}
+.bs-gap{margin-bottom:10px}
+.inv-search{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:10px;outline:none}
+.inv-search:focus{border-color:var(--verde)}
+.fc{background:#fff;border-radius:10px;padding:11px 12px;margin-bottom:7px;border:1.5px solid var(--border);display:flex;align-items:center;gap:10px}
+.fc.alert{border-color:var(--red);background:var(--red-l)}
+.fc.ok{border-color:var(--verde)}
+.fi{flex:1}.fn{font-size:14px;font-weight:600}.fm{font-size:11px;color:var(--gray);margin-top:1px}
+.fs{text-align:right}
+.sn{font-size:20px;font-weight:700}.sl{font-size:10px;color:var(--gray);margin-top:1px}
+.sn.d{color:var(--red)}.sn.w{color:var(--amarillo)}.sn.g{color:var(--verde-d)}
+.pill{display:inline-block;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:600;margin-top:3px}
+.pa{background:var(--red-l);color:var(--red)}.po{background:var(--verde-l);color:var(--verde-d)}
+.ab{background:var(--red-l);border:1.5px solid #ffcdd2;border-radius:10px;padding:11px 12px;margin-bottom:10px;display:none}
+.ab h3{color:var(--red);font-size:12px;margin-bottom:5px}
+.ab ul{list-style:none;font-size:12px;color:var(--red)}
+.mets{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px}
+.met{background:#fff;border-radius:9px;padding:10px 6px;text-align:center;border:1px solid var(--border)}
+.mv{font-size:16px;font-weight:700}.ml{font-size:9px;color:var(--gray);margin-top:2px;font-weight:500}
+.sr{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.sr:last-child{border-bottom:none}
+.si{font-size:13px;font-weight:600}.sm{font-size:11px;color:var(--gray)}
+.st{font-size:14px;font-weight:700;color:var(--verde-d)}
+.sell-r{display:flex;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)}
+.sell-n{font-size:12px;font-weight:600;flex:0 0 120px}
+.sell-bw{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin:0 8px}
+.sell-b{height:100%;background:var(--verde);border-radius:3px}
+.sell-c{font-size:11px;color:var(--gray);min-width:36px;text-align:right}
+.res{background:var(--verde-l);border:1.5px solid var(--verde);border-radius:9px;padding:12px;margin-top:10px;display:none;text-align:center}
+.res-v{font-size:26px;font-weight:700;color:var(--verde-d)}
+.res-l{font-size:12px;color:var(--gray);margin-top:2px}
+.res-a{color:var(--red);font-size:12px;margin-top:6px;font-weight:600;display:none}
+.cli-card{background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:7px;border:1.5px solid var(--border)}
+.cli-name{font-size:15px;font-weight:700}
+.cli-detail{font-size:12px;color:var(--gray);margin-top:2px}
+.lbl{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin:14px 0 7px}
+.spin-wrap{text-align:center;padding:28px;color:var(--gray);font-size:13px}
+.spin{width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--verde);border-radius:50%;animation:sp .7s linear infinite;margin:0 auto 10px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.toast{position:fixed;top:62px;left:50%;transform:translateX(-50%);background:var(--dark);color:#fff;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap;max-width:90vw}
+.toast.on{opacity:1}
+.toast.s{background:#2e7d32}.toast.e{background:var(--red)}.toast.w{background:var(--amarillo);color:var(--dark)}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="hdr">
+  <img class="logo" src="data:image/png;base64,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" alt="KAFETIN">
+  <div class="hdr-title">KAFE<span>TIN</span></div>
+  <div class="badge" id="badge">0</div>
+</div>
+
+<!-- ── PAGE: VENDER ── -->
+<div class="pg on" id="pg-vender">
+ <div class="pc">
+  <div class="card">
+   <div class="ct">Registrar Venta</div>
+   <div class="fg">
+    <label>Cliente</label>
+    <div id="cliTag" style="display:none"></div>
+    <div class="cli-wrap" id="cliWrap">
+     <input type="text" id="v-cli-search" placeholder="Buscar por nombre o teléfono..." oninput="buscarCliente(this.value)" autocomplete="off">
+     <div class="cli-results" id="cliResults"></div>
+    </div>
+    <button class="btn btn-o" style="margin-top:6px;padding:9px;font-size:12px" onclick="abrirNuevoCliente()">+ Nuevo cliente</button>
+   </div>
+   <div class="fg">
+    <label>Filamento</label>
+    <div class="scan-row">
+     <select id="v-fil" onchange="onFilVenta()"><option value="">Cargando...</option></select>
+     <button class="scan-btn" onclick="abrirScanner('venta')" title="Escanear">📷</button>
+    </div>
+    <div id="v-bc-info" style="display:none"></div>
+   </div>
+   <div class="price-hint" id="v-prices" style="display:none">
+    <div class="ph costo"><div class="ph-v" id="vh-costo">—</div><div class="ph-l">Costo/kg</div></div>
+    <div class="ph venta"><div class="ph-v" id="vh-venta">—</div><div class="ph-l">Precio sugerido/kg</div></div>
+   </div>
+   <div class="r2">
+    <div class="fg"><label>Cantidad (kg)</label><input type="number" id="v-cant" value="1" min="0.1" step="0.25"></div>
+    <div class="fg"><label>Precio/kg</label><input type="number" id="v-precio" placeholder="75000"></div>
+   </div>
+   <div class="r2">
+    <div class="fg"><label>Canal</label>
+     <select id="v-canal"><option>Directo</option><option>WhatsApp</option><option>Instagram</option><option>MercadoLibre</option><option>Otro</option></select>
+    </div>
+    <div class="fg"><label>Vendedor</label>
+     <select id="v-vend"><option>Seb</option><option>Otro</option></select>
+    </div>
+   </div>
+   <button class="btn btn-g" onclick="vender()">Registrar venta</button>
+   <div class="res" id="v-res">
+    <div class="res-l">Total venta</div>
+    <div class="res-v" id="v-total">$0</div>
+    <div class="res-l" id="v-stock-info" style="margin-top:5px"></div>
+    <div class="res-a" id="v-alerta">⚠ Stock bajo — compra pronto</div>
+   </div>
+  </div>
+ </div>
+</div>
+
+<!-- ── PAGE: INVENTARIO ── -->
+<div class="pg" id="pg-inventario">
+ <div class="pc">
+  <div class="ab" id="alertBanner"><h3>⚠ Reabastecer ahora</h3><ul id="alertList"></ul></div>
+  <input class="inv-search" id="invSearch" placeholder="Buscar filamento..." oninput="filtrarInv()">
+  <div id="invList"><div class="spin-wrap"><div class="spin"></div>Cargando...</div></div>
+  <div style="margin-top:7px">
+   <button class="btn btn-o" onclick="toggleAddFil()" style="font-size:13px;padding:10px">+ Agregar filamento nuevo</button>
+  </div>
+  <div class="card" id="addFilCard" style="display:none;margin-top:10px">
+   <div class="ct">Nuevo filamento</div>
+   <div class="r2">
+    <div class="fg"><label>Material</label>
+     <select id="nf-mat"><option>PLA</option><option>PETG</option><option>ABS</option><option>TPU</option><option>PLA BICOLOR</option><option>PP</option><option>PLA 2.85</option></select>
+    </div>
+    <div class="fg"><label>Color</label><input type="text" id="nf-color" placeholder="ej. Azul Cielo"></div>
+   </div>
+   <button class="btn btn-y" onclick="agregarFil()">Agregar</button>
+  </div>
+ </div>
+</div>
+
+<!-- ── PAGE: COMPRAR ── -->
+<div class="pg" id="pg-comprar">
+ <div class="pc">
+  <div class="card">
+   <div class="ct">Registrar Compra</div>
+   <div class="fg">
+    <label>Filamento</label>
+    <div class="scan-row">
+     <select id="c-fil" onchange="onFilCompra()"><option value="">Cargando...</option></select>
+     <button class="scan-btn" onclick="abrirScanner('compra')" title="Escanear">📷</button>
+    </div>
+    <div id="c-bc-info" style="display:none"></div>
+   </div>
+   <div class="price-hint" id="c-prices" style="display:none">
+    <div class="ph costo"><div class="ph-v" id="ch-costo">—</div><div class="ph-l">Costo sugerido/kg</div></div>
+   </div>
+   <div class="r2">
+    <div class="fg"><label>Cantidad (kg)</label><input type="number" id="c-cant" value="1" min="0.5" step="0.5"></div>
+    <div class="fg"><label>Costo/kg</label><input type="number" id="c-costo" placeholder="57766"></div>
+   </div>
+   <div class="fg"><label>Proveedor</label>
+    <select id="c-prov"><option>4DLAB</option><option>Otro</option></select>
+   </div>
+   <button class="btn btn-y" onclick="comprar()">Registrar compra</button>
+   <div class="res" id="c-res" style="background:var(--amarillo-l);border-color:var(--amarillo)">
+    <div class="res-l">Costo total</div>
+    <div class="res-v" id="c-total" style="color:var(--amarillo)">$0</div>
+    <div class="res-l" id="c-stock-info" style="margin-top:5px"></div>
+   </div>
+  </div>
+  <div class="lbl">Pendientes de reabastecimiento</div>
+  <div id="compraAlertas"><div class="spin-wrap"><div class="spin"></div></div></div>
+ </div>
+</div>
+
+<!-- ── PAGE: CLIENTES ── -->
+<div class="pg" id="pg-clientes">
+ <div class="pc">
+  <button class="btn btn-g" style="margin-bottom:12px" onclick="abrirNuevoCliente()">+ Nuevo cliente</button>
+  <input class="inv-search" id="cliSearch" placeholder="Buscar cliente..." oninput="filtrarClientes()">
+  <div id="cliList"><div class="spin-wrap"><div class="spin"></div>Cargando...</div></div>
+ </div>
+</div>
+
+<!-- ── PAGE: REPORTES ── -->
+<div class="pg" id="pg-reportes">
+ <div class="pc">
+  <div class="lbl">Resumen de ventas</div>
+  <div class="mets">
+   <div class="met"><div class="mv" id="r-hoy">...</div><div class="ml">Hoy</div></div>
+   <div class="met"><div class="mv" id="r-mes">...</div><div class="ml">Mes</div></div>
+   <div class="met"><div class="mv" id="r-anio">...</div><div class="ml">Año</div></div>
+  </div>
+  <div class="card">
+   <div class="ct">Top filamentos (kg vendidos)</div>
+   <div id="r-top"><div class="spin-wrap"><div class="spin"></div></div></div>
+  </div>
+  <div class="card">
+   <div class="ct">Últimas ventas</div>
+   <div id="r-rec"><div class="spin-wrap"><div class="spin"></div></div></div>
+  </div>
+ </div>
+</div>
+
+<!-- ── SCANNER MODAL ── -->
+<div class="modal-overlay" id="scanModal">
+ <div class="modal-header">
+  <h2>Escanear código de barras</h2>
+  <button class="close-btn" onclick="cerrarScanner()">×</button>
+ </div>
+ <div class="scan-wrap">
+  <video id="scanVideo" autoplay playsinline muted></video>
+  <div class="scan-frame">
+   <div style="position:relative;width:72%;max-width:290px">
+    <div class="scan-box"></div>
+    <div class="scan-line" id="scanLine"></div>
+   </div>
+  </div>
+ </div>
+ <div class="scan-hint">Alinea el código de barras en el recuadro</div>
+</div>
+
+<!-- ── NUEVO BARCODE MODAL ── -->
+<div class="bsheet" id="newBcModal">
+ <h3>Nuevo filamento detectado</h3>
+ <p id="newBcCode" style="font-family:monospace;font-size:11px;color:#999;margin-bottom:3px"></p>
+ <p>¿Qué filamento es?</p>
+ <div class="r2 bs-gap" style="margin-top:12px">
+  <div class="fg"><label>Material</label>
+   <select id="nb-mat"><option>PLA</option><option>PETG</option><option>ABS</option><option>TPU</option><option>PLA BICOLOR</option><option>PP</option><option>PLA 2.85</option></select>
+  </div>
+  <div class="fg"><label>Color</label><input type="text" id="nb-color" placeholder="ej. Rojo Seda"></div>
+ </div>
+ <button class="btn btn-g" onclick="guardarNuevoBarcode()" style="margin-bottom:8px">Guardar y continuar</button>
+ <button class="btn btn-o" onclick="cerrarNuevoBc()" style="font-size:13px;padding:10px">Cancelar</button>
+</div>
+
+<!-- ── NUEVO CLIENTE MODAL ── -->
+<div class="bsheet" id="newCliModal">
+ <h3>Nuevo cliente</h3>
+ <p>Nombre y teléfono son obligatorios</p>
+ <div class="r2 bs-gap" style="margin-top:12px">
+  <div class="fg"><label>Nombre *</label><input type="text" id="nc-nombre" placeholder="Juan García" autocomplete="off"></div>
+  <div class="fg"><label>Teléfono *</label><input type="tel" id="nc-tel" placeholder="300 123 4567"></div>
+ </div>
+ <div class="fg bs-gap"><label>Correo</label><input type="email" id="nc-correo" placeholder="juan@email.com"></div>
+ <div class="r2 bs-gap">
+  <div class="fg"><label>Ciudad</label><input type="text" id="nc-ciudad" placeholder="Bogotá"></div>
+  <div class="fg"><label>Dirección</label><input type="text" id="nc-dir" placeholder="Cra 7 #80-10"></div>
+ </div>
+ <button class="btn btn-g" onclick="guardarCliente()" style="margin-bottom:8px">Guardar cliente</button>
+ <button class="btn btn-o" onclick="cerrarNuevoCli()" style="font-size:13px;padding:10px">Cancelar</button>
+</div>
+
+<!-- Bottom overlay -->
+<div id="bsOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:250;display:none" onclick="cerrarTodosModales()"></div>
+
+<!-- Bottom Nav -->
+<nav class="nav">
+ <button class="nb on" onclick="ir('vender',this)">
+  <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Vender
+ </button>
+ <button class="nb" onclick="ir('inventario',this)">
+  <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Stock
+ </button>
+ <button class="nb" onclick="ir('comprar',this)">
+  <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.72l1.38-9.28H6"/></svg>Comprar
+ </button>
+ <button class="nb" onclick="ir('clientes',this)">
+  <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Clientes
+ </button>
+ <button class="nb" onclick="ir('reportes',this)">
+  <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Reportes
+ </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.19.1/umd/index.min.js"></script>
+<script>
+// ── API ────────────────────────────────────────────────────────
+const API = 'https://script.google.com/macros/s/AKfycbxNerre-jVzAZ3028w0irCV5WM6UkgyLg8a7QdBFl90rk1Q2fANaoktZybJneJgc_puig/exec';
+
+function api(action, data) {
+  const params = new URLSearchParams({ action });
+  if (data && Object.keys(data).length) params.append('data', JSON.stringify(data));
+  return fetch(API + '?' + params)
+    .then(r => r.json())
+    .catch(err => { throw new Error(err.message); });
+}
+
+// ── State ──────────────────────────────────────────────────────
+let fils = [], inv = [], clientes = [], scanMode = '';
+let scanActive = false, codeReader = null, pendingBc = '';
+let selectedCliente = null;
+
+// ── Nav ────────────────────────────────────────────────────────
+function ir(pg, btn) {
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pg-'+pg).classList.add('on');
+  btn.classList.add('on');
+  if (pg==='inventario') cargarInv();
+  if (pg==='reportes')   cargarReportes();
+  if (pg==='comprar')    cargarAlertasCompra();
+  if (pg==='clientes')   cargarClientes();
+}
+
+// ── Init ───────────────────────────────────────────────────────
+window.onload = () => { cargarFils(); cargarClientes(); };
+
+function cargarFils() {
+  api('getFilamentos')
+    .then(data => {
+      fils = data;
+      llenarDropdown('v-fil', data);
+      llenarDropdown('c-fil', data);
+      checkAlertas();
+    })
+    .catch(() => toast('Error cargando datos','e'));
+}
+
+function llenarDropdown(id, data) {
+  const s = document.getElementById(id);
+  s.innerHTML = '<option value="">— Seleccionar —</option>';
+  data.forEach(f => {
+    const o = document.createElement('option');
+    o.value = f.key;
+    o.textContent = f.material+' '+f.color+' ('+f.stock+' kg)';
+    s.appendChild(o);
+  });
+}
+
+function onFilVenta() {
+  const key = document.getElementById('v-fil').value;
+  const f   = fils.find(x=>x.key===key);
+  const box = document.getElementById('v-prices');
+  if (f) {
+    document.getElementById('v-precio').value = f.precio;
+    document.getElementById('vh-costo').textContent = copk(f.costo);
+    document.getElementById('vh-venta').textContent = copk(f.precio);
+    box.style.display = 'flex';
+  } else {
+    box.style.display = 'none';
+  }
+}
+
+function onFilCompra() {
+  const key = document.getElementById('c-fil').value;
+  const f   = fils.find(x=>x.key===key);
+  const box = document.getElementById('c-prices');
+  if (f) {
+    document.getElementById('c-costo').value = f.costo;
+    document.getElementById('ch-costo').textContent = copk(f.costo);
+    box.style.display = 'flex';
+  } else {
+    box.style.display = 'none';
+  }
+}
+
+// ── CLIENTES ──────────────────────────────────────────────────
+function cargarClientes() {
+  api('getClientes')
+    .then(data => { clientes = data; renderClientes(data); })
+    .catch(() => {});
+}
+
+function renderClientes(data) {
+  const el = document.getElementById('cliList');
+  if (!el) return;
+  if (!data.length) { el.innerHTML='<div class="spin-wrap">Sin clientes aún</div>'; return; }
+  el.innerHTML = data.map(c=>`<div class="cli-card">
+    <div class="cli-name">${c.nombre}</div>
+    <div class="cli-detail">📞 ${c.telefono}${c.correo?' · '+c.correo:''}${c.ciudad?' · '+c.ciudad:''}</div>
+    ${c.direccion?`<div class="cli-detail" style="margin-top:2px">📍 ${c.direccion}</div>`:''}
+  </div>`).join('');
+}
+
+function filtrarClientes() {
+  const q = document.getElementById('cliSearch').value.toLowerCase();
+  renderClientes(q ? clientes.filter(c=>
+    c.nombre.toLowerCase().includes(q)||c.telefono.includes(q)||c.correo.toLowerCase().includes(q)
+  ) : clientes);
+}
+
+function buscarCliente(q) {
+  const res = document.getElementById('cliResults');
+  if (!q || q.length < 2) { res.style.display='none'; return; }
+  const matches = clientes.filter(c=>
+    c.nombre.toLowerCase().includes(q.toLowerCase()) ||
+    c.telefono.includes(q)
+  ).slice(0,6);
+  if (!matches.length) { res.style.display='none'; return; }
+  res.innerHTML = matches.map(c=>`
+    <div class="cli-item" onclick="seleccionarCliente(${JSON.stringify(c).replace(/"/g,'&quot;')})">
+      <strong>${c.nombre}</strong>
+      <span>📞 ${c.telefono}${c.ciudad?' · '+c.ciudad:''}</span>
+    </div>`).join('');
+  res.style.display='block';
+}
+
+function seleccionarCliente(c) {
+  selectedCliente = c;
+  document.getElementById('cliResults').style.display='none';
+  document.getElementById('cliWrap').style.display='none';
+  const tag = document.getElementById('cliTag');
+  tag.style.display='flex';
+  tag.className='cli-tag';
+  tag.innerHTML=`<div style="flex:1"><div class="name">${c.nombre}</div><div class="tel">📞 ${c.telefono}${c.ciudad?' · '+c.ciudad:''}</div></div><button onclick="limpiarCliente()">×</button>`;
+  document.querySelector('#pg-vender .btn-o').style.display='none';
+}
+
+function limpiarCliente() {
+  selectedCliente = null;
+  document.getElementById('cliTag').style.display='none';
+  document.getElementById('cliWrap').style.display='block';
+  document.getElementById('v-cli-search').value='';
+  document.querySelector('#pg-vender .btn-o').style.display='block';
+}
+
+function abrirNuevoCliente() {
+  document.getElementById('newCliModal').classList.add('on');
+  document.getElementById('bsOverlay').style.display='block';
+  setTimeout(()=>document.getElementById('nc-nombre').focus(),300);
+}
+
+function cerrarNuevoCli() {
+  document.getElementById('newCliModal').classList.remove('on');
+  document.getElementById('bsOverlay').style.display='none';
+  ['nc-nombre','nc-tel','nc-correo','nc-ciudad','nc-dir'].forEach(id=>document.getElementById(id).value='');
+}
+
+function guardarCliente() {
+  const nombre   = document.getElementById('nc-nombre').value.trim();
+  const telefono = document.getElementById('nc-tel').value.trim();
+  if (!nombre || !telefono) { toast('Nombre y teléfono son obligatorios','w'); return; }
+  const d = {
+    nombre, telefono,
+    correo   : document.getElementById('nc-correo').value.trim(),
+    ciudad   : document.getElementById('nc-ciudad').value.trim(),
+    direccion: document.getElementById('nc-dir').value.trim()
+  };
+  api('addCliente', d)
+    .then(res => {
+      if (res.ok) {
+        toast('Cliente guardado ✓','s');
+        cerrarNuevoCli();
+        cargarClientes();
+        seleccionarCliente({ nombre, telefono, ciudad: d.ciudad });
+      } else {
+        toast(res.msg,'w');
+      }
+    })
+    .catch(()=>toast('Error guardando cliente','e'));
+}
+
+// ── SCANNER ────────────────────────────────────────────────────
+function abrirScanner(mode) {
+  scanMode = mode;
+  document.getElementById('scanModal').classList.add('on');
+  iniciarCamara();
+}
+
+function cerrarScanner() {
+  document.getElementById('scanModal').classList.remove('on');
+  pararCamara();
+}
+
+function iniciarCamara() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    toast('Cámara no disponible en este navegador','e'); return;
+  }
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+    .then(stream => {
+      const v = document.getElementById('scanVideo');
+      v.srcObject = stream;
+      v.play();
+      if (!window.ZXing) { toast('Librería de escaneo no cargada','e'); return; }
+      const hints = new Map();
+      hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+      codeReader = new ZXing.BrowserMultiFormatReader(hints);
+      codeReader.decodeFromVideoElement('scanVideo', (result, err) => {
+        if (result && scanActive !== result.text) {
+          scanActive = result.text;
+          onBarcodeDetected(result.text);
+        }
+      });
+    })
+    .catch(err => {
+      console.error('Camera error:', err);
+      if (err.name === 'NotAllowedError') {
+        toast('Permiso de cámara denegado','e');
+      } else {
+        toast('Error al abrir cámara: ' + err.message,'e');
+      }
+    });
+}
+
+function pararCamara() {
+  if (codeReader) { try { codeReader.reset(); } catch(e){} codeReader = null; }
+  scanActive = false;
+  const v = document.getElementById('scanVideo');
+  if (v.srcObject) { v.srcObject.getTracks().forEach(t=>t.stop()); v.srcObject=null; }
+}
+
+function onBarcodeDetected(bc) {
+  cerrarScanner();
+  if (navigator.vibrate) navigator.vibrate(100);
+  toast('Código detectado','s');
+  api('lookupBarcode', { barcode: bc })
+    .then(res => {
+      if (res) {
+        seleccionarFil(scanMode, res.material, res.color, bc);
+      } else {
+        pendingBc = bc;
+        document.getElementById('newBcCode').textContent = bc;
+        document.getElementById('newBcModal').classList.add('on');
+        document.getElementById('bsOverlay').style.display='block';
+      }
+    })
+    .catch(() => {
+      pendingBc = bc;
+      document.getElementById('newBcCode').textContent = bc;
+      document.getElementById('newBcModal').classList.add('on');
+      document.getElementById('bsOverlay').style.display='block';
+    });
+}
+
+function seleccionarFil(mode, material, color, bc) {
+  const key   = material+'|'+color;
+  const selId = mode==='venta' ? 'v-fil' : 'c-fil';
+  const infoId= mode==='venta' ? 'v-bc-info' : 'c-bc-info';
+  const sel   = document.getElementById(selId);
+  let found = false;
+  for (let o of sel.options) { if (o.value===key) { sel.value=key; found=true; break; } }
+  if (!found) {
+    const o = document.createElement('option');
+    o.value=key; o.textContent=material+' '+color+' (escaneado)';
+    sel.appendChild(o); sel.value=key;
+  }
+  const info = document.getElementById(infoId);
+  info.style.display='block';
+  info.innerHTML=`<div class="bc-pill">✓ ${material} ${color} <span style="margin-left:auto;font-size:10px;opacity:.7">${bc.slice(-8)}</span></div>`;
+  sel.dataset.bc = bc;
+  const f = fils.find(x=>x.key===key) || { costo: calcCosto(material,color), precio: calcVenta(material,color) };
+  if (mode==='venta') {
+    document.getElementById('v-precio').value = f.precio || calcVenta(material,color);
+    document.getElementById('vh-costo').textContent = copk(f.costo || calcCosto(material,color));
+    document.getElementById('vh-venta').textContent = copk(f.precio || calcVenta(material,color));
+    document.getElementById('v-prices').style.display='flex';
+  } else {
+    document.getElementById('c-costo').value = f.costo || calcCosto(material,color);
+    document.getElementById('ch-costo').textContent = copk(f.costo || calcCosto(material,color));
+    document.getElementById('c-prices').style.display='flex';
+  }
+}
+
+function calcCosto(mat, col) {
+  col = (col||'').toLowerCase();
+  if (mat==='TPU') return 74549;
+  if (['PLA BICOLOR','PP','PLA 2.85'].includes(mat)) return 62156;
+  if ((mat==='PLA'||mat==='PETG') && /madera|m.rmol|carbon/i.test(col)) return 62156;
+  return 57766;
+}
+function calcVenta(mat, col) {
+  col = (col||'').toLowerCase();
+  if (mat==='TPU') return 95000;
+  if (['PLA BICOLOR','PP','PLA 2.85'].includes(mat)) return 80000;
+  if ((mat==='PLA'||mat==='PETG') && /madera|m.rmol|carbon/i.test(col)) return 80000;
+  return 75000;
+}
+
+function guardarNuevoBarcode() {
+  const mat   = document.getElementById('nb-mat').value;
+  const color = document.getElementById('nb-color').value.trim();
+  if (!color) { toast('Escribe el color','w'); return; }
+  api('saveBarcode', { barcode: pendingBc, material: mat, color })
+    .then(() => {
+      toast('Filamento guardado ✓','s');
+      cerrarNuevoBc();
+      seleccionarFil(scanMode, mat, color, pendingBc);
+      cargarFils();
+    })
+    .catch(()=>toast('Error guardando','e'));
+}
+
+function cerrarNuevoBc() {
+  document.getElementById('newBcModal').classList.remove('on');
+  document.getElementById('bsOverlay').style.display='none';
+  document.getElementById('nb-color').value='';
+  pendingBc='';
+}
+
+function cerrarTodosModales() {
+  ['newBcModal','newCliModal'].forEach(id=>document.getElementById(id).classList.remove('on'));
+  document.getElementById('bsOverlay').style.display='none';
+}
+
+// ── VENDER ────────────────────────────────────────────────────
+function vender() {
+  const key    = document.getElementById('v-fil').value;
+  const cant   = parseFloat(document.getElementById('v-cant').value);
+  const precio = parseFloat(document.getElementById('v-precio').value);
+  const canal  = document.getElementById('v-canal').value;
+  const vend   = document.getElementById('v-vend').value;
+  if (!key||!cant||!precio){toast('Completa todos los campos','w');return}
+  const f   = fils.find(x=>x.key===key);
+  const sel = document.getElementById('v-fil');
+  const btn = document.querySelector('#pg-vender .btn-g');
+  btn.disabled=true; btn.textContent='Registrando...';
+  api('registrarVenta', {
+    material       : f?f.material:key.split('|')[0],
+    color          : f?f.color:key.split('|')[1],
+    barcode        : sel.dataset.bc||f?.barcode||'',
+    cantidad: cant, precio, canal, vendedor: vend,
+    clienteNombre  : selectedCliente?.nombre||'',
+    clienteTelefono: selectedCliente?.telefono||''
+  })
+    .then(res=>{
+      btn.disabled=false; btn.textContent='Registrar venta';
+      const box=document.getElementById('v-res'); box.style.display='block';
+      document.getElementById('v-total').textContent=cop(res.total);
+      document.getElementById('v-stock-info').textContent='Stock actual: '+res.stockActual+' kg';
+      document.getElementById('v-alerta').style.display=res.alerta?'block':'none';
+      toast('Venta registrada ✓','s');
+      document.getElementById('v-bc-info').style.display='none';
+      document.getElementById('v-prices').style.display='none';
+      limpiarCliente();
+      cargarFils();
+    })
+    .catch(()=>{btn.disabled=false;btn.textContent='Registrar venta';toast('Error al registrar','e')});
+}
+
+// ── INVENTARIO ────────────────────────────────────────────────
+function cargarInv() {
+  document.getElementById('invList').innerHTML='<div class="spin-wrap"><div class="spin"></div>Cargando...</div>';
+  api('getInventario')
+    .then(data=>{inv=data;renderInv(data);mostrarBanner(data)})
+    .catch(()=>toast('Error','e'));
+}
+
+function renderInv(data) {
+  const q=document.getElementById('invSearch').value.toLowerCase();
+  const list=q?data.filter(i=>(i.material+' '+i.color).toLowerCase().includes(q)):data;
+  if(!list.length){document.getElementById('invList').innerHTML='<div class="spin-wrap">Sin resultados</div>';return}
+  const ordenado=[...list].sort((a,b)=>{
+    if(a.stock<=a.minimo&&b.stock>b.minimo)return -1;
+    if(b.stock<=b.minimo&&a.stock>a.minimo)return 1;
+    return a.material.localeCompare(b.material);
+  });
+  document.getElementById('invList').innerHTML=ordenado.map(i=>{
+    const pct=Math.min(100,(i.stock/i.maximo)*100);
+    const sc=i.stock===0?'d':i.stock<=i.minimo?'w':'g';
+    const cc=i.stock<=i.minimo?'alert':i.stock>=i.maximo*.8?'ok':'';
+    const pt=i.stock===0?'🚨 Sin stock':i.stock<=i.minimo?'⚠ Reponer':'✓ Ok';
+    const pc=i.stock<=i.minimo?'pa':'po';
+    return `<div class="fc ${cc}">
+      <div class="fi">
+        <div class="fn">${i.color}</div>
+        <div class="fm">${i.material}${i.barcode?' · '+i.barcode.slice(-6):''}</div>
+        <div style="margin-top:5px;height:4px;background:#e0e0e0;border-radius:2px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${i.stock<=i.minimo?'#e53935':'#7BAE7F'};border-radius:2px"></div>
+        </div>
+        <span class="pill ${pc}">${pt}</span>
+      </div>
+      <div class="fs"><div class="sn ${sc}">${i.stock}</div><div class="sl">kg / mín ${i.minimo}</div></div>
+    </div>`;
+  }).join('');
+}
+
+function filtrarInv(){renderInv(inv)}
+
+function mostrarBanner(data) {
+  const al=data.filter(i=>i.stock<=i.minimo);
+  const bd=document.getElementById('badge'),bn=document.getElementById('alertBanner');
+  if(al.length){
+    bd.style.display='block';bd.textContent=al.length;
+    bn.style.display='block';
+    document.getElementById('alertList').innerHTML=al.map(i=>`<li>${i.material} ${i.color} — ${i.stock} kg (mín ${i.minimo})</li>`).join('');
+  }else{bd.style.display='none';bn.style.display='none'}
+}
+
+function checkAlertas(){
+  api('getInventario').then(data=>mostrarBanner(data)).catch(()=>{});
+}
+
+function toggleAddFil(){
+  const c=document.getElementById('addFilCard');
+  c.style.display=c.style.display==='none'?'block':'none';
+}
+
+function agregarFil(){
+  const mat=document.getElementById('nf-mat').value;
+  const col=document.getElementById('nf-color').value.trim();
+  if(!col){toast('Escribe el color','w');return}
+  api('addFilamento', { material: mat, color: col, barcode: '' })
+    .then(()=>{toast('Agregado ✓','s');document.getElementById('nf-color').value='';toggleAddFil();cargarFils();cargarInv()})
+    .catch(()=>toast('Error','e'));
+}
+
+// ── COMPRAR ───────────────────────────────────────────────────
+function comprar(){
+  const key  = document.getElementById('c-fil').value;
+  const cant = parseFloat(document.getElementById('c-cant').value);
+  const cost = parseFloat(document.getElementById('c-costo').value);
+  const prov = document.getElementById('c-prov').value;
+  if(!key||!cant||!cost){toast('Completa todos los campos','w');return}
+  const f   = fils.find(x=>x.key===key);
+  const sel = document.getElementById('c-fil');
+  const btn = document.querySelector('#pg-comprar .btn-y');
+  btn.disabled=true;btn.textContent='Registrando...';
+  api('registrarCompra', {
+    material: f?f.material:key.split('|')[0],
+    color   : f?f.color:key.split('|')[1],
+    barcode : sel.dataset.bc||f?.barcode||'',
+    cantidad: cant, costo: cost, proveedor: prov
+  })
+    .then(res=>{
+      btn.disabled=false;btn.textContent='Registrar compra';
+      const box=document.getElementById('c-res');box.style.display='block';
+      document.getElementById('c-total').textContent=cop(res.costoTotal);
+      document.getElementById('c-stock-info').textContent='Nuevo stock: '+res.stockActual+' kg';
+      document.getElementById('c-bc-info').style.display='none';
+      document.getElementById('c-prices').style.display='none';
+      toast('Compra registrada ✓','s');
+      cargarFils();cargarAlertasCompra();
+    })
+    .catch(()=>{btn.disabled=false;btn.textContent='Registrar compra';toast('Error','e')});
+}
+
+function cargarAlertasCompra(){
+  api('getAlertas')
+    .then(al=>{
+      document.getElementById('compraAlertas').innerHTML=al.length
+        ?al.map(a=>`<div class="fc alert">
+            <div class="fi"><div class="fn">${a.color}</div><div class="fm">${a.material}</div></div>
+            <div class="fs"><div class="sn d">${a.stock}</div><div class="sl">mín ${a.minimo}</div></div>
+          </div>`).join('')
+        :'<div style="text-align:center;color:#7BAE7F;padding:14px;font-size:13px">✓ Todo el inventario OK</div>';
+    })
+    .catch(()=>{});
+}
+
+// ── REPORTES ──────────────────────────────────────────────────
+function cargarReportes(){
+  ['r-hoy','r-mes','r-anio'].forEach(id=>document.getElementById(id).textContent='...');
+  api('getReportes')
+    .then(r=>{
+      document.getElementById('r-hoy').textContent=cop(r.totalHoy);
+      document.getElementById('r-mes').textContent=copk(r.totalMes);
+      document.getElementById('r-anio').textContent=copk(r.totalAnio);
+      const mx=r.topSellers.length?r.topSellers[0].cant:1;
+      document.getElementById('r-top').innerHTML=r.topSellers.length
+        ?r.topSellers.map(s=>`<div class="sell-r">
+            <div class="sell-n">${s.nombre}</div>
+            <div class="sell-bw"><div class="sell-b" style="width:${s.cant/mx*100}%"></div></div>
+            <div class="sell-c">${s.cant} kg</div>
+          </div>`).join('')
+        :'<div style="color:#999;font-size:13px;text-align:center;padding:12px">Sin datos aún</div>';
+      document.getElementById('r-rec').innerHTML=r.recientes.length
+        ?r.recientes.map(v=>`<div class="sr">
+            <div>
+              <div class="si">${v.item}</div>
+              <div class="sm">${v.fecha} · ${v.cantidad} kg${v.cliente?' · '+v.cliente:''}</div>
+            </div>
+            <div class="st">${cop(v.total)}</div>
+          </div>`).join('')
+        :'<div style="color:#999;font-size:13px;text-align:center;padding:12px">Sin ventas aún</div>';
+    })
+    .catch(()=>toast('Error reportes','e'));
+}
+
+// ── Helpers ────────────────────────────────────────────────────
+function cop(v){return '$'+Math.round(v||0).toLocaleString('es-CO')}
+function copk(v){if(!v)return'$0';if(v>=1000000)return'$'+(v/1000000).toFixed(1)+'M';if(v>=1000)return'$'+(v/1000).toFixed(0)+'k';return'$'+Math.round(v)}
+function toast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast on '+(type||'');setTimeout(()=>{t.className='toast'},2800)}
+</script>
+</body>
+</html>
