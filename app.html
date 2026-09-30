@@ -73,13 +73,14 @@ select:focus,input:focus{border-color:var(--verde)}
 .scan-box{width:96%;max-width:600px;aspect-ratio:2/1;border:3px solid var(--amarillo);border-radius:10px;box-shadow:0 0 0 2000px rgba(0,0,0,.6)}
 .scan-line{position:absolute;left:2%;right:2%;height:3px;background:var(--amarillo);animation:scanline 1.8s ease-in-out infinite}
 @keyframes scanline{0%,100%{top:15%}50%{top:85%}}
-.scan-ctrl{position:absolute;bottom:14px;right:14px;display:none;flex-direction:column;gap:8px;align-items:center}
-.scan-ctrl.visible{display:flex}
-.scan-btn{background:rgba(255,255,255,.18);border:none;border-radius:50%;width:44px;height:44px;font-size:20px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
-.scan-btn.on{background:rgba(255,220,0,0.65)}
-.scan-zoom{position:absolute;bottom:14px;left:14px;display:none;flex-direction:column;gap:8px}
-.scan-zoom.visible{display:flex}
 .scan-hint{color:#fff;text-align:center;padding:10px 14px 4px;font-size:13px;opacity:.8}
+/* ── html5-qrcode overrides ── */
+#scanReader{background:#000;flex:1;overflow:hidden;position:relative}
+#scanReader video{width:100%!important;max-height:55vh!important;object-fit:cover!important;display:block}
+#scanReader img{display:none!important}
+#scanReader__dashboard{display:none!important}
+#scanReader__dashboard_section_csr{display:none!important}
+#scanReader__scan_region{position:absolute!important;top:0;left:0;right:0;bottom:0;border:none!important}
 .bsheet{background:#fff;border-radius:18px 18px 0 0;padding:20px 16px;position:fixed;bottom:0;left:0;right:0;z-index:300;display:none;transform:translateY(100%);transition:.28s ease}
 .bsheet.on{display:block;transform:translateY(0)}
 .bsheet h3{font-size:16px;font-weight:700;margin-bottom:4px}
@@ -533,7 +534,14 @@ function cerrarScanner() {
   pararCamara();
 }
 
+// ── DUAL-ENGINE SCANNER ─────────────────────────────────────────
+// Engine 1: html5-qrcode (ZXing WASM) — manages camera permissions & stream
+// Engine 2: BarcodeDetector (Google ML Kit) — runs in parallel on same video
+// Whichever fires first wins.
 let h5Scanner = null;
+let bdInterval = null;
+
+const BC_FORMATS_NATIVE = ['code_128','code_39','ean_13','ean_8','upc_a','upc_e','itf','qr_code','data_matrix','aztec','pdf417','codabar'];
 
 function iniciarCamara() {
   if (!window.Html5Qrcode) { toast('Librería de escaneo no disponible','e'); return; }
@@ -543,10 +551,12 @@ function iniciarCamara() {
 
   h5Scanner = new Html5Qrcode('scanReader', { verbose: false });
 
+  // Use window.innerWidth — el.offsetWidth is 0 while modal CSS transition runs
+  const W = window.innerWidth || 380;
   const config = {
-    fps: 10,
-    qrbox: { width: Math.min((el.offsetWidth || 360) - 40, 400), height: 160 },
-    aspectRatio: 1.5,
+    fps: 15,
+    qrbox: { width: Math.min(W - 32, 380), height: 130 },
+    aspectRatio: 1.7778,   // 16:9
     formatsToSupport: [
       Html5QrcodeSupportedFormats.CODE_128,
       Html5QrcodeSupportedFormats.CODE_39,
@@ -557,31 +567,65 @@ function iniciarCamara() {
       Html5QrcodeSupportedFormats.ITF,
       Html5QrcodeSupportedFormats.QR_CODE,
       Html5QrcodeSupportedFormats.DATA_MATRIX
-    ]
+    ],
+    experimentalFeatures: { useBarCodeDetectorIfSupported: false } // we handle BD ourselves
   };
 
   h5Scanner.start(
     { facingMode: 'environment' },
     config,
-    function(decodedText) {
-      pararCamara();
-      onBarcodeDetected(decodedText);
+    function onH5Decode(text) {          // ZXing decoded it
+      _scannerResult(text);
     },
-    function() {}
-  ).catch(function(err) {
-    var msg = (err || '').toString();
-    if (msg.indexOf('Permission') >= 0 || msg.indexOf('ermission') >= 0)
+    function() {}                          // per-frame errors — ignore
+  )
+  .then(function() {
+    // Engine 2: BarcodeDetector runs on same video element in parallel
+    if (!('BarcodeDetector' in window)) return;
+    var video = document.querySelector('#scanReader video');
+    if (!video) return;
+
+    BarcodeDetector.getSupportedFormats()
+      .then(function(fmts) {
+        var formats = (fmts && fmts.length) ? fmts : BC_FORMATS_NATIVE;
+        var detector;
+        try { detector = new BarcodeDetector({ formats: formats }); }
+        catch(e) { return; }
+
+        bdInterval = setInterval(async function() {
+          if (!h5Scanner) { clearInterval(bdInterval); bdInterval = null; return; }
+          if (video.readyState < 2) return;
+          try {
+            var codes = await detector.detect(video);
+            if (codes && codes.length) {
+              _scannerResult(codes[0].rawValue);
+            }
+          } catch(e) {}
+        }, 150);
+      })
+      .catch(function() {});
+  })
+  .catch(function(err) {
+    var msg = String(err || '');
+    if (msg.indexOf('ermission') >= 0 || msg.indexOf('denied') >= 0)
       toast('Permiso de cámara denegado','e');
     else
       toast('Error al abrir cámara','e');
   });
 }
 
+function _scannerResult(text) {
+  if (!text || !h5Scanner) return;  // guard: ignore if already handled
+  pararCamara();
+  onBarcodeDetected(text);
+}
+
 function pararCamara() {
-  const mbi = document.getElementById('manualBcInput'); if (mbi) mbi.value = '';
+  if (bdInterval) { clearInterval(bdInterval); bdInterval = null; }
+  var mbi = document.getElementById('manualBcInput'); if (mbi) mbi.value = '';
   if (!h5Scanner) return;
   var s = h5Scanner;
-  h5Scanner = null;
+  h5Scanner = null;     // null first so _scannerResult guard works
   try { if (s.isScanning) s.stop().catch(function(){}); } catch(e) {}
 }
 
