@@ -277,31 +277,13 @@ select:focus,input:focus{border-color:var(--verde)}
   <h2>Escanear código de barras</h2>
   <button class="close-btn" onclick="cerrarScanner()">×</button>
  </div>
- <div class="scan-wrap">
-  <video id="scanVideo" autoplay playsinline muted></video>
-  <div class="scan-frame">
-   <div style="position:relative;width:96%;max-width:600px">
-    <div class="scan-box"></div>
-    <div class="scan-line" id="scanLine"></div>
-   </div>
-  </div>
-  <!-- zoom controls (left) -->
-  <div class="scan-zoom" id="scanZoom">
-   <button class="scan-btn" id="zoomInBtn" title="Acercar">🔍+</button>
-   <button class="scan-btn" id="zoomOutBtn" title="Alejar">🔍−</button>
-  </div>
-  <!-- torch (right) -->
-  <div class="scan-ctrl" id="scanCtrl">
-   <button class="scan-btn" id="torchBtn" title="Linterna">💡</button>
-  </div>
- </div>
- <div class="scan-hint">Mantén el código a <b>20–25 cm</b> · usa zoom si necesitas acercar</div>
- <div style="padding:0 16px 14px;display:flex;gap:8px;align-items:center">
+ <div id="scanReader" style="width:100%;flex:1;overflow:hidden"></div>
+ <div style="padding:10px 16px 14px;display:flex;gap:8px;align-items:center;background:#111">
   <input id="manualBcInput" type="text" inputmode="numeric" placeholder="O escribe el código aquí…"
    style="flex:1;padding:10px 12px;border-radius:8px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;font-size:14px;outline:none"
-   onkeydown="if(event.key==='Enter'&&this.value.trim()){cerrarScanner();onBarcodeDetected(this.value.trim());this.value=''}">
-  <button onclick="(function(){const v=document.getElementById('manualBcInput').value.trim();if(v){cerrarScanner();onBarcodeDetected(v);document.getElementById('manualBcInput').value='';}else{document.getElementById('manualBcInput').focus();}})()"
-   style="background:var(--amarillo);border:none;border-radius:8px;padding:10px 14px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap">OK</button>
+   onkeydown="if(event.key==='Enter'&&this.value.trim()){var val=this.value.trim();this.value='';cerrarScanner();onBarcodeDetected(val);}">
+  <button onclick="(function(){var val=document.getElementById('manualBcInput').value.trim();if(val){document.getElementById('manualBcInput').value='';cerrarScanner();onBarcodeDetected(val);}else{document.getElementById('manualBcInput').focus();}})()"
+   style="background:var(--amarillo);border:none;border-radius:8px;padding:10px 16px;color:#fff;font-size:14px;font-weight:700;cursor:pointer">OK</button>
  </div>
 </div>
 
@@ -361,7 +343,7 @@ select:focus,input:focus{border-color:var(--verde)}
 
 <div class="toast" id="toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.19.1/umd/index.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
 // ── API ────────────────────────────────────────────────────────
 const API = 'https://script.google.com/macros/s/AKfycbxNerre-jVzAZ3028w0irCV5WM6UkgyLg8a7QdBFl90rk1Q2fANaoktZybJneJgc_puig/exec';
@@ -376,7 +358,7 @@ function api(action, data) {
 
 // ── State ──────────────────────────────────────────────────────
 let fils = [], inv = [], clientes = [], scanMode = '';
-let scanActive = false, codeReader = null, pendingBc = '';
+let pendingBc = '';
 let selectedCliente = null;
 
 // ── Nav ────────────────────────────────────────────────────────
@@ -551,154 +533,58 @@ function cerrarScanner() {
   pararCamara();
 }
 
+let h5Scanner = null;
+
 function iniciarCamara() {
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    toast('Cámara no disponible en este navegador','e'); return;
-  }
+  if (!window.Html5Qrcode) { toast('Librería de escaneo no disponible','e'); return; }
+  const el = document.getElementById('scanReader');
+  if (!el) return;
+  el.innerHTML = '';
 
-  const v = document.getElementById('scanVideo');
-  const torchBtn  = document.getElementById('torchBtn');
-  const scanCtrl  = document.getElementById('scanCtrl');
-  const scanZoom  = document.getElementById('scanZoom');
-  const zoomInBtn = document.getElementById('zoomInBtn');
-  const zoomOutBtn= document.getElementById('zoomOutBtn');
-  let torchOn = false;
-  let activeTrack = null;
-  let currentZoom = 1, minZoom = 1, maxZoom = 1, zoomStep = 0.5;
+  h5Scanner = new Html5Qrcode('scanReader', { verbose: false });
 
-  navigator.mediaDevices.getUserMedia({
-    video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
-  })
-  .then(stream => {
-    v.srcObject = stream;
-    v.play();
-    activeTrack = stream.getVideoTracks()[0];
+  const config = {
+    fps: 10,
+    qrbox: { width: Math.min((el.offsetWidth || 360) - 40, 400), height: 160 },
+    aspectRatio: 1.5,
+    formatsToSupport: [
+      Html5QrcodeSupportedFormats.CODE_128,
+      Html5QrcodeSupportedFormats.CODE_39,
+      Html5QrcodeSupportedFormats.EAN_13,
+      Html5QrcodeSupportedFormats.EAN_8,
+      Html5QrcodeSupportedFormats.UPC_A,
+      Html5QrcodeSupportedFormats.UPC_E,
+      Html5QrcodeSupportedFormats.ITF,
+      Html5QrcodeSupportedFormats.QR_CODE,
+      Html5QrcodeSupportedFormats.DATA_MATRIX
+    ]
+  };
 
-    // Wait 800ms for stream to be fully active before reading capabilities
-    setTimeout(() => {
-      if (!activeTrack) return;
-      try {
-        const caps = activeTrack.getCapabilities ? activeTrack.getCapabilities() : {};
-
-        // ── Continuous autofocus ──
-        if (caps.focusMode && caps.focusMode.includes('continuous')) {
-          activeTrack.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(()=>{});
-        }
-
-        // ── Zoom controls ──
-        if (caps.zoom && caps.zoom.max > 1) {
-          minZoom = caps.zoom.min || 1;
-          maxZoom = Math.min(caps.zoom.max, 6);
-          currentZoom = minZoom;
-          zoomStep = Math.max(0.5, (maxZoom - minZoom) / 8);
-          scanZoom.classList.add('visible');
-
-          const applyZoom = () => {
-            activeTrack.applyConstraints({ advanced: [{ zoom: currentZoom }] }).catch(()=>{});
-          };
-          zoomInBtn.onclick = () => {
-            currentZoom = Math.min(maxZoom, +(currentZoom + zoomStep).toFixed(1));
-            applyZoom();
-          };
-          zoomOutBtn.onclick = () => {
-            currentZoom = Math.max(minZoom, +(currentZoom - zoomStep).toFixed(1));
-            applyZoom();
-          };
-        }
-
-        // ── Torch ──
-        // Try applyConstraints first; if that fails try ImageCapture API
-        scanCtrl.classList.add('visible');
-        torchBtn.onclick = () => {
-          if (!activeTrack) return;
-          torchOn = !torchOn;
-          const tryApplyConstraints = () =>
-            activeTrack.applyConstraints({ advanced: [{ torch: torchOn }] });
-          const tryImageCapture = () => {
-            if (typeof ImageCapture === 'undefined') return Promise.reject();
-            const ic = new ImageCapture(activeTrack);
-            return ic.setOptions ? ic.setOptions({ torch: torchOn }) : Promise.reject();
-          };
-          tryApplyConstraints()
-            .catch(() => tryImageCapture())
-            .then(() => {
-              torchBtn.textContent = torchOn ? '🔦' : '💡';
-              torchBtn.classList.toggle('on', torchOn);
-            })
-            .catch(() => {
-              torchOn = false;
-              toast('Linterna no disponible en este dispositivo','w');
-            });
-        };
-
-      } catch(e) {}
-    }, 800);
-
-    // ── Start barcode detection ──
-    const BC_FALLBACK = ['code_128','code_39','ean_13','ean_8','upc_a','upc_e','itf','qr_code','data_matrix'];
-
-    function startZXing() {
-      if (!window.ZXing) { toast('Escáner no disponible','e'); return; }
-      const hints = new Map();
-      hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
-        ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.EAN_13,
-        ZXing.BarcodeFormat.EAN_8,   ZXing.BarcodeFormat.UPC_A,
-        ZXing.BarcodeFormat.CODE_39, ZXing.BarcodeFormat.ITF
-      ]);
-      const reader = new ZXing.BrowserMultiFormatReader(hints, 300);
-      reader.decodeFromVideoElement('scanVideo', (result, err) => {
-        if (result) onBarcodeDetected(result.text);
-      });
-      codeReader = reader;
-    }
-
-    function startNative(formats) {
-      const fmts = (formats && formats.length) ? formats : BC_FALLBACK;
-      let detector;
-      try { detector = new BarcodeDetector({ formats: fmts }); }
-      catch(e) { startZXing(); return; }
-
-      let active = true;
-      const iv = setInterval(async () => {
-        if (!active || v.readyState < 2) return;
-        try {
-          const codes = await detector.detect(v);
-          if (codes.length && active) {
-            active = false;
-            clearInterval(iv);
-            onBarcodeDetected(codes[0].rawValue);
-          }
-        } catch(e) {}
-      }, 200);
-      codeReader = { reset: () => { active = false; clearInterval(iv); } };
-    }
-
-    if ('BarcodeDetector' in window) {
-      BarcodeDetector.getSupportedFormats()
-        .then(fmts => startNative(fmts))
-        .catch(() => startNative(BC_FALLBACK));
-    } else {
-      startZXing();
-    }
-  })
-  .catch(err => {
-    if (err.name === 'NotAllowedError') toast('Permiso de cámara denegado','e');
-    else toast('Error al abrir cámara: ' + err.message,'e');
+  h5Scanner.start(
+    { facingMode: 'environment' },
+    config,
+    function(decodedText) {
+      pararCamara();
+      onBarcodeDetected(decodedText);
+    },
+    function() {}
+  ).catch(function(err) {
+    var msg = (err || '').toString();
+    if (msg.indexOf('Permission') >= 0 || msg.indexOf('ermission') >= 0)
+      toast('Permiso de cámara denegado','e');
+    else
+      toast('Error al abrir cámara','e');
   });
 }
 
 function pararCamara() {
-  if (codeReader) { try { codeReader.reset(); } catch(e){} codeReader = null; }
-  scanActive = false;
-  const v = document.getElementById('scanVideo');
-  if (v.srcObject) { v.srcObject.getTracks().forEach(t=>t.stop()); v.srcObject=null; }
-  const torchBtn = document.getElementById('torchBtn');
-  const sc = document.getElementById('scanCtrl'); if (sc) sc.classList.remove('visible');
-  const sz = document.getElementById('scanZoom'); if (sz) sz.classList.remove('visible');
-  const tb = document.getElementById('torchBtn'); if (tb) { tb.textContent='💡'; tb.classList.remove('on'); }
-  const mbi = document.getElementById('manualBcInput'); if (mbi) mbi.value='';
+  const mbi = document.getElementById('manualBcInput'); if (mbi) mbi.value = '';
+  if (!h5Scanner) return;
+  var s = h5Scanner;
+  h5Scanner = null;
+  try { if (s.isScanning) s.stop().catch(function(){}); } catch(e) {}
 }
+
 
 function onBarcodeDetected(bc) {
   cerrarScanner();
