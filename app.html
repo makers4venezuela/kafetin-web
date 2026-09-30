@@ -565,29 +565,42 @@ function iniciarCamara() {
         }
       }
 
-      // Use native BarcodeDetector (Chrome Android) — much more reliable
+      // Use native BarcodeDetector (Chrome Android) — hardware-accelerated
       if ('BarcodeDetector' in window) {
-        const detector = new BarcodeDetector({
-          formats: ['code_128','code_39','ean_13','ean_8','upc_a','upc_e','itf','qr_code','data_matrix']
-        });
-        let scanning = true;
-        codeReader = { reset: () => { scanning = false; } }; // compat shim
+        toast('Escáner nativo activo','s');
+        BarcodeDetector.getSupportedFormats().then(supported => {
+          const detector = new BarcodeDetector({ formats: supported });
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          let active = true;
+          codeReader = { reset: () => { active = false; } };
 
-        const tick = async () => {
-          if (!scanning || v.readyState < 2) { if (scanning) requestAnimationFrame(tick); return; }
-          try {
-            const codes = await detector.detect(v);
-            if (codes.length && scanning) {
-              const val = codes[0].rawValue;
-              if (scanActive !== val) { scanActive = val; onBarcodeDetected(val); return; }
-            }
-          } catch(e) {}
-          if (scanning) requestAnimationFrame(tick);
-        };
-        v.addEventListener('playing', () => requestAnimationFrame(tick), { once: true });
+          const scanFrame = setInterval(async () => {
+            if (!active || v.readyState < 2 || v.paused) return;
+            try {
+              canvas.width = v.videoWidth;
+              canvas.height = v.videoHeight;
+              ctx.drawImage(v, 0, 0);
+              const codes = await detector.detect(canvas);
+              if (codes.length && active) {
+                const val = codes[0].rawValue;
+                if (scanActive !== val) {
+                  active = false;
+                  clearInterval(scanFrame);
+                  scanActive = val;
+                  onBarcodeDetected(val);
+                }
+              }
+            } catch(e) {}
+          }, 150);
+
+          // Store interval ref for cleanup
+          codeReader = { reset: () => { active = false; clearInterval(scanFrame); } };
+        });
 
       } else {
         // Fallback: ZXing
+        toast('Usando ZXing (instala Chrome para mejor rendimiento)','w');
         if (!window.ZXing) { toast('Librería no cargada','e'); return; }
         const hints = new Map();
         hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
