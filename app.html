@@ -608,31 +608,11 @@ function iniciarCamara() {
       } catch(e) {}
     });
 
-    // ── BarcodeDetector (Chrome Android native, fastest) ──
-    if ('BarcodeDetector' in window) {
-      BarcodeDetector.getSupportedFormats().then(supported => {
-        const detector = new BarcodeDetector({ formats: supported });
-        let active = true;
-        const scanFrame = setInterval(async () => {
-          if (!active || v.readyState < 2 || v.paused) return;
-          try {
-            const codes = await detector.detect(v);  // detect directly on video element
-            if (codes.length && active) {
-              const val = codes[0].rawValue;
-              if (scanActive !== val) {
-                active = false;
-                clearInterval(scanFrame);
-                scanActive = val;
-                onBarcodeDetected(val);
-              }
-            }
-          } catch(e) {}
-        }, 200);
-        codeReader = { reset: () => { active = false; clearInterval(scanFrame); } };
-      });
-    } else {
-      // ── ZXing fallback ──
-      if (!window.ZXing) { toast('Librería de escaneo no cargada','e'); return; }
+    // ── Start barcode detection ──
+    const BC_FALLBACK = ['code_128','code_39','ean_13','ean_8','upc_a','upc_e','itf','qr_code','data_matrix'];
+
+    function startZXing() {
+      if (!window.ZXing) { toast('Escáner no disponible','e'); return; }
       const hints = new Map();
       hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
       hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
@@ -640,12 +620,40 @@ function iniciarCamara() {
         ZXing.BarcodeFormat.EAN_8,   ZXing.BarcodeFormat.UPC_A,
         ZXing.BarcodeFormat.CODE_39, ZXing.BarcodeFormat.ITF
       ]);
-      codeReader = new ZXing.BrowserMultiFormatReader(hints, 400);
-      codeReader.decodeFromVideoElement('scanVideo', (result) => {
-        if (result && scanActive !== result.text) {
-          scanActive = result.text; onBarcodeDetected(result.text);
-        }
+      const reader = new ZXing.BrowserMultiFormatReader(hints, 300);
+      reader.decodeFromVideoElement('scanVideo', (result, err) => {
+        if (result) onBarcodeDetected(result.text);
       });
+      codeReader = reader;
+    }
+
+    function startNative(formats) {
+      const fmts = (formats && formats.length) ? formats : BC_FALLBACK;
+      let detector;
+      try { detector = new BarcodeDetector({ formats: fmts }); }
+      catch(e) { startZXing(); return; }
+
+      let active = true;
+      const iv = setInterval(async () => {
+        if (!active || v.readyState < 2) return;
+        try {
+          const codes = await detector.detect(v);
+          if (codes.length && active) {
+            active = false;
+            clearInterval(iv);
+            onBarcodeDetected(codes[0].rawValue);
+          }
+        } catch(e) {}
+      }, 200);
+      codeReader = { reset: () => { active = false; clearInterval(iv); } };
+    }
+
+    if ('BarcodeDetector' in window) {
+      BarcodeDetector.getSupportedFormats()
+        .then(fmts => startNative(fmts))
+        .catch(() => startNative(BC_FALLBACK));
+    } else {
+      startZXing();
     }
   })
   .catch(err => {
