@@ -279,12 +279,15 @@ select:focus,input:focus{border-color:var(--verde)}
   <button class="close-btn" onclick="cerrarScanner()">×</button>
  </div>
  <div id="scanReader" style="width:100%;flex:1;overflow:hidden"></div>
- <div style="padding:10px 16px 14px;display:flex;gap:8px;align-items:center;background:#111">
-  <input id="manualBcInput" type="text" inputmode="numeric" placeholder="O escribe el código aquí…"
-   style="flex:1;padding:10px 12px;border-radius:8px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;font-size:14px;outline:none"
-   onkeydown="if(event.key==='Enter'&&this.value.trim()){var val=this.value.trim();this.value='';cerrarScanner();onBarcodeDetected(val);}">
-  <button onclick="(function(){var val=document.getElementById('manualBcInput').value.trim();if(val){document.getElementById('manualBcInput').value='';cerrarScanner();onBarcodeDetected(val);}else{document.getElementById('manualBcInput').focus();}})()"
-   style="background:var(--amarillo);border:none;border-radius:8px;padding:10px 16px;color:#fff;font-size:14px;font-weight:700;cursor:pointer">OK</button>
+ <div style="padding:12px 16px 16px;background:#111">
+  <div style="color:rgba(255,255,255,.5);font-size:11px;margin-bottom:6px;letter-spacing:.5px">CÓDIGO DE BARRAS · escáner Bluetooth o manual</div>
+  <div style="display:flex;gap:8px;align-items:center">
+   <input id="manualBcInput" type="text" inputmode="numeric" placeholder="Escribe o escanea el código…"
+    style="flex:1;padding:12px 14px;border-radius:10px;border:2px solid var(--amarillo);background:rgba(255,255,255,.08);color:#fff;font-size:16px;outline:none;font-family:monospace;letter-spacing:.5px"
+    onkeydown="if(event.key==='Enter'&&this.value.trim()){var val=this.value.trim();this.value='';cerrarScanner();onBarcodeDetected(val);}">
+   <button onclick="(function(){var val=document.getElementById('manualBcInput').value.trim();if(val){document.getElementById('manualBcInput').value='';cerrarScanner();onBarcodeDetected(val);}else{document.getElementById('manualBcInput').focus();}})()"
+    style="background:var(--amarillo);border:none;border-radius:10px;padding:12px 18px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap">✓ OK</button>
+  </div>
  </div>
 </div>
 
@@ -527,6 +530,11 @@ function abrirScanner(mode) {
   scanMode = mode;
   document.getElementById('scanModal').classList.add('on');
   iniciarCamara();
+  // Auto-focus manual input so a Bluetooth scanner fires straight into it
+  setTimeout(() => {
+    const inp = document.getElementById('manualBcInput');
+    if (inp) inp.focus();
+  }, 400);
 }
 
 function cerrarScanner() {
