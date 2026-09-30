@@ -70,9 +70,9 @@ select:focus,input:focus{border-color:var(--verde)}
 .scan-wrap{position:relative;flex:1;overflow:hidden}
 #scanVideo{width:100%;height:100%;object-fit:cover}
 .scan-frame{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
-.scan-box{width:94%;max-width:500px;aspect-ratio:3/1;border:3px solid var(--amarillo);border-radius:8px;box-shadow:0 0 0 2000px rgba(0,0,0,.55)}
-.scan-line{position:absolute;left:3%;right:3%;height:2px;background:var(--amarillo);animation:scanline 1.5s ease-in-out infinite}
-@keyframes scanline{0%,100%{top:18%}50%{top:82%}}
+.scan-box{width:96%;max-width:600px;aspect-ratio:2/1;border:3px solid var(--amarillo);border-radius:10px;box-shadow:0 0 0 2000px rgba(0,0,0,.6)}
+.scan-line{position:absolute;left:2%;right:2%;height:3px;background:var(--amarillo);animation:scanline 1.8s ease-in-out infinite}
+@keyframes scanline{0%,100%{top:15%}50%{top:85%}}
 .scan-torch{position:absolute;bottom:14px;right:14px;background:rgba(255,255,255,.18);border:none;border-radius:50%;width:44px;height:44px;font-size:22px;color:#fff;cursor:pointer;display:none;align-items:center;justify-content:center}
 .scan-torch.visible{display:flex}
 .scan-hint{color:#fff;text-align:center;padding:14px;font-size:13px;opacity:.8}
@@ -276,7 +276,7 @@ select:focus,input:focus{border-color:var(--verde)}
  <div class="scan-wrap">
   <video id="scanVideo" autoplay playsinline muted></video>
   <div class="scan-frame">
-   <div style="position:relative;width:94%;max-width:500px">
+   <div style="position:relative;width:96%;max-width:600px">
     <div class="scan-box"></div>
     <div class="scan-line" id="scanLine"></div>
    </div>
@@ -544,18 +544,13 @@ function iniciarCamara() {
       v.srcObject = stream;
       v.play();
 
-      // Force continuous autofocus after stream starts
+      // Force continuous autofocus
       const track = stream.getVideoTracks()[0];
       if (track) {
         const caps = track.getCapabilities ? track.getCapabilities() : {};
-        const applyOpts = {};
         if (caps.focusMode && caps.focusMode.includes('continuous')) {
-          applyOpts.focusMode = 'continuous';
+          track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(()=>{});
         }
-        if (Object.keys(applyOpts).length) {
-          track.applyConstraints({ advanced: [applyOpts] }).catch(()=>{});
-        }
-        // Torch button
         if (caps.torch) {
           const torchBtn = document.getElementById('torchBtn');
           if (torchBtn) {
@@ -570,32 +565,48 @@ function iniciarCamara() {
         }
       }
 
-      if (!window.ZXing) { toast('Librería de escaneo no cargada','e'); return; }
-      const hints = new Map();
-      hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
-        ZXing.BarcodeFormat.CODE_128,
-        ZXing.BarcodeFormat.CODE_39,
-        ZXing.BarcodeFormat.EAN_13,
-        ZXing.BarcodeFormat.EAN_8,
-        ZXing.BarcodeFormat.UPC_A,
-        ZXing.BarcodeFormat.UPC_E,
-        ZXing.BarcodeFormat.ITF
-      ]);
-      codeReader = new ZXing.BrowserMultiFormatReader(hints, 400);
-      codeReader.decodeFromVideoElement('scanVideo', (result) => {
-        if (result && scanActive !== result.text) {
-          scanActive = result.text;
-          onBarcodeDetected(result.text);
-        }
-      });
+      // Use native BarcodeDetector (Chrome Android) — much more reliable
+      if ('BarcodeDetector' in window) {
+        const detector = new BarcodeDetector({
+          formats: ['code_128','code_39','ean_13','ean_8','upc_a','upc_e','itf','qr_code','data_matrix']
+        });
+        let scanning = true;
+        codeReader = { reset: () => { scanning = false; } }; // compat shim
+
+        const tick = async () => {
+          if (!scanning || v.readyState < 2) { if (scanning) requestAnimationFrame(tick); return; }
+          try {
+            const codes = await detector.detect(v);
+            if (codes.length && scanning) {
+              const val = codes[0].rawValue;
+              if (scanActive !== val) { scanActive = val; onBarcodeDetected(val); return; }
+            }
+          } catch(e) {}
+          if (scanning) requestAnimationFrame(tick);
+        };
+        v.addEventListener('playing', () => requestAnimationFrame(tick), { once: true });
+
+      } else {
+        // Fallback: ZXing
+        if (!window.ZXing) { toast('Librería no cargada','e'); return; }
+        const hints = new Map();
+        hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+        hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+          ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.EAN_13,
+          ZXing.BarcodeFormat.EAN_8,   ZXing.BarcodeFormat.UPC_A,
+          ZXing.BarcodeFormat.CODE_39, ZXing.BarcodeFormat.ITF
+        ]);
+        codeReader = new ZXing.BrowserMultiFormatReader(hints, 400);
+        codeReader.decodeFromVideoElement('scanVideo', (result) => {
+          if (result && scanActive !== result.text) {
+            scanActive = result.text; onBarcodeDetected(result.text);
+          }
+        });
+      }
     })
     .catch(err => {
-      if (err.name === 'NotAllowedError') {
-        toast('Permiso de cámara denegado','e');
-      } else {
-        toast('Error al abrir cámara','e');
-      }
+      if (err.name === 'NotAllowedError') toast('Permiso de cámara denegado','e');
+      else toast('Error al abrir cámara','e');
     });
 }
 
