@@ -73,9 +73,13 @@ select:focus,input:focus{border-color:var(--verde)}
 .scan-box{width:96%;max-width:600px;aspect-ratio:2/1;border:3px solid var(--amarillo);border-radius:10px;box-shadow:0 0 0 2000px rgba(0,0,0,.6)}
 .scan-line{position:absolute;left:2%;right:2%;height:3px;background:var(--amarillo);animation:scanline 1.8s ease-in-out infinite}
 @keyframes scanline{0%,100%{top:15%}50%{top:85%}}
-.scan-torch{position:absolute;bottom:14px;right:14px;background:rgba(255,255,255,.18);border:none;border-radius:50%;width:44px;height:44px;font-size:22px;color:#fff;cursor:pointer;display:none;align-items:center;justify-content:center}
-.scan-torch.visible{display:flex}
-.scan-hint{color:#fff;text-align:center;padding:14px;font-size:13px;opacity:.8}
+.scan-ctrl{position:absolute;bottom:14px;right:14px;display:none;flex-direction:column;gap:8px;align-items:center}
+.scan-ctrl.visible{display:flex}
+.scan-btn{background:rgba(255,255,255,.18);border:none;border-radius:50%;width:44px;height:44px;font-size:20px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+.scan-btn.on{background:rgba(255,220,0,0.65)}
+.scan-zoom{position:absolute;bottom:14px;left:14px;display:none;flex-direction:column;gap:8px}
+.scan-zoom.visible{display:flex}
+.scan-hint{color:#fff;text-align:center;padding:10px 14px 4px;font-size:13px;opacity:.8}
 .bsheet{background:#fff;border-radius:18px 18px 0 0;padding:20px 16px;position:fixed;bottom:0;left:0;right:0;z-index:300;display:none;transform:translateY(100%);transition:.28s ease}
 .bsheet.on{display:block;transform:translateY(0)}
 .bsheet h3{font-size:16px;font-weight:700;margin-bottom:4px}
@@ -281,9 +285,17 @@ select:focus,input:focus{border-color:var(--verde)}
     <div class="scan-line" id="scanLine"></div>
    </div>
   </div>
-  <button class="scan-torch" id="torchBtn" title="Linterna">💡</button>
+  <!-- zoom controls (left) -->
+  <div class="scan-zoom" id="scanZoom">
+   <button class="scan-btn" id="zoomInBtn" title="Acercar">🔍+</button>
+   <button class="scan-btn" id="zoomOutBtn" title="Alejar">🔍−</button>
+  </div>
+  <!-- torch (right) -->
+  <div class="scan-ctrl" id="scanCtrl">
+   <button class="scan-btn" id="torchBtn" title="Linterna">💡</button>
+  </div>
  </div>
- <div class="scan-hint">Mantén el código centrado y quieto · Toca la imagen para enfocar</div>
+ <div class="scan-hint">Mantén el código a <b>20–25 cm</b> · usa zoom si necesitas acercar</div>
  <div style="padding:0 16px 14px;display:flex;gap:8px;align-items:center">
   <input id="manualBcInput" type="text" inputmode="numeric" placeholder="O escribe el código aquí…"
    style="flex:1;padding:10px 12px;border-radius:8px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;font-size:14px;outline:none"
@@ -545,27 +557,14 @@ function iniciarCamara() {
   }
 
   const v = document.getElementById('scanVideo');
-  const torchBtn = document.getElementById('torchBtn');
+  const torchBtn  = document.getElementById('torchBtn');
+  const scanCtrl  = document.getElementById('scanCtrl');
+  const scanZoom  = document.getElementById('scanZoom');
+  const zoomInBtn = document.getElementById('zoomInBtn');
+  const zoomOutBtn= document.getElementById('zoomOutBtn');
   let torchOn = false;
   let activeTrack = null;
-
-  // Always show torch button — try it on click, catch failure gracefully
-  if (torchBtn) {
-    torchBtn.classList.add('visible');
-    torchBtn.onclick = () => {
-      if (!activeTrack) return;
-      torchOn = !torchOn;
-      activeTrack.applyConstraints({ advanced: [{ torch: torchOn }] })
-        .then(() => {
-          torchBtn.textContent = torchOn ? '🔦' : '💡';
-          torchBtn.style.background = torchOn ? 'rgba(255,220,0,0.65)' : 'rgba(255,255,255,.18)';
-        })
-        .catch(() => {
-          torchOn = false;
-          toast('Linterna no disponible en este dispositivo','w');
-        });
-    };
-  }
+  let currentZoom = 1, minZoom = 1, maxZoom = 1, zoomStep = 0.5;
 
   navigator.mediaDevices.getUserMedia({
     video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
@@ -575,38 +574,65 @@ function iniciarCamara() {
     v.play();
     activeTrack = stream.getVideoTracks()[0];
 
-    // Wait 600ms for stream to fully init, then set focus/zoom
+    // Wait 800ms for stream to be fully active before reading capabilities
     setTimeout(() => {
       if (!activeTrack) return;
       try {
         const caps = activeTrack.getCapabilities ? activeTrack.getCapabilities() : {};
-        const adv = [];
-        if (caps.focusMode && caps.focusMode.includes('continuous')) adv.push({ focusMode: 'continuous' });
-        if (caps.zoom) adv.push({ zoom: caps.zoom.min ?? 1 });
-        if (adv.length) activeTrack.applyConstraints({ advanced: adv }).catch(()=>{});
-      } catch(e) {}
-    }, 600);
 
-    // Tap video = single-shot focus on that point, then back to continuous
-    v.addEventListener('click', e => {
-      if (!activeTrack) return;
-      try {
-        const caps = activeTrack.getCapabilities ? activeTrack.getCapabilities() : {};
-        if (!caps.focusMode) return;
-        const r = v.getBoundingClientRect();
-        const pt = { focusMode: 'single-shot' };
-        if (caps.pointsOfInterest) pt.pointsOfInterest = [{ x: (e.clientX - r.left)/r.width, y: (e.clientY - r.top)/r.height }];
-        activeTrack.applyConstraints({ advanced: [pt] })
-          .then(() => setTimeout(() => {
-            try {
-              const c2 = activeTrack.getCapabilities ? activeTrack.getCapabilities() : {};
-              if (c2.focusMode && c2.focusMode.includes('continuous'))
-                activeTrack.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(()=>{});
-            } catch(e){}
-          }, 1500))
-          .catch(()=>{});
+        // ── Continuous autofocus ──
+        if (caps.focusMode && caps.focusMode.includes('continuous')) {
+          activeTrack.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(()=>{});
+        }
+
+        // ── Zoom controls ──
+        if (caps.zoom && caps.zoom.max > 1) {
+          minZoom = caps.zoom.min || 1;
+          maxZoom = Math.min(caps.zoom.max, 6);
+          currentZoom = minZoom;
+          zoomStep = Math.max(0.5, (maxZoom - minZoom) / 8);
+          scanZoom.classList.add('visible');
+
+          const applyZoom = () => {
+            activeTrack.applyConstraints({ advanced: [{ zoom: currentZoom }] }).catch(()=>{});
+          };
+          zoomInBtn.onclick = () => {
+            currentZoom = Math.min(maxZoom, +(currentZoom + zoomStep).toFixed(1));
+            applyZoom();
+          };
+          zoomOutBtn.onclick = () => {
+            currentZoom = Math.max(minZoom, +(currentZoom - zoomStep).toFixed(1));
+            applyZoom();
+          };
+        }
+
+        // ── Torch ──
+        // Try applyConstraints first; if that fails try ImageCapture API
+        scanCtrl.classList.add('visible');
+        torchBtn.onclick = () => {
+          if (!activeTrack) return;
+          torchOn = !torchOn;
+          const tryApplyConstraints = () =>
+            activeTrack.applyConstraints({ advanced: [{ torch: torchOn }] });
+          const tryImageCapture = () => {
+            if (typeof ImageCapture === 'undefined') return Promise.reject();
+            const ic = new ImageCapture(activeTrack);
+            return ic.setOptions ? ic.setOptions({ torch: torchOn }) : Promise.reject();
+          };
+          tryApplyConstraints()
+            .catch(() => tryImageCapture())
+            .then(() => {
+              torchBtn.textContent = torchOn ? '🔦' : '💡';
+              torchBtn.classList.toggle('on', torchOn);
+            })
+            .catch(() => {
+              torchOn = false;
+              toast('Linterna no disponible en este dispositivo','w');
+            });
+        };
+
       } catch(e) {}
-    });
+    }, 800);
 
     // ── Start barcode detection ──
     const BC_FALLBACK = ['code_128','code_39','ean_13','ean_8','upc_a','upc_e','itf','qr_code','data_matrix'];
@@ -668,7 +694,9 @@ function pararCamara() {
   const v = document.getElementById('scanVideo');
   if (v.srcObject) { v.srcObject.getTracks().forEach(t=>t.stop()); v.srcObject=null; }
   const torchBtn = document.getElementById('torchBtn');
-  if (torchBtn) { torchBtn.classList.remove('visible'); torchBtn.textContent='💡'; torchBtn.style.background=''; }
+  const sc = document.getElementById('scanCtrl'); if (sc) sc.classList.remove('visible');
+  const sz = document.getElementById('scanZoom'); if (sz) sz.classList.remove('visible');
+  const tb = document.getElementById('torchBtn'); if (tb) { tb.textContent='💡'; tb.classList.remove('on'); }
   const mbi = document.getElementById('manualBcInput'); if (mbi) mbi.value='';
 }
 
