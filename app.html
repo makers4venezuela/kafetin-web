@@ -537,31 +537,57 @@ function iniciarCamara() {
     toast('Cámara no disponible en este navegador','e'); return;
   }
   navigator.mediaDevices.getUserMedia({
-    video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+    video: {
+      facingMode: 'environment',
+      width: { ideal: 1920, min: 1280 },
+      height: { ideal: 1080, min: 720 }
+    }
   })
     .then(stream => {
       const v = document.getElementById('scanVideo');
       v.srcObject = stream;
       v.play();
 
-      // Force continuous autofocus
       const track = stream.getVideoTracks()[0];
+      const torchBtn = document.getElementById('torchBtn');
+      let torchOn = false;
+      let hasTorch = false;
+
       if (track) {
         const caps = track.getCapabilities ? track.getCapabilities() : {};
-        if (caps.focusMode && caps.focusMode.includes('continuous')) {
-          track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(()=>{});
-        }
-        if (caps.torch) {
-          const torchBtn = document.getElementById('torchBtn');
-          if (torchBtn) {
-            torchBtn.classList.add('visible');
-            let torchOn = false;
-            torchBtn.onclick = () => {
-              torchOn = !torchOn;
-              track.applyConstraints({ advanced: [{ torch: torchOn }] }).catch(()=>{});
-              torchBtn.textContent = torchOn ? '🔦' : '💡';
-            };
-          }
+
+        // Continuous autofocus + reset zoom to avoid digital-zoom blur
+        const adv = [];
+        if (caps.focusMode && caps.focusMode.includes('continuous')) adv.push({ focusMode: 'continuous' });
+        if (caps.zoom) adv.push({ zoom: caps.zoom.min ?? 1 });
+        if (adv.length) track.applyConstraints({ advanced: adv }).catch(()=>{});
+
+        // Tap the video to trigger single-shot focus, then back to continuous
+        v.addEventListener('click', e => {
+          if (!caps.focusMode) return;
+          const r = v.getBoundingClientRect();
+          const pt = { focusMode: 'single-shot' };
+          if (caps.pointsOfInterest) pt.pointsOfInterest = [{ x: (e.clientX - r.left)/r.width, y: (e.clientY - r.top)/r.height }];
+          track.applyConstraints({ advanced: [pt] })
+            .then(() => setTimeout(() => {
+              if (caps.focusMode && caps.focusMode.includes('continuous'))
+                track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(()=>{});
+            }, 1500))
+            .catch(()=>{});
+        });
+
+        // Torch — always show button, disabled-look if unsupported
+        hasTorch = !!(caps.torch);
+        if (torchBtn) {
+          torchBtn.classList.add('visible');
+          torchBtn.style.opacity = hasTorch ? '1' : '0.35';
+          torchBtn.onclick = () => {
+            if (!hasTorch) { toast('Linterna no disponible','w'); return; }
+            torchOn = !torchOn;
+            track.applyConstraints({ advanced: [{ torch: torchOn }] }).catch(()=>{});
+            torchBtn.textContent = torchOn ? '🔦' : '💡';
+            torchBtn.style.background = torchOn ? 'rgba(255,220,0,0.65)' : 'rgba(255,255,255,.18)';
+          };
         }
       }
 
