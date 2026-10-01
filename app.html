@@ -5,910 +5,1271 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>KAFETIN App</title>
 <style>
+/* ── Reset & Root ─────────────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --verde:#7BAE7F;--verde-d:#5a8f5e;--verde-l:#e8f4e9;
-  --amarillo:#F5A623;--amarillo-l:#fff8ec;
-  --dark:#1a1a1a;--gray:#6b6b6b;--light:#f5f5f5;--border:#e0e0e0;
-  --red:#e53935;--red-l:#ffebee;--white:#fff;
-  --nav-h:60px;--hdr-h:52px;
+  --k:#1a1a1a; --y:#F5A623; --g:#7BAE7F; --gd:#4a8a4e;
+  --r:#e53935; --rl:#ffebee; --yw:#fff8ec;
+  --ok:#4CAF50; --warn:#FF9800; --err:#e53935;
+  --blue:#2196F3; --purple:#9C27B0;
+  --bg:#f0f2f5; --card:#fff; --bdr:#e0e0e0; --gray:#757575;
 }
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--light);color:var(--dark);min-height:100vh;padding-bottom:var(--nav-h)}
-.hdr{position:fixed;top:0;left:0;right:0;height:var(--hdr-h);background:var(--dark);display:flex;align-items:center;padding:0 14px;z-index:100;gap:8px}
-.logo{width:28px;height:35px;flex-shrink:0;object-fit:contain}
-.hdr-title{color:#fff;font-size:15px;font-weight:700;letter-spacing:.5px}
-.hdr-title span{color:var(--amarillo)}
-.badge{margin-left:auto;background:var(--red);color:#fff;border-radius:12px;padding:2px 8px;font-size:11px;font-weight:700;display:none}
-.nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);background:#fff;border-top:1px solid var(--border);display:flex;z-index:100}
-.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer;color:var(--gray);font-size:9px;font-weight:500;padding:4px 0}
-.nb.on{color:var(--verde-d)}
-.nb svg{width:20px;height:20px;stroke-width:1.8;stroke:currentColor;fill:none}
-.nb.on svg{stroke-width:2.2}
-.pg{display:none;padding-top:calc(var(--hdr-h)+10px);padding-bottom:6px}
-.pg.on{display:block}
-.pc{padding:0 10px}
-.card{background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid var(--border)}
-.ct{font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
-.fg{margin-bottom:12px}
-label{display:block;font-size:12px;font-weight:600;color:var(--gray);margin-bottom:5px}
-select,input{width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;color:var(--dark);background:#fff;appearance:none;-webkit-appearance:none;outline:none;transition:.15s}
-select:focus,input:focus{border-color:var(--verde)}
-.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.btn{width:100%;padding:13px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:.15s}
-.btn-g{background:var(--verde);color:#fff}.btn-g:active{background:var(--verde-d)}
-.btn-y{background:var(--amarillo);color:#fff}
-.btn-o{background:transparent;border:1.5px solid var(--verde);color:var(--verde-d)}
-.btn-r{background:transparent;border:1.5px solid var(--red);color:var(--red)}
-.scan-row{display:flex;gap:8px;margin-bottom:12px}
-.scan-row select{flex:1}
-.scan-btn{padding:11px 12px;border:1.5px solid var(--verde);border-radius:8px;background:var(--verde-l);color:var(--verde-d);font-size:20px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.scan-btn:active{background:var(--verde);color:#fff}
-.bc-pill{display:flex;align-items:center;gap:6px;background:var(--verde-l);border:1px solid var(--verde);border-radius:7px;padding:6px 10px;font-size:12px;font-weight:600;color:var(--verde-d);margin-bottom:10px}
-.price-hint{display:flex;gap:8px;margin-bottom:12px}
-.ph{flex:1;background:var(--light);border-radius:7px;padding:8px 10px;text-align:center}
-.ph-v{font-size:16px;font-weight:700}
-.ph-l{font-size:10px;color:var(--gray);margin-top:1px}
-.ph.costo .ph-v{color:var(--gray)}
-.ph.venta .ph-v{color:var(--verde-d)}
-.cli-wrap{position:relative}
-.cli-results{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--verde);border-radius:0 0 8px 8px;z-index:50;max-height:180px;overflow-y:auto;display:none}
-.cli-item{padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);font-size:13px}
-.cli-item:last-child{border-bottom:none}
-.cli-item:active,.cli-item:hover{background:var(--verde-l)}
-.cli-item strong{display:block;font-size:13px}
-.cli-item span{font-size:11px;color:var(--gray)}
-.cli-tag{display:flex;align-items:center;gap:8px;background:var(--verde-l);border:1px solid var(--verde);border-radius:7px;padding:8px 12px;margin-bottom:10px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--k);min-height:100vh;overscroll-behavior:none}
+.hidden{display:none!important}
+
+/* ── Header ── */
+.hdr{background:var(--k);padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50;min-height:54px}
+.hdr-back{background:none;border:none;color:rgba(255,255,255,.7);font-size:26px;cursor:pointer;padding:0 4px;line-height:1;flex-shrink:0}
+.hdr-title{color:#fff;font-size:16px;font-weight:700;letter-spacing:.3px;flex:1}
+.hdr-title em{color:var(--y);font-style:normal}
+.hdr-action{background:none;border:none;color:rgba(255,255,255,.7);font-size:22px;cursor:pointer;padding:0 4px;line-height:1}
+
+/* ── Screen ── */
+.screen{min-height:100vh;display:flex;flex-direction:column}
+.screen-body{flex:1;padding:14px 14px 80px}
+
+/* ── HOME ── */
+#s-home{background:var(--k)}
+.home-hero{padding:32px 20px 28px;text-align:center}
+.home-logo{font-size:32px;font-weight:900;color:#fff;letter-spacing:1px;margin-bottom:6px}
+.home-logo em{color:var(--y);font-style:normal}
+.home-sub{color:rgba(255,255,255,.45);font-size:13px}
+.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 14px 24px}
+.hc{background:var(--card);border-radius:18px;padding:26px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;border:none;width:100%;transition:transform .1s,box-shadow .12s;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+.hc:active{transform:scale(.96);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.hc-icon{font-size:42px;line-height:1}
+.hc-label{font-size:16px;font-weight:800;letter-spacing:.4px}
+.hc-sub{font-size:11px;color:var(--gray);text-align:center;line-height:1.3}
+.hc.vc{border-top:4px solid var(--ok)}
+.hc.cc{border-top:4px solid var(--y)}
+.hc.rc{border-top:4px solid var(--blue)}
+.hc.clc{border-top:4px solid var(--purple)}
+.home-alert{margin:0 14px 14px;background:var(--r);color:#fff;border-radius:12px;padding:12px 16px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:10px;cursor:pointer}
+.home-alert-icon{font-size:20px}
+
+/* ── Cards ── */
+.card{background:var(--card);border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid var(--bdr)}
+.card-title{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px}
+
+/* ── Form elements ── */
+.fg{margin-bottom:14px}
+label{display:block;font-size:12px;font-weight:600;color:var(--gray);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+input[type=text],input[type=tel],input[type=email],input[type=number],select{
+  width:100%;padding:13px 14px;border:2px solid var(--bdr);border-radius:10px;
+  font-size:16px;background:#fff;color:var(--k);outline:none;
+  -webkit-appearance:none;transition:border-color .15s
+}
+input:focus,select:focus{border-color:var(--y)}
+.scan-input{border-color:var(--y)!important;font-family:monospace;font-size:17px;letter-spacing:.5px;background:#fffef8}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* ── Quantity stepper ── */
+.qty-wrap{display:flex;align-items:center;gap:12px}
+.qty-btn{width:52px;height:52px;border-radius:50%;border:2px solid var(--bdr);background:#fff;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:600;color:var(--k);flex-shrink:0;transition:all .1s}
+.qty-btn:active{background:var(--bdr)}
+.qty-val{flex:1;text-align:center;font-size:32px;font-weight:900;color:var(--k)}
+.qty-lbl{font-size:12px;color:var(--gray);text-align:center;margin-top:2px}
+
+/* ── Buttons ── */
+.btn{width:100%;padding:17px;border:none;border-radius:12px;font-size:17px;font-weight:800;cursor:pointer;letter-spacing:.3px;transition:opacity .12s;text-align:center}
+.btn:active{opacity:.85}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-g{background:var(--ok);color:#fff}
+.btn-y{background:var(--y);color:#fff}
+.btn-r{background:var(--r);color:#fff}
+.btn-ghost{background:none;border:2px solid var(--bdr);color:var(--gray)}
+.btn-sm{padding:10px 16px;font-size:14px;border-radius:8px;width:auto;display:inline-block}
+.btn-row{display:flex;gap:10px}
+.btn-row .btn{flex:1}
+
+/* ── Stock pills ── */
+.spill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.spill-ok{background:#E8F5E9;color:#2E7D32}
+.spill-w{background:#FFF3E0;color:#E65100}
+.spill-r{background:#FFEBEE;color:#C62828}
+.spill-z{background:#FFEBEE;color:#B71C1C}
+
+/* ── Filament list ── */
+.fil-search-wrap{position:relative;margin-bottom:10px}
+.fil-list{max-height:300px;overflow-y:auto;border:2px solid var(--bdr);border-radius:12px;background:#fff}
+.fil-row{padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;border-bottom:1px solid var(--bdr);transition:background .1s}
+.fil-row:last-child{border-bottom:none}
+.fil-row:active{background:#fffef0}
+.fil-info{flex:1}
+.fil-name{font-weight:700;font-size:14px}
+.fil-mat{font-size:11px;color:var(--gray);margin-top:1px}
+.fil-price{font-size:12px;color:var(--gd);font-weight:600;text-align:right}
+
+/* ── Selected filament card ── */
+.sel-fil{background:#fffef0;border:2px solid var(--y);border-radius:12px;padding:14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:12px}
+.sel-fil-info{flex:1}
+.sel-fil-name{font-weight:800;font-size:16px;margin-bottom:4px}
+.sel-fil-meta{font-size:12px;color:var(--gray)}
+.sel-fil-clear{background:none;border:none;color:var(--gray);font-size:22px;cursor:pointer;padding:0;line-height:1;flex-shrink:0}
+
+/* ── Client tag ── */
+.cli-tag{background:#E8F5E9;border:1px solid var(--g);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .cli-tag .name{font-weight:700;font-size:14px;flex:1}
 .cli-tag .tel{font-size:12px;color:var(--gray)}
-.cli-tag button{background:none;border:none;color:var(--gray);font-size:18px;cursor:pointer;padding:0;line-height:1}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:none;flex-direction:column}
-.modal-overlay.on{display:flex}
-.modal-header{padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
-.modal-header h2{color:#fff;font-size:15px}
-.close-btn{background:none;border:none;color:#fff;font-size:26px;cursor:pointer;padding:4px 8px;line-height:1}
-.scan-wrap{position:relative;flex:1;overflow:hidden}
-#scanVideo{width:100%;height:100%;object-fit:cover}
-.scan-frame{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
-.scan-box{width:96%;max-width:600px;aspect-ratio:2/1;border:3px solid var(--amarillo);border-radius:10px;box-shadow:0 0 0 2000px rgba(0,0,0,.6)}
-.scan-line{position:absolute;left:2%;right:2%;height:3px;background:var(--amarillo);animation:scanline 1.8s ease-in-out infinite}
-@keyframes scanline{0%,100%{top:15%}50%{top:85%}}
-.scan-hint{color:#fff;text-align:center;padding:10px 14px 4px;font-size:13px;opacity:.8}
-/* ── html5-qrcode overrides ── */
-#scanReader{background:#000;flex:1;overflow:hidden;position:relative}
-#scanReader video{width:100%!important;max-height:55vh!important;object-fit:cover!important;display:block}
+.cli-tag-clear{background:none;border:none;color:var(--gray);font-size:20px;cursor:pointer;padding:0}
+.cli-results{background:#fff;border:2px solid var(--g);border-radius:0 0 10px 10px;overflow:hidden;margin-top:-2px}
+.cli-res-item{padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--bdr);font-size:13px}
+.cli-res-item:last-child{border-bottom:none}
+.cli-res-item:active{background:var(--verde-l)}
+.cli-res-name{font-weight:700}
+.cli-res-sub{font-size:11px;color:var(--gray);margin-top:1px}
+
+/* ── Smart alert items ── */
+.al-item{border-radius:10px;padding:13px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px}
+.al-agotado{background:#FFEBEE;border-left:4px solid #B71C1C}
+.al-urgente{background:#FFEBEE;border-left:4px solid var(--r)}
+.al-pronto{background:#FFF3E0;border-left:4px solid var(--warn)}
+.al-trending{background:#E8F5E9;border-left:4px solid var(--ok)}
+.al-icon{font-size:22px;line-height:1;flex-shrink:0;margin-top:1px}
+.al-body{flex:1}
+.al-name{font-weight:700;font-size:14px;margin-bottom:2px}
+.al-detail{font-size:12px;color:var(--gray);margin-bottom:4px}
+.al-rec{font-size:12px;font-weight:700;color:var(--k)}
+
+/* ── Metrics ── */
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.metric{background:var(--card);border-radius:10px;padding:12px 8px;text-align:center;border:1px solid var(--bdr)}
+.metric-val{font-size:17px;font-weight:800}
+.metric-lbl{font-size:10px;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+
+/* ── Sale history rows ── */
+.sale-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--bdr)}
+.sale-row:last-child{border-bottom:none}
+.sale-info{flex:1}
+.sale-item{font-size:13px;font-weight:600}
+.sale-meta{font-size:11px;color:var(--gray);margin-top:1px}
+.sale-total{font-size:14px;font-weight:700;color:var(--gd)}
+
+/* ── Top seller bars ── */
+.top-row{display:flex;align-items:center;padding:7px 0;border-bottom:1px solid var(--bdr)}
+.top-row:last-child{border-bottom:none}
+.top-name{font-size:12px;font-weight:600;flex:0 0 120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top-bar-wrap{flex:1;height:6px;background:var(--bdr);border-radius:3px;overflow:hidden;margin:0 8px}
+.top-bar{height:100%;background:var(--g);border-radius:3px}
+.top-qty{font-size:11px;color:var(--gray);min-width:40px;text-align:right}
+
+/* ── Client cards ── */
+.cli-card{background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:8px;border:1.5px solid var(--bdr)}
+.cli-card-name{font-size:15px;font-weight:700}
+.cli-card-detail{font-size:12px;color:var(--gray);margin-top:2px}
+
+/* ── Success screen ── */
+.success-screen{text-align:center;padding:40px 20px}
+.success-icon{font-size:72px;margin-bottom:16px}
+.success-title{font-size:24px;font-weight:900;margin-bottom:8px}
+.success-sub{color:var(--gray);font-size:15px;margin-bottom:6px}
+.success-total{font-size:36px;font-weight:900;color:var(--ok);margin:12px 0 24px}
+.success-alert{background:var(--rl);border:1px solid var(--r);border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;color:var(--r);margin-bottom:20px}
+
+/* ── Scanner modal ── */
+.scan-modal{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:200;display:flex;flex-direction:column}
+#scanReader{width:100%;flex:1;overflow:hidden;background:#000}
+#scanReader video{width:100%!important;object-fit:cover!important;display:block}
 #scanReader img{display:none!important}
 #scanReader__dashboard{display:none!important}
-#scanReader__dashboard_section_csr{display:none!important}
 #scanReader__scan_region{position:absolute!important;top:0;left:0;right:0;bottom:0;border:none!important}
-.bsheet{background:#fff;border-radius:18px 18px 0 0;padding:20px 16px;position:fixed;bottom:0;left:0;right:0;z-index:300;display:none;transform:translateY(100%);transition:.28s ease}
-.bsheet.on{display:block;transform:translateY(0)}
-.bsheet h3{font-size:16px;font-weight:700;margin-bottom:4px}
-.bsheet p{font-size:12px;color:var(--gray);margin-bottom:14px}
-.bs-gap{margin-bottom:10px}
-.inv-search{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:10px;outline:none}
-.inv-search:focus{border-color:var(--verde)}
-.fc{background:#fff;border-radius:10px;padding:11px 12px;margin-bottom:7px;border:1.5px solid var(--border);display:flex;align-items:center;gap:10px}
-.fc.alert{border-color:var(--red);background:var(--red-l)}
-.fc.ok{border-color:var(--verde)}
-.fi{flex:1}.fn{font-size:14px;font-weight:600}.fm{font-size:11px;color:var(--gray);margin-top:1px}
-.fs{text-align:right}
-.sn{font-size:20px;font-weight:700}.sl{font-size:10px;color:var(--gray);margin-top:1px}
-.sn.d{color:var(--red)}.sn.w{color:var(--amarillo)}.sn.g{color:var(--verde-d)}
-.pill{display:inline-block;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:600;margin-top:3px}
-.pa{background:var(--red-l);color:var(--red)}.po{background:var(--verde-l);color:var(--verde-d)}
-.ab{background:var(--red-l);border:1.5px solid #ffcdd2;border-radius:10px;padding:11px 12px;margin-bottom:10px;display:none}
-.ab h3{color:var(--red);font-size:12px;margin-bottom:5px}
-.ab ul{list-style:none;font-size:12px;color:var(--red)}
-.mets{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px}
-.met{background:#fff;border-radius:9px;padding:10px 6px;text-align:center;border:1px solid var(--border)}
-.mv{font-size:16px;font-weight:700}.ml{font-size:9px;color:var(--gray);margin-top:2px;font-weight:500}
-.sr{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
-.sr:last-child{border-bottom:none}
-.si{font-size:13px;font-weight:600}.sm{font-size:11px;color:var(--gray)}
-.st{font-size:14px;font-weight:700;color:var(--verde-d)}
-.sell-r{display:flex;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)}
-.sell-n{font-size:12px;font-weight:600;flex:0 0 120px}
-.sell-bw{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin:0 8px}
-.sell-b{height:100%;background:var(--verde);border-radius:3px}
-.sell-c{font-size:11px;color:var(--gray);min-width:36px;text-align:right}
-.res{background:var(--verde-l);border:1.5px solid var(--verde);border-radius:9px;padding:12px;margin-top:10px;display:none;text-align:center}
-.res-v{font-size:26px;font-weight:700;color:var(--verde-d)}
-.res-l{font-size:12px;color:var(--gray);margin-top:2px}
-.res-a{color:var(--red);font-size:12px;margin-top:6px;font-weight:600;display:none}
-.cli-card{background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:7px;border:1.5px solid var(--border)}
-.cli-name{font-size:15px;font-weight:700}
-.cli-detail{font-size:12px;color:var(--gray);margin-top:2px}
-.lbl{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin:14px 0 7px}
-.spin-wrap{text-align:center;padding:28px;color:var(--gray);font-size:13px}
-.spin{width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--verde);border-radius:50%;animation:sp .7s linear infinite;margin:0 auto 10px}
-@keyframes sp{to{transform:rotate(360deg)}}
-.toast{position:fixed;top:62px;left:50%;transform:translateX(-50%);background:var(--dark);color:#fff;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap;max-width:90vw}
-.toast.on{opacity:1}
-.toast.s{background:#2e7d32}.toast.e{background:var(--red)}.toast.w{background:var(--amarillo);color:var(--dark)}
+
+/* ── Bottom sheets ── */
+.bsheet{background:#fff;border-radius:20px 20px 0 0;padding:20px 16px 32px;position:fixed;bottom:0;left:0;right:0;z-index:300;transform:translateY(100%);transition:.28s ease;display:block}
+.bsheet.on{transform:translateY(0)}
+.bsheet-title{font-size:17px;font-weight:800;margin-bottom:4px}
+.bsheet-sub{font-size:13px;color:var(--gray);margin-bottom:16px}
+.bsheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:250;display:none}
+
+/* ── Spinner ── */
+.spin{width:28px;height:28px;border:3px solid var(--bdr);border-top-color:var(--y);border-radius:50%;animation:spin .7s linear infinite;margin:28px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin-sm{width:20px;height:20px;border-width:2px;margin:0}
+
+/* ── Price hint row ── */
+.price-row{display:flex;gap:8px;margin-bottom:14px}
+.price-box{flex:1;background:var(--bg);border-radius:8px;padding:10px;text-align:center}
+.price-val{font-size:16px;font-weight:800}
+.price-lbl{font-size:10px;color:var(--gray);margin-top:2px}
+.price-box.venta .price-val{color:var(--gd)}
+
+/* ── Smart rec banner ── */
+.rec-banner{background:#FFF3E0;border:1px solid var(--warn);border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:13px}
+.rec-banner strong{color:#E65100;display:block;margin-bottom:2px}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--k);color:#fff;padding:12px 20px;border-radius:24px;font-size:14px;font-weight:600;z-index:999;transition:transform .25s ease;pointer-events:none;white-space:nowrap;max-width:90vw}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.ok{background:var(--ok)}
+.toast.err{background:var(--r)}
+.toast.warn{background:var(--warn)}
+
+/* ── Section divider ── */
+.sect-lbl{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.8px;margin:16px 0 8px}
 </style>
 </head>
 <body>
 
-<!-- Header -->
-<div class="hdr">
-  <img class="logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABaCAYAAAAb8xDXAAAST0lEQVR42u2de5BkVX3HP79zzu3HPHbZxQVcFUQEdAYIIpGgGHZ4KLshxKQy80csNalUEvMqjYoUanKnN1b5YBcT/4iFlaqYmEphT6W0BHYXWDKIFEgiRKOzVlxEEWEJg+xjZvp1zzm//HG7Z3tmZ2BXd3p3dU/VremZ7nvPvd/z/b1/Z1puuSNtCSIcg6Gih8wrKspxMhRVZ51NNIR3ReVbajESiCs5aTBBbLQqPhZJ7F1JYk/3WVAglvtLtj7X+DdV/YTB2kgIPQeljYERLjbWftEBSGTXjTdUvtvrm9ly13gDpL1YqBhB4NkP/Wbv72XxuPWraQELDiBCX5qmZs/6Pfblz7x8RVdt1/AuGZoa0lXDB4pROUTEArGQpqlhGMcUvtfAdDCI0GdoA4QhViqVOFodlc//yefjCt+DAJpW0zDIoeIsKlqpVGI6mcZKpRJ7DVAHgy13pjGH5hiN9Xv3KHDcKOTlxjED6JnzXq4KSwjZSYAAGJ4eVlFVOcmgpcfU6JQiEk+K2HJjHFRP6qBlR6VSUVDlOFdCxwIgPfhTTirpl3CITorYSyAUF3DqJEDLittJgJZE5wTwg1yvhSrVVLgfMzy9S5/k0NyPogqwtr7WppNp26ncpVNTQ1oZryjSW9atOEBpmho2YIanh3VsbCxUpKK0g9Stdw4fkjkwxjiA9216X/NQ3wBUVSYmJszUuikB2DW9S6uj1SgiKyKybgXEZv4BKiOVUKlUIpUckHQydauadlhUrgC9WpXzs5ZXBAOY+mwDlHdvuavyZtAfipjdIN83wg+s4cli0/+fiNSAsFDXy4LF6IQyU6NTOs64ivzsWcqfHyBFRidGzdC6IeF+ouThw/wD3HL3259tVC8X5Sqt6RWInl/qLxKj0qw1UdVucBEjA0niLjbOXmyMoAo+82Qt38qMeW7rXeNPiZEfqLLbiO4myBOuEJ+6IOG5kZGK7yzGQdJVOmkMO7RuSObBm5rS8fGKykuIrNy6fbPGEN7yoesrD41WR+3E2ER4ST2SptItNt1vbplMX5Y03aUhchXEK1W5qNRXLCGCb2VkLQ+KV1ERxC5JQjQuyE0LRkSMtQbrLMYZRASNStbKCFmYU3gWeFLEPI7l++L1cWPcD20iT//ltR/56Ys9T7VanRdZpncZpoZ8/yXxcldIHnSHq0eGh4elLTa+UqloZ6W2PrS17GbrvxJjvDIGvYo6bzRFe2riLD4LZM2M2lw9iEpHlF5SkVtrbQwRRUMbqKiq6rMgmQ8q7RhORQXFWGv6rbPnWGvPsdZchUAMkVajhW/p3q13VZ5G+RGW3aq62xl53If4ZMj69tz0jptmFi8ywNZtaVhWxHI9Mmam1g3J+IbxIN1RtyKfuXfz64hyBRqv0n2zl6s1ZxXLRUKIZM2MZq0VgYggqmraVRNFwSbWFIqJUVUac82lQjENIe43IqeU+0pWjBBDJPiA9wGCxo4yFgQEDSESo2qGXwCeINZYs8Y6u8Zac4GxBpT2dVrBJY3pLXdWfiLCE8BuY+X7XsKPQuCJGChZh8qt2zerb2VXzN1gHn5h+wvJ2o1rs4osTHX+/bb0lWqSy1TjVYq+VZWhUl/JojnFs5ZXQUJnRTtecps1LikmJAWHzwI+88+GqJOi8UfG2JtijN2sUmMMIYYNKC84JxdG5QJBLlDlfEXPLBSSsis4VCH4MH902NYGRtAcP1XN1yl/S+f9P4Ox1mKdxVqDGEFV8S1Pq+XroswgnOoAbGJCG5QmwGcm01O05S4h6AiiG3zk4mLBDhiTkGWerJlRn6l7RaUzACMqUUWjNdYmpcRaa6jPNjT48B3v431i2NEMyX/dfP3Nez+1ffP51sjNGlTb58+bJDXs+/CmyneB+epGtVq106v+d30zxnOzWuMClAtRHQY5xxhzWqFcsKabbVlAo0YhZ78goqidn0tRn3mCz2W5W98ZI2VjTDlkIcqt2zZHRUcsca9adw1RN0TVNyWJO90VHMEHWs2MGGNHH5h5uwox9+zUJoVEkqJDo9JstPYjPCJGdphg73v/xo9+p9vBq1ar9snV37vURfOQ9166AFJjjEa4dGZj+DZTOKaJu6Z36XLG45P3fnJ1ElqvNsjrYtSL0HghKuer6KsKxaTsksNmmyz0VnPmuRhjVPRLiDm9XCoQQyRreVqNLLYaWUQQFCMiVlFFclCMMTYpJtYlllYzI4T4RKy1vmac2S5iH/zAxo/tWaDoJ1M3PD2sU+umZGxkzG/d9nFJys74mcwj4tr3FZOis1kj2or8TUw19V3iLmmaSsdYALT1437g2+3jS50FeKY09Qof4muzrHGBRC5SZAj0HGPMacVyYaFua7Ot48B2nhlAttwxHmxiTfBh3vy2AelmSQSMdcYkpQIiQqPWaInwmEHuiUbvWVOIj/7BSKWx2INmA7HtPWtHyafjqRSvKK4ptrKv9A2Wr5jbX/OKav+qvqQ+W38Eq5sOPMy+wwktVFXGGRfuzx/oxdh2272fXD0bWq8m8nrgwhdjm8880ccoW+4YDx1dMk8vIUrOMZcUcgUbQqDVyJ4Tax4U2BGxkx+87iOPd99AtVq1e/fuNGvW7I1TUxM6Pn7w4bodMtXcjfmnyfeU9jde84/FvuI7RQz1ufo9rebs7970jltm8jj2yEPZ9jzLse0QsKvVqn1mzdQrfGbOtcKwwkUaZQjRc4msPQhQ2woZY2yhWMA6Q2OuiaJT1pj7QtS7yzF5+M+uv3lvt8lP70/treldOjE6EY8skJR5Un3qrk983IiefeOmj74TlDRNzUoUDY+EbVu2Va42IjvnRaxQSlCFVr05g8h/CtwdlJ0zG8O3u81+tTpqp9phxeKHUEVm7uDUwWJ+A7PAwABQoynXsr/7sweqrBtc229mgYHZuRotDGspTbww+vzY2ETQSRwt1h4RAmWUt/JTkSNqwFjAthfqL9jPbvxs69avjl8mBfuwayurnzTrzf8QzA4t2Ac+eM3Hnl5KwY6OjkYRCUvEBiKCMkGpvJoHcazPPLGYKz3nI18G3qNVCoySZXdzuS2xzTfmKAqmVRZ1p2JCTb82OjpxA0AzcJ4TvhEPj5NqBKFBvXknlwBPa4qRymEBpXkBgU7MpiKin77rr63D4ow1RjX+3gc2pl9fTsFWRir+8GnMahyDJkIMKBYR6AdgKNcRrR38hSmxOjbBWYhBMRYi3NZZfWlibYlBo4c1J8aCzyhij04ZwGg+s1NVfOZ9tVq1Xx/4ulv7yNqsO0XxMwyPR2MkN5sep53ofphMd/IKH/mtOENUwHtiUsZk+/mf5Dru1CpWxggYYvBkyzJIMPNee8dh5uh3g5i2sjVjY2Ph2dln/VFQjh2nSzqvO8UdETSL/L4bpC8EouTzCw6jhq0iKEPY9lWcXUWSLHcUsAIi7bnk4JxHP2FmrFnRNGbsdEk9RNkf4A+1kTNAISZFjJ/hiUJkQhVhPGdBHZ6yB3jvEteyQEAZtWWuDnUiK1h97FVO2qoi4V6udwOcnc0RJP+bp4jTBp+VTTR1EieVHKBTruMF4LblLpjt4CxTmAfInugAqQiabefPuwLDaBOsP8BzieMLbR0Sui0j9y/54A7wvklfL9L3Kw9QTv4ZvZczg+XXfQ067DF9uLif2+Ra9uskTkYOKtm2R3yI0tVJkBF8toOedIaYXswgQt1H/tj2I6oEVdRYbJhlpql8rs2W47IVxq04PE1QOB84W2u5PgKC7ce1DvDFgY3sUcVKhSVdfp085B6dToJv9qbouaIAiWBCHt//ugEbWtA2xzbUaKnh77Q7KFvqGiOHiJkHCPdQ60VnyIrroDzDhtWDytcng7jsAF8ubWS3VrEiC9mjIAKqkwy0Gvx2wSGdlvIA1kIIkUukNZ+7ObFLz7qIVbGJYtmybPdUilBBmeO0wiD/QnIQ4Y5Zs03wdRDB6go2QfS0Nq8Qkj5sNsf2wnV8UxWzmD2LovOQ1ambBknMqyKysFa28nqot80LihBA4Az9JgnjvHiRsoUgFKzBduSum5XaAz+oJ5ag06wpgskaBLeKN/jnuUEqxCWs1MERUJRGiLSi0gyRVueISk82uvTGVNoFopHbIeVGWNr/mc/j9PO0dwy1Ms5LDOd5z3mJ5fWJ5VyUL7j+XOmfsCKmoNYgIbJPYdDkOtZmNWLSx2XZTjbINUzOpziWNvE/XjIWu5u9vVjeldZB0ZSxYYb7xPAqW+ZXszr5FgQLcY6bgElGl7dCmi6Cob0LyPdIf67sJIriQAzTMbKDIm+iRjCC83NEV+JavZc3IHxrWRYtStzpJFEqxGxHbzrNVp6kETSyat8Mt/sDzFmLU0VViaaIyQI3Hs/twCsPkAJC+fQxZon8u+lv2yfB+jnUJPyO3sc5jBFVj3nX7bGxYm2XRVT4XGygIhgB0UiwZYqtFu+XDpS/jAAZQxDQ5FoeiU0edmWknci3YQ41jnfrTk4H4iFK+ZeCQfFgEkyEf8DmAaYIEgPBDbDKZ/ypCNppwvxFBijMH3mcFTRvfkBTjBW+4md52hZAlQxBYw2P8Ed77qZfRvB6OFtc8vrZwTkOznscA1RCgLUMYJN+kqRMkUGsCKtUMbyREm+jBvyreRk26SNJBkhMgnPrWX+q8D4AHsWpYhYfi2brYxCblCkmAzg7gHUFBsQf3Wc6un7QejKe53ZmOTVkxKhoYrHAA+2KaQ3gwDa29j3HawlIzBtcYqIUNXJmO8LPlp1jej6ue4wDfDmrEQBjDKJKq1xmDoBxtN0BfOwB6m5tiYFbCOA9FAvQ3AcIrrmdSwoObXkEIfgmHykWwCrKaoQneaY4xmzbGTyDIutbcygeKSTQaqGFMt/pZBjtD/lnXsMD0QItSCwQiexl3+J7OuYAdRoF6k9xRtLH90gwxbxmSrG8UFEXkrYxL7TPDSAGslMYV2WzCOpbvNcNkJoILsl9hMIAZHWuBB4AyM7k15IyDxSbQCnPpGUBnwxyJrBnvqHieBIxLaJAI7Qox9j2a2SJtOLC4ZMWDsg6D6RKJMubTrOAQ/GJw4lyTQcgYv6ZLBBRxObNgg380fXKj74Vy/N+kbxYGMnzqiKy8Jh/H+b7HhdZqbzmnr8y5KJ59aKlzRswtf25FdjgeVQBEoMYQ78tYZMS1pWwiTs0qS5AUsK4EjYpUKCERTpCtyToJuZ7fy6u7eBV7Tvvidd9dESskkNQjjznlRFTw3jFIgSN/JUb4HpfI6AYZxEfmPM13mVt3nXm6hACTywb0QsSIiHppy/O8RbgduIJVBfrROOyiSZw/wKv8W7eIa4tesznlbMibJO301yUynAvKroGjHANcDvhRGJQ93NU25WZARyzubVforlGZjNO0SrPsw5hGmWUuBDaQ1Yhr9JGNrRFLDshAeqIiE4isomwXGJLhSBjhG5zrJMvylLjW6hNeE3tTs7SSL0XQnbc5V9eImcSTD9iE0YKhnovhOyEAqgTohq4phVI6ME/tjjRAMr1kHK5SVivGax0FvKEAkgEaXeInKWRS70nM+Ykgxbm3hR1DitwLUJmVljG3AnEnvmXIYDCmwEb40kGYQzESD1GGkbanfWGRMCsdL3ouAdIFTV5iuTHIjxminm0rz2qpB3/DGrH6AINlPtw7b9xEqDuOIx2im0yNkB6WGA8MQDKFXGfK/LfIeMnroAovyh90kePRAUZYR/CQxShvY/2JEBdCAmAEXb2skB9wvhBHUHzgQeYIxo52Fp8kkHtMFW3USx+g90xsNsWEe2BmJ1IIgZlEqkQUR5oZ7BPAtQ9npuev+md7W10K66NXA9WPpL3tea9rYezt1QWnNPZm+pPe2WerWwqDxVqzBmhGDVPva7UnlXXJqpJ09Ts2bvHpGl6VHTf1LoJk6ajRtm8mtW4JOIwQAJuP6fWmn02TT9kJtglaTqkC87RzYOcgktC+5wi6DSnPTtzmkn1vebT4zzz0Tdv/oE7g4vsLHnWzIGZY3UtllyafnjBdY9kzGMQMdj2v+giC2/8wA2Vx1aEQPdwA4NcwQECgsEgBOq8jfHlSsN6D1cyyG9wIC8VUUDI2Ctv5xNdn9nEIBvmr5vzrkmRyhI7hI543PrV9BIS+6jcun2zruTXRjwZh+eem7uw2deX/14D1tiGbLDbVhNaS+rAH9uz64/uu6zefc7phf3mrXLP6uCDLHVdgGgbcrXdtrqwzHUPa0G7vjZCrP2irPQXj4hEI0sYg6jG/3znRGuWUNIvdt0jV5+q/w/p264b+0t4RgAAAABJRU5ErkJggg==" alt="KAFETIN">
-  <div class="hdr-title">KAFE<span>TIN</span></div>
-  <div class="badge" id="badge">0</div>
+<!-- ═══════════════════════════════════════
+     HOME SCREEN
+════════════════════════════════════════ -->
+<div id="s-home">
+  <div class="home-hero">
+    <div class="home-logo">KAFE<em>TIN</em></div>
+    <div class="home-sub">Sistema de Inventario · Filamentos 3D</div>
+  </div>
+  <div id="home-alert" class="home-alert hidden" onclick="goTo('reportes')">
+    <span class="home-alert-icon">🚨</span>
+    <span id="home-alert-text">Filamentos agotados o críticos</span>
+    <span style="margin-left:auto">Ver →</span>
+  </div>
+  <div class="home-grid">
+    <button class="hc vc" onclick="goTo('vender')">
+      <span class="hc-icon">🛒</span>
+      <span class="hc-label">VENDER</span>
+      <span class="hc-sub">Registrar una venta</span>
+    </button>
+    <button class="hc cc" onclick="goTo('comprar')">
+      <span class="hc-icon">📦</span>
+      <span class="hc-label">COMPRAR</span>
+      <span class="hc-sub">Recibir filamentos</span>
+    </button>
+    <button class="hc rc" onclick="goTo('reportes')">
+      <span class="hc-icon">📊</span>
+      <span class="hc-label">REPORTES</span>
+      <span class="hc-sub">Ventas y alertas</span>
+    </button>
+    <button class="hc clc" onclick="goTo('clientes')">
+      <span class="hc-icon">👥</span>
+      <span class="hc-label">CLIENTES</span>
+      <span class="hc-sub">Base de clientes</span>
+    </button>
+  </div>
 </div>
 
-<!-- ── PAGE: VENDER ── -->
-<div class="pg on" id="pg-vender">
- <div class="pc">
-  <div class="card">
-   <div class="ct">Registrar Venta</div>
-   <div class="fg">
-    <label>Cliente</label>
-    <div id="cliTag" style="display:none"></div>
-    <div class="cli-wrap" id="cliWrap">
-     <input type="text" id="v-cli-search" placeholder="Buscar por nombre o teléfono..." oninput="buscarCliente(this.value)" autocomplete="off">
-     <div class="cli-results" id="cliResults"></div>
+<!-- ═══════════════════════════════════════
+     VENDER SCREEN
+════════════════════════════════════════ -->
+<div id="s-vender" class="hidden screen">
+  <div class="hdr">
+    <button class="hdr-back" onclick="goTo('home')">←</button>
+    <div class="hdr-title">🛒 <em>VENDER</em> Filamento</div>
+  </div>
+  <div class="screen-body">
+
+    <!-- Step 1: Select filament -->
+    <div id="v-step1">
+      <div class="card">
+        <div class="card-title">Escanea o elige un filamento</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+          <input id="v-scan" class="scan-input" type="text" inputmode="numeric"
+            placeholder="Código de barras…"
+            style="flex:1"
+            onkeydown="if(event.key==='Enter'&&this.value.trim())lookupBc(this.value.trim(),'venta')">
+          <button onclick="abrirScanner('venta')"
+            style="background:var(--k);border:none;border-radius:10px;padding:13px 16px;color:#fff;font-size:20px;cursor:pointer;flex-shrink:0">📷</button>
+        </div>
+        <input type="text" id="v-filter" placeholder="Filtrar filamentos..." oninput="filtrarFils('v-flist',this.value)"
+          style="margin-bottom:8px">
+        <div class="fil-list" id="v-flist">
+          <div class="spin"></div>
+        </div>
+      </div>
     </div>
-    <button class="btn btn-o" style="margin-top:6px;padding:9px;font-size:12px" onclick="abrirNuevoCliente()">+ Nuevo cliente</button>
-   </div>
-   <div class="fg">
-    <label>Filamento</label>
-    <div class="scan-row">
-     <select id="v-fil" onchange="onFilVenta()"><option value="">Cargando...</option></select>
-     <button class="scan-btn" onclick="abrirScanner('venta')" title="Escanear">📷</button>
+
+    <!-- Step 2: Confirm sale details -->
+    <div id="v-step2" class="hidden">
+      <div id="v-sel-fil" class="sel-fil">
+        <div class="sel-fil-info">
+          <div class="sel-fil-name" id="v-sel-name">—</div>
+          <div class="sel-fil-meta" id="v-sel-meta">—</div>
+        </div>
+        <button class="sel-fil-clear" onclick="resetVender()">×</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Detalles de la venta</div>
+        <div class="fg">
+          <label>Cantidad (kg)</label>
+          <div class="qty-wrap">
+            <button class="qty-btn" onclick="changeQty('v-qty',-0.5)">−</button>
+            <div>
+              <div class="qty-val" id="v-qty-display">1</div>
+              <div class="qty-lbl">kg</div>
+            </div>
+            <button class="qty-btn" onclick="changeQty('v-qty',0.5)">+</button>
+          </div>
+          <input type="hidden" id="v-qty" value="1">
+        </div>
+        <div id="v-price-row" class="price-row">
+          <div class="price-box">
+            <div class="price-val" id="v-costo-val">—</div>
+            <div class="price-lbl">Costo/kg</div>
+          </div>
+          <div class="price-box venta">
+            <div class="price-val" id="v-precio-val">—</div>
+            <div class="price-lbl">Precio/kg</div>
+          </div>
+        </div>
+        <div class="fg">
+          <label>Precio/kg</label>
+          <input type="number" id="v-precio" placeholder="75000" oninput="actualizarTotalV()">
+        </div>
+        <div class="r2">
+          <div class="fg">
+            <label>Canal</label>
+            <select id="v-canal"><option>Directo</option><option>WhatsApp</option><option>Instagram</option><option>MercadoLibre</option><option>Otro</option></select>
+          </div>
+          <div class="fg">
+            <label>Vendedor</label>
+            <select id="v-vend"><option>Seb</option><option>Otro</option></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Cliente (opcional)</div>
+        <div id="v-cli-tag" class="hidden"></div>
+        <div id="v-cli-wrap">
+          <input type="text" id="v-cli-search" placeholder="Buscar por nombre o teléfono…"
+            oninput="buscarCliente(this.value)" autocomplete="off">
+          <div id="v-cli-results" class="hidden cli-results"></div>
+          <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="abrirNuevoCli()">+ Nuevo cliente</button>
+        </div>
+      </div>
+
+      <div id="v-total-row" style="text-align:center;margin-bottom:14px">
+        <div style="font-size:13px;color:var(--gray)">Total estimado</div>
+        <div id="v-total-display" style="font-size:32px;font-weight:900;color:var(--ok)">$0</div>
+      </div>
+
+      <button class="btn btn-g" id="v-confirm-btn" onclick="confirmarVenta()">CONFIRMAR VENTA</button>
     </div>
-    <div id="v-bc-info" style="display:none"></div>
-   </div>
-   <div class="price-hint" id="v-prices" style="display:none">
-    <div class="ph costo"><div class="ph-v" id="vh-costo">—</div><div class="ph-l">Costo/kg</div></div>
-    <div class="ph venta"><div class="ph-v" id="vh-venta">—</div><div class="ph-l">Precio sugerido/kg</div></div>
-   </div>
-   <div class="r2">
-    <div class="fg"><label>Cantidad (kg)</label><input type="number" id="v-cant" value="1" min="0.1" step="0.25"></div>
-    <div class="fg"><label>Precio/kg</label><input type="number" id="v-precio" placeholder="75000"></div>
-   </div>
-   <div class="r2">
-    <div class="fg"><label>Canal</label>
-     <select id="v-canal"><option>Directo</option><option>WhatsApp</option><option>Instagram</option><option>MercadoLibre</option><option>Otro</option></select>
+
+    <!-- Step 3: Success -->
+    <div id="v-step3" class="hidden success-screen">
+      <div class="success-icon">✅</div>
+      <div class="success-title">¡Venta registrada!</div>
+      <div class="success-sub" id="v-success-item">—</div>
+      <div class="success-total" id="v-success-total">$0</div>
+      <div class="success-sub" id="v-success-stock">—</div>
+      <div id="v-success-alert" class="success-alert hidden">⚠ Stock bajo — necesita reabastecimiento</div>
+      <div style="margin-top:24px" class="btn-row">
+        <button class="btn btn-ghost" onclick="goTo('home')">Inicio</button>
+        <button class="btn btn-g" onclick="nuevaVenta()">Nueva venta</button>
+      </div>
     </div>
-    <div class="fg"><label>Vendedor</label>
-     <select id="v-vend"><option>Seb</option><option>Otro</option></select>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     COMPRAR SCREEN
+════════════════════════════════════════ -->
+<div id="s-comprar" class="hidden screen">
+  <div class="hdr">
+    <button class="hdr-back" onclick="goTo('home')">←</button>
+    <div class="hdr-title">📦 <em>COMPRAR</em> Filamento</div>
+  </div>
+  <div class="screen-body">
+
+    <!-- Step 1 -->
+    <div id="c-step1">
+      <div class="card">
+        <div class="card-title">Escanea o elige un filamento</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+          <input id="c-scan" class="scan-input" type="text" inputmode="numeric"
+            placeholder="Código de barras…" style="flex:1"
+            onkeydown="if(event.key==='Enter'&&this.value.trim())lookupBc(this.value.trim(),'compra')">
+          <button onclick="abrirScanner('compra')"
+            style="background:var(--k);border:none;border-radius:10px;padding:13px 16px;color:#fff;font-size:20px;cursor:pointer;flex-shrink:0">📷</button>
+        </div>
+        <input type="text" id="c-filter" placeholder="Filtrar filamentos..." oninput="filtrarFils('c-flist',this.value)"
+          style="margin-bottom:8px">
+        <div class="fil-list" id="c-flist">
+          <div class="spin"></div>
+        </div>
+      </div>
+
+      <div class="sect-lbl">⚠ Pendientes de reabastecimiento</div>
+      <div id="c-alerts-list">
+        <div class="spin"></div>
+      </div>
     </div>
-   </div>
-   <button class="btn btn-g" onclick="vender()">Registrar venta</button>
-   <div class="res" id="v-res">
-    <div class="res-l">Total venta</div>
-    <div class="res-v" id="v-total">$0</div>
-    <div class="res-l" id="v-stock-info" style="margin-top:5px"></div>
-    <div class="res-a" id="v-alerta">⚠ Stock bajo — compra pronto</div>
-   </div>
-  </div>
- </div>
-</div>
 
-<!-- ── PAGE: INVENTARIO ── -->
-<div class="pg" id="pg-inventario">
- <div class="pc">
-  <div class="ab" id="alertBanner"><h3>⚠ Reabastecer ahora</h3><ul id="alertList"></ul></div>
-  <input class="inv-search" id="invSearch" placeholder="Buscar filamento..." oninput="filtrarInv()">
-  <div id="invList"><div class="spin-wrap"><div class="spin"></div>Cargando...</div></div>
-  <div style="margin-top:7px">
-   <button class="btn btn-o" onclick="toggleAddFil()" style="font-size:13px;padding:10px">+ Agregar filamento nuevo</button>
-  </div>
-  <div class="card" id="addFilCard" style="display:none;margin-top:10px">
-   <div class="ct">Nuevo filamento</div>
-   <div class="r2">
-    <div class="fg"><label>Material</label>
-     <select id="nf-mat"><option>PLA</option><option>PETG</option><option>ABS</option><option>TPU</option><option>PLA BICOLOR</option><option>PP</option><option>PLA 2.85</option></select>
+    <!-- Step 2 -->
+    <div id="c-step2" class="hidden">
+      <div id="c-sel-fil" class="sel-fil" style="border-color:var(--y)">
+        <div class="sel-fil-info">
+          <div class="sel-fil-name" id="c-sel-name">—</div>
+          <div class="sel-fil-meta" id="c-sel-meta">—</div>
+        </div>
+        <button class="sel-fil-clear" onclick="resetComprar()">×</button>
+      </div>
+
+      <div id="c-rec-banner" class="rec-banner hidden"></div>
+
+      <div class="card">
+        <div class="card-title">Detalles de la compra</div>
+        <div class="fg">
+          <label>Cantidad (kg)</label>
+          <div class="qty-wrap">
+            <button class="qty-btn" onclick="changeQty('c-qty',-1)">−</button>
+            <div>
+              <div class="qty-val" id="c-qty-display">6</div>
+              <div class="qty-lbl">kg</div>
+            </div>
+            <button class="qty-btn" onclick="changeQty('c-qty',1)">+</button>
+          </div>
+          <input type="hidden" id="c-qty" value="6">
+        </div>
+        <div id="c-price-row" class="price-row">
+          <div class="price-box">
+            <div class="price-val" id="c-costo-val">—</div>
+            <div class="price-lbl">Costo sugerido/kg</div>
+          </div>
+          <div class="price-box">
+            <div class="price-val" id="c-total-est">—</div>
+            <div class="price-lbl">Costo total estimado</div>
+          </div>
+        </div>
+        <div class="fg">
+          <label>Costo/kg</label>
+          <input type="number" id="c-costo" placeholder="57766" oninput="actualizarTotalC()">
+        </div>
+        <div class="fg">
+          <label>Proveedor</label>
+          <select id="c-prov"><option>4DLAB</option><option>Otro</option></select>
+        </div>
+      </div>
+
+      <button class="btn btn-y" id="c-confirm-btn" onclick="confirmarCompra()">REGISTRAR COMPRA</button>
     </div>
-    <div class="fg"><label>Color</label><input type="text" id="nf-color" placeholder="ej. Azul Cielo"></div>
-   </div>
-   <button class="btn btn-y" onclick="agregarFil()">Agregar</button>
-  </div>
- </div>
-</div>
 
-<!-- ── PAGE: COMPRAR ── -->
-<div class="pg" id="pg-comprar">
- <div class="pc">
-  <div class="card">
-   <div class="ct">Registrar Compra</div>
-   <div class="fg">
-    <label>Filamento</label>
-    <div class="scan-row">
-     <select id="c-fil" onchange="onFilCompra()"><option value="">Cargando...</option></select>
-     <button class="scan-btn" onclick="abrirScanner('compra')" title="Escanear">📷</button>
+    <!-- Step 3 -->
+    <div id="c-step3" class="hidden success-screen">
+      <div class="success-icon">✅</div>
+      <div class="success-title">¡Compra registrada!</div>
+      <div class="success-sub" id="c-success-item">—</div>
+      <div class="success-total" style="color:var(--y)" id="c-success-total">$0</div>
+      <div class="success-sub" id="c-success-stock">—</div>
+      <div style="margin-top:24px" class="btn-row">
+        <button class="btn btn-ghost" onclick="goTo('home')">Inicio</button>
+        <button class="btn btn-y" onclick="nuevaCompra()">Otra compra</button>
+      </div>
     </div>
-    <div id="c-bc-info" style="display:none"></div>
-   </div>
-   <div class="price-hint" id="c-prices" style="display:none">
-    <div class="ph costo"><div class="ph-v" id="ch-costo">—</div><div class="ph-l">Costo sugerido/kg</div></div>
-   </div>
-   <div class="r2">
-    <div class="fg"><label>Cantidad (kg)</label><input type="number" id="c-cant" value="1" min="0.5" step="0.5"></div>
-    <div class="fg"><label>Costo/kg</label><input type="number" id="c-costo" placeholder="57766"></div>
-   </div>
-   <div class="fg"><label>Proveedor</label>
-    <select id="c-prov"><option>4DLAB</option><option>Otro</option></select>
-   </div>
-   <button class="btn btn-y" onclick="comprar()">Registrar compra</button>
-   <div class="res" id="c-res" style="background:var(--amarillo-l);border-color:var(--amarillo)">
-    <div class="res-l">Costo total</div>
-    <div class="res-v" id="c-total" style="color:var(--amarillo)">$0</div>
-    <div class="res-l" id="c-stock-info" style="margin-top:5px"></div>
-   </div>
   </div>
-  <div class="lbl">Pendientes de reabastecimiento</div>
-  <div id="compraAlertas"><div class="spin-wrap"><div class="spin"></div></div></div>
- </div>
 </div>
 
-<!-- ── PAGE: CLIENTES ── -->
-<div class="pg" id="pg-clientes">
- <div class="pc">
-  <button class="btn btn-g" style="margin-bottom:12px" onclick="abrirNuevoCliente()">+ Nuevo cliente</button>
-  <input class="inv-search" id="cliSearch" placeholder="Buscar cliente..." oninput="filtrarClientes()">
-  <div id="cliList"><div class="spin-wrap"><div class="spin"></div>Cargando...</div></div>
- </div>
+<!-- ═══════════════════════════════════════
+     REPORTES SCREEN
+════════════════════════════════════════ -->
+<div id="s-reportes" class="hidden screen">
+  <div class="hdr">
+    <button class="hdr-back" onclick="goTo('home')">←</button>
+    <div class="hdr-title">📊 <em>REPORTES</em> e Inventario</div>
+    <button class="hdr-action" onclick="loadReportes()" title="Actualizar">↻</button>
+  </div>
+  <div class="screen-body" id="reportes-body">
+    <div class="spin"></div>
+  </div>
 </div>
 
-<!-- ── PAGE: REPORTES ── -->
-<div class="pg" id="pg-reportes">
- <div class="pc">
-  <div class="lbl">Resumen de ventas</div>
-  <div class="mets">
-   <div class="met"><div class="mv" id="r-hoy">...</div><div class="ml">Hoy</div></div>
-   <div class="met"><div class="mv" id="r-mes">...</div><div class="ml">Mes</div></div>
-   <div class="met"><div class="mv" id="r-anio">...</div><div class="ml">Año</div></div>
+<!-- ═══════════════════════════════════════
+     CLIENTES SCREEN
+════════════════════════════════════════ -->
+<div id="s-clientes" class="hidden screen">
+  <div class="hdr">
+    <button class="hdr-back" onclick="goTo('home')">←</button>
+    <div class="hdr-title">👥 <em>CLIENTES</em></div>
+    <button class="hdr-action" onclick="abrirNuevoCli()">+</button>
   </div>
-  <div class="card">
-   <div class="ct">Top filamentos (kg vendidos)</div>
-   <div id="r-top"><div class="spin-wrap"><div class="spin"></div></div></div>
+  <div class="screen-body">
+    <input type="text" id="cli-search-main" placeholder="Buscar cliente..."
+      oninput="filtrarClientesPrincipal(this.value)" style="margin-bottom:12px">
+    <div id="cli-list-main">
+      <div class="spin"></div>
+    </div>
   </div>
-  <div class="card">
-   <div class="ct">Últimas ventas</div>
-   <div id="r-rec"><div class="spin-wrap"><div class="spin"></div></div></div>
-  </div>
- </div>
 </div>
 
-<!-- ── SCANNER MODAL ── -->
-<div class="modal-overlay" id="scanModal">
- <div class="modal-header">
-  <h2>Escanear código de barras</h2>
-  <button class="close-btn" onclick="cerrarScanner()">×</button>
- </div>
- <div id="scanReader" style="width:100%;flex:1;overflow:hidden"></div>
- <div style="padding:12px 16px 16px;background:#111">
-  <div style="color:rgba(255,255,255,.5);font-size:11px;margin-bottom:6px;letter-spacing:.5px">CÓDIGO DE BARRAS · escáner Bluetooth o manual</div>
-  <div style="display:flex;gap:8px;align-items:center">
-   <input id="manualBcInput" type="text" inputmode="numeric" placeholder="Escribe o escanea el código…"
-    style="flex:1;padding:12px 14px;border-radius:10px;border:2px solid var(--amarillo);background:rgba(255,255,255,.08);color:#fff;font-size:16px;outline:none;font-family:monospace;letter-spacing:.5px"
-    onkeydown="if(event.key==='Enter'&&this.value.trim()){var val=this.value.trim();this.value='';cerrarScanner();onBarcodeDetected(val);}">
-   <button onclick="(function(){var val=document.getElementById('manualBcInput').value.trim();if(val){document.getElementById('manualBcInput').value='';cerrarScanner();onBarcodeDetected(val);}else{document.getElementById('manualBcInput').focus();}})()"
-    style="background:var(--amarillo);border:none;border-radius:10px;padding:12px 18px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap">✓ OK</button>
+<!-- ═══════════════════════════════════════
+     SCANNER MODAL
+════════════════════════════════════════ -->
+<div id="scanModal" class="scan-modal hidden">
+  <div class="hdr">
+    <div class="hdr-title" style="flex:1">📷 Escanear código</div>
+    <button class="hdr-action" onclick="cerrarScanner()">✕</button>
   </div>
- </div>
-</div>
-
-<!-- ── NUEVO BARCODE MODAL ── -->
-<div class="bsheet" id="newBcModal">
- <h3>Nuevo filamento detectado</h3>
- <p id="newBcCode" style="font-family:monospace;font-size:11px;color:#999;margin-bottom:3px"></p>
- <p>¿Qué filamento es?</p>
- <div class="r2 bs-gap" style="margin-top:12px">
-  <div class="fg"><label>Material</label>
-   <select id="nb-mat"><option>PLA</option><option>PETG</option><option>ABS</option><option>TPU</option><option>PLA BICOLOR</option><option>PP</option><option>PLA 2.85</option></select>
+  <div id="scanReader"></div>
+  <div style="padding:12px 14px 20px;background:#111">
+    <div style="color:rgba(255,255,255,.45);font-size:11px;margin-bottom:6px;letter-spacing:.5px">CÓDIGO MANUAL · escáner Bluetooth o teclado</div>
+    <div style="display:flex;gap:8px">
+      <input id="manualBcInput" type="text" inputmode="numeric" placeholder="Escribe o escanea el código…"
+        style="flex:1;padding:12px 14px;border-radius:10px;border:2px solid var(--y);background:rgba(255,255,255,.07);color:#fff;font-size:16px;outline:none;font-family:monospace;letter-spacing:.5px"
+        onkeydown="if(event.key==='Enter'&&this.value.trim()){var v=this.value.trim();this.value='';cerrarScanner();onBarcodeDetected(v);}">
+      <button onclick="(function(){var v=document.getElementById('manualBcInput').value.trim();if(v){document.getElementById('manualBcInput').value='';cerrarScanner();onBarcodeDetected(v);}else document.getElementById('manualBcInput').focus()})()"
+        style="background:var(--y);border:none;border-radius:10px;padding:12px 20px;color:#fff;font-size:15px;font-weight:800;cursor:pointer">OK</button>
+    </div>
   </div>
-  <div class="fg"><label>Color</label><input type="text" id="nb-color" placeholder="ej. Rojo Seda"></div>
- </div>
- <button class="btn btn-g" onclick="guardarNuevoBarcode()" style="margin-bottom:8px">Guardar y continuar</button>
- <button class="btn btn-o" onclick="cerrarNuevoBc()" style="font-size:13px;padding:10px">Cancelar</button>
 </div>
 
-<!-- ── NUEVO CLIENTE MODAL ── -->
-<div class="bsheet" id="newCliModal">
- <h3>Nuevo cliente</h3>
- <p>Nombre y teléfono son obligatorios</p>
- <div class="r2 bs-gap" style="margin-top:12px">
-  <div class="fg"><label>Nombre *</label><input type="text" id="nc-nombre" placeholder="Juan García" autocomplete="off"></div>
-  <div class="fg"><label>Teléfono *</label><input type="tel" id="nc-tel" placeholder="300 123 4567"></div>
- </div>
- <div class="fg bs-gap"><label>Correo</label><input type="email" id="nc-correo" placeholder="juan@email.com"></div>
- <div class="r2 bs-gap">
-  <div class="fg"><label>Ciudad</label><input type="text" id="nc-ciudad" placeholder="Bogotá"></div>
-  <div class="fg"><label>Dirección</label><input type="text" id="nc-dir" placeholder="Cra 7 #80-10"></div>
- </div>
- <button class="btn btn-g" onclick="guardarCliente()" style="margin-bottom:8px">Guardar cliente</button>
- <button class="btn btn-o" onclick="cerrarNuevoCli()" style="font-size:13px;padding:10px">Cancelar</button>
+<!-- ═══════════════════════════════════════
+     NEW BARCODE BOTTOM SHEET
+════════════════════════════════════════ -->
+<div class="bsheet-overlay" id="bs-overlay" onclick="cerrarTodosBS()"></div>
+<div class="bsheet" id="bs-new-bc">
+  <div class="bsheet-title">Nuevo filamento detectado</div>
+  <div class="bsheet-sub" id="bs-bc-code" style="font-family:monospace;font-size:12px;color:#999">—</div>
+  <div class="r2">
+    <div class="fg">
+      <label>Material</label>
+      <select id="nb-mat"><option>PLA</option><option>PETG</option><option>ABS</option><option>TPU</option><option>PLA BICOLOR</option><option>PP</option><option>PLA 2.85</option></select>
+    </div>
+    <div class="fg">
+      <label>Color</label>
+      <input type="text" id="nb-color" placeholder="ej. Rojo Seda" autocomplete="off">
+    </div>
+  </div>
+  <button class="btn btn-g" onclick="guardarNuevoBc()" style="margin-bottom:8px">Guardar y continuar</button>
+  <button class="btn btn-ghost" onclick="cerrarTodosBS()" style="font-size:14px;padding:12px">Cancelar</button>
 </div>
 
-<!-- Bottom overlay -->
-<div id="bsOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:250;display:none" onclick="cerrarTodosModales()"></div>
-
-<!-- Bottom Nav -->
-<nav class="nav">
- <button class="nb on" onclick="ir('vender',this)">
-  <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Vender
- </button>
- <button class="nb" onclick="ir('inventario',this)">
-  <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Stock
- </button>
- <button class="nb" onclick="ir('comprar',this)">
-  <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.72l1.38-9.28H6"/></svg>Comprar
- </button>
- <button class="nb" onclick="ir('clientes',this)">
-  <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Clientes
- </button>
- <button class="nb" onclick="ir('reportes',this)">
-  <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Reportes
- </button>
-</nav>
+<!-- ═══════════════════════════════════════
+     NEW CLIENTE BOTTOM SHEET
+════════════════════════════════════════ -->
+<div class="bsheet" id="bs-new-cli">
+  <div class="bsheet-title">Nuevo cliente</div>
+  <div class="bsheet-sub">Nombre y teléfono son obligatorios</div>
+  <div class="r2">
+    <div class="fg"><label>Nombre *</label><input type="text" id="nc-nombre" placeholder="Juan García" autocomplete="off"></div>
+    <div class="fg"><label>Teléfono *</label><input type="tel" id="nc-tel" placeholder="300 123 4567"></div>
+  </div>
+  <div class="fg"><label>Correo</label><input type="email" id="nc-correo" placeholder="juan@email.com"></div>
+  <div class="r2">
+    <div class="fg"><label>Ciudad</label><input type="text" id="nc-ciudad" placeholder="Bogotá"></div>
+    <div class="fg"><label>Dirección</label><input type="text" id="nc-dir" placeholder="Cra 7 #80-10"></div>
+  </div>
+  <button class="btn btn-g" onclick="guardarCliente()" style="margin-bottom:8px">Guardar cliente</button>
+  <button class="btn btn-ghost" onclick="cerrarNuevoCli()" style="font-size:14px;padding:12px">Cancelar</button>
+</div>
 
 <div class="toast" id="toast"></div>
 
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
-// ── API ────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// API
+// ─────────────────────────────────────────────────────────────
 const API = 'https://script.google.com/macros/s/AKfycbxNerre-jVzAZ3028w0irCV5WM6UkgyLg8a7QdBFl90rk1Q2fANaoktZybJneJgc_puig/exec';
 
 function api(action, data) {
-  const params = new URLSearchParams({ action });
-  if (data && Object.keys(data).length) params.append('data', JSON.stringify(data));
-  return fetch(API + '?' + params)
-    .then(r => r.json())
-    .catch(err => { throw new Error(err.message); });
+  const p = new URLSearchParams({ action });
+  if (data && Object.keys(data).length) p.append('data', JSON.stringify(data));
+  return fetch(API + '?' + p).then(r => r.json());
 }
 
-// ── State ──────────────────────────────────────────────────────
-let fils = [], inv = [], clientes = [], scanMode = '';
+// ─────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────
+let fils        = [];   // filamentos (material, color, stock, costo, precio, barcode, key)
+let clientes    = [];
+let smartAlerts = [];
+
+// Vender
+let vFil = null, vCliente = null;
+let vQty = 1;
+
+// Comprar
+let cFil = null;
+let cQty = 6;
+
+// Scanner
+let scanMode  = '';
 let pendingBc = '';
-let selectedCliente = null;
 
-// ── Nav ────────────────────────────────────────────────────────
-function ir(pg, btn) {
-  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
-  document.getElementById('pg-'+pg).classList.add('on');
-  btn.classList.add('on');
-  if (pg==='inventario') cargarInv();
-  if (pg==='reportes')   cargarReportes();
-  if (pg==='comprar')    cargarAlertasCompra();
-  if (pg==='clientes')   cargarClientes();
+// Dual-engine scanner
+let h5Scanner = null, bdInterval = null;
+const BC_FORMATS = ['code_128','code_39','ean_13','ean_8','upc_a','upc_e','itf','qr_code','data_matrix','codabar'];
+
+// ─────────────────────────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────────────────────────
+function goTo(screen) {
+  ['home','vender','comprar','reportes','clientes'].forEach(s => {
+    document.getElementById('s-' + s).classList.toggle('hidden', s !== screen);
+  });
+  if (screen === 'home')      loadHome();
+  if (screen === 'vender')    initVender();
+  if (screen === 'comprar')   initComprar();
+  if (screen === 'reportes')  loadReportes();
+  if (screen === 'clientes')  loadClientes();
+  window.scrollTo(0, 0);
 }
 
-// ── Init ───────────────────────────────────────────────────────
-window.onload = () => { cargarFils(); cargarClientes(); };
+// ─────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────
+window.onload = () => {
+  api('getFilamentos').then(data => {
+    fils = data;
+    renderFilList('v-flist', data, 'venta');
+    renderFilList('c-flist', data, 'compra');
+  }).catch(() => toast('Error cargando filamentos', 'err'));
 
-function cargarFils() {
-  api('getFilamentos')
-    .then(data => {
-      fils = data;
-      llenarDropdown('v-fil', data);
-      llenarDropdown('c-fil', data);
-      checkAlertas();
-    })
-    .catch(() => toast('Error cargando datos','e'));
+  api('getClientes').then(data => { clientes = data; }).catch(() => {});
+
+  loadHomeAlerts();
+};
+
+function loadHome() {
+  loadHomeAlerts();
 }
 
-function llenarDropdown(id, data) {
-  const s = document.getElementById(id);
-  s.innerHTML = '<option value="">— Seleccionar —</option>';
-  data.forEach(f => {
-    const o = document.createElement('option');
-    o.value = f.key;
-    o.textContent = f.material+' '+f.color+' ('+f.stock+' kg)';
-    s.appendChild(o);
+function loadHomeAlerts() {
+  api('getSmartAlertas').then(data => {
+    smartAlerts = data;
+    const criticos = data.filter(a => a.level === 'agotado' || a.level === 'urgente');
+    const bar = document.getElementById('home-alert');
+    if (criticos.length) {
+      document.getElementById('home-alert-text').textContent =
+        `${criticos.length} filamento${criticos.length > 1 ? 's' : ''} agotado${criticos.length > 1 ? 's' : ''} o críticos`;
+      bar.classList.remove('hidden');
+    } else {
+      bar.classList.add('hidden');
+    }
+  }).catch(() => {});
+}
+
+// ─────────────────────────────────────────────────────────────
+// FILAMENT LIST (shared render)
+// ─────────────────────────────────────────────────────────────
+function renderFilList(elId, data, mode) {
+  const el = document.getElementById(elId);
+  if (!data || !data.length) {
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--gray);font-size:13px">Sin filamentos</div>';
+    return;
+  }
+  el.innerHTML = data.map(f => {
+    const sc = f.stock === 0 ? 'spill-z' : f.stock <= 6 ? 'spill-w' : 'spill-ok';
+    const sl = f.stock === 0 ? '🚨 0 kg' : f.stock <= 6 ? `⚠ ${f.stock} kg` : `✓ ${f.stock} kg`;
+    return `<div class="fil-row" onclick="selectFil('${mode}',${JSON.stringify(f).replace(/'/g,"&#39;")})">
+      <div class="fil-info">
+        <div class="fil-name">${f.color}</div>
+        <div class="fil-mat">${f.material}</div>
+      </div>
+      <div style="text-align:right">
+        <span class="spill ${sc}">${sl}</span>
+        <div class="fil-price">${copk(mode==='venta'?f.precio:f.costo)}/kg</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filtrarFils(elId, q) {
+  const data = q ? fils.filter(f => (f.material + ' ' + f.color).toLowerCase().includes(q.toLowerCase())) : fils;
+  const mode = elId.startsWith('v') ? 'venta' : 'compra';
+  renderFilList(elId, data, mode);
+}
+
+// ─────────────────────────────────────────────────────────────
+// VENDER
+// ─────────────────────────────────────────────────────────────
+function initVender() {
+  resetVender();
+  // Auto-focus scan input
+  setTimeout(() => { const el = document.getElementById('v-scan'); if(el) el.focus(); }, 200);
+}
+
+function selectFil(mode, f) {
+  if (typeof f === 'string') f = JSON.parse(f);
+  if (mode === 'venta') {
+    vFil = f;
+    vQty = 1;
+    showVenderStep2();
+  } else {
+    cFil = f;
+    // Smart qty recommendation
+    const alert = smartAlerts.find(a => a.material === f.material && a.color === f.color);
+    cQty = alert && alert.suggestBox ? 12 : Math.max(f.stock <= 0 ? 12 : (6 - f.stock + 6), 6);
+    cQty = Math.max(cQty, 1);
+    showComprarStep2();
+  }
+}
+
+function showVenderStep2() {
+  document.getElementById('v-step1').classList.add('hidden');
+  document.getElementById('v-step2').classList.remove('hidden');
+  document.getElementById('v-step3').classList.add('hidden');
+
+  document.getElementById('v-sel-name').textContent = `${vFil.color} · ${vFil.material}`;
+  const sc = vFil.stock === 0 ? '🚨 Sin stock' : vFil.stock <= 6 ? `⚠ Stock: ${vFil.stock} kg` : `✓ Stock: ${vFil.stock} kg`;
+  document.getElementById('v-sel-meta').textContent = sc;
+  document.getElementById('v-costo-val').textContent = copk(vFil.costo);
+  document.getElementById('v-precio-val').textContent = copk(vFil.precio);
+  document.getElementById('v-precio').value = vFil.precio;
+  setQtyDisplay('v-qty', vQty);
+  resetVenderCli();
+  actualizarTotalV();
+}
+
+function resetVender() {
+  vFil = null; vQty = 1; vCliente = null;
+  document.getElementById('v-step1').classList.remove('hidden');
+  document.getElementById('v-step2').classList.add('hidden');
+  document.getElementById('v-step3').classList.add('hidden');
+  document.getElementById('v-scan').value = '';
+  document.getElementById('v-filter').value = '';
+  renderFilList('v-flist', fils, 'venta');
+  setTimeout(() => { const el = document.getElementById('v-scan'); if(el) el.focus(); }, 100);
+}
+
+function nuevaVenta() { resetVender(); }
+
+function actualizarTotalV() {
+  const qty   = parseFloat(document.getElementById('v-qty').value) || 0;
+  const price = parseFloat(document.getElementById('v-precio').value) || 0;
+  document.getElementById('v-total-display').textContent = cop(qty * price);
+}
+
+function confirmarVenta() {
+  if (!vFil) { toast('Selecciona un filamento', 'warn'); return; }
+  const qty   = parseFloat(document.getElementById('v-qty').value);
+  const precio = parseFloat(document.getElementById('v-precio').value);
+  const canal = document.getElementById('v-canal').value;
+  const vend  = document.getElementById('v-vend').value;
+  if (!qty || !precio) { toast('Completa cantidad y precio', 'warn'); return; }
+
+  const btn = document.getElementById('v-confirm-btn');
+  btn.disabled = true; btn.textContent = 'Registrando…';
+
+  api('registrarVenta', {
+    material: vFil.material, color: vFil.color, barcode: vFil.barcode || '',
+    cantidad: qty, precio, canal, vendedor: vend,
+    clienteNombre: vCliente?.nombre || '', clienteTelefono: vCliente?.telefono || ''
+  }).then(res => {
+    btn.disabled = false; btn.textContent = 'CONFIRMAR VENTA';
+    document.getElementById('v-step2').classList.add('hidden');
+    document.getElementById('v-step3').classList.remove('hidden');
+    document.getElementById('v-success-item').textContent = `${vFil.color} · ${vFil.material} · ${qty} kg`;
+    document.getElementById('v-success-total').textContent = cop(res.total);
+    document.getElementById('v-success-stock').textContent = `Stock actual: ${res.stockActual} kg`;
+    const alEl = document.getElementById('v-success-alert');
+    alEl.classList.toggle('hidden', !res.alerta);
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+    // Refresh filaments
+    api('getFilamentos').then(d => { fils = d; }).catch(() => {});
+    loadHomeAlerts();
+  }).catch(() => {
+    btn.disabled = false; btn.textContent = 'CONFIRMAR VENTA';
+    toast('Error al registrar', 'err');
   });
 }
 
-function onFilVenta() {
-  const key = document.getElementById('v-fil').value;
-  const f   = fils.find(x=>x.key===key);
-  const box = document.getElementById('v-prices');
-  if (f) {
-    document.getElementById('v-precio').value = f.precio;
-    document.getElementById('vh-costo').textContent = copk(f.costo);
-    document.getElementById('vh-venta').textContent = copk(f.precio);
-    box.style.display = 'flex';
+// ─────────────────────────────────────────────────────────────
+// COMPRAR
+// ─────────────────────────────────────────────────────────────
+function initComprar() {
+  resetComprar();
+  setTimeout(() => { const el = document.getElementById('c-scan'); if(el) el.focus(); }, 200);
+  // Load smart alerts for pending purchases panel
+  api('getSmartAlertas').then(data => {
+    smartAlerts = data;
+    renderComprarAlerts(data);
+  }).catch(() => {});
+}
+
+function renderComprarAlerts(data) {
+  const el = document.getElementById('c-alerts-list');
+  const pending = data.filter(a => a.level !== 'ok');
+  if (!pending.length) {
+    el.innerHTML = '<div style="text-align:center;color:var(--ok);font-size:13px;padding:12px">✓ Todo el inventario está OK</div>';
+    return;
+  }
+  el.innerHTML = pending.map(a => {
+    const icon = a.level === 'agotado' ? '🔴' : a.level === 'urgente' ? '🔴' : '🟡';
+    const cls  = a.level === 'agotado' || a.level === 'urgente' ? 'al-urgente' : 'al-pronto';
+    const detail = a.daysLeft !== null ? `~${a.daysLeft} días de stock · ${a.velocity}/día` : `Stock: ${a.stock} (mín ${a.minimo})`;
+    const rec   = a.suggestBox ? `📦 Recomendamos comprar ${a.recommendQty} (caja completa)` : `Comprar ${a.recommendQty}+`;
+    const filObj = fils.find(f => f.material === a.material && f.color === a.color);
+    const onclick = filObj ? `selectFil('compra',${JSON.stringify(filObj).replace(/'/g,"&#39;")})` : '';
+    return `<div class="al-item ${cls}" style="cursor:${filObj?'pointer':'default'}" onclick="${onclick}">
+      <span class="al-icon">${icon}</span>
+      <div class="al-body">
+        <div class="al-name">${a.color} · ${a.material}</div>
+        <div class="al-detail">${detail}</div>
+        <div class="al-rec">${rec}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function showComprarStep2() {
+  document.getElementById('c-step1').classList.add('hidden');
+  document.getElementById('c-step2').classList.remove('hidden');
+  document.getElementById('c-step3').classList.add('hidden');
+
+  document.getElementById('c-sel-name').textContent = `${cFil.color} · ${cFil.material}`;
+  document.getElementById('c-sel-meta').textContent = `Stock actual: ${cFil.stock} kg | Mínimo: ${cFil.minimo || 6} kg`;
+  document.getElementById('c-costo-val').textContent = copk(cFil.costo);
+  document.getElementById('c-costo').value = cFil.costo;
+  setQtyDisplay('c-qty', cQty);
+  actualizarTotalC();
+
+  // Smart recommendation banner
+  const alert = smartAlerts.find(a => a.material === cFil.material && a.color === cFil.color);
+  const banner = document.getElementById('c-rec-banner');
+  if (alert && alert.suggestBox) {
+    banner.classList.remove('hidden');
+    banner.innerHTML = `<strong>📦 Este filamento es popular — recomendamos comprar caja completa (12 unidades)</strong>Últimas 7 días: ${alert.last7} vendidas · velocidad: ${alert.velocity}/día`;
+    setQtyDisplay('c-qty', 12);
+  } else if (alert && (alert.level === 'agotado' || alert.level === 'urgente')) {
+    banner.classList.remove('hidden');
+    banner.innerHTML = `<strong>🚨 ${alert.level === 'agotado' ? 'AGOTADO' : 'Stock crítico'} — reabastece urgente</strong>${alert.daysLeft !== null ? `~${alert.daysLeft} días de stock restante` : `Solo ${cFil.stock} kg disponibles`}`;
   } else {
-    box.style.display = 'none';
+    banner.classList.add('hidden');
   }
 }
 
-function onFilCompra() {
-  const key = document.getElementById('c-fil').value;
-  const f   = fils.find(x=>x.key===key);
-  const box = document.getElementById('c-prices');
-  if (f) {
-    document.getElementById('c-costo').value = f.costo;
-    document.getElementById('ch-costo').textContent = copk(f.costo);
-    box.style.display = 'flex';
-  } else {
-    box.style.display = 'none';
-  }
+function resetComprar() {
+  cFil = null; cQty = 6;
+  document.getElementById('c-step1').classList.remove('hidden');
+  document.getElementById('c-step2').classList.add('hidden');
+  document.getElementById('c-step3').classList.add('hidden');
+  document.getElementById('c-scan').value = '';
+  document.getElementById('c-filter').value = '';
+  renderFilList('c-flist', fils, 'compra');
+  setTimeout(() => { const el = document.getElementById('c-scan'); if(el) el.focus(); }, 100);
 }
 
-// ── CLIENTES ──────────────────────────────────────────────────
-function cargarClientes() {
-  api('getClientes')
-    .then(data => { clientes = data; renderClientes(data); })
-    .catch(() => {});
+function nuevaCompra() { resetComprar(); }
+
+function actualizarTotalC() {
+  const qty   = parseFloat(document.getElementById('c-qty').value) || 0;
+  const costo = parseFloat(document.getElementById('c-costo').value) || 0;
+  document.getElementById('c-total-est').textContent = copk(qty * costo);
 }
 
-function renderClientes(data) {
-  const el = document.getElementById('cliList');
-  if (!el) return;
-  if (!data.length) { el.innerHTML='<div class="spin-wrap">Sin clientes aún</div>'; return; }
-  el.innerHTML = data.map(c=>`<div class="cli-card">
-    <div class="cli-name">${c.nombre}</div>
-    <div class="cli-detail">📞 ${c.telefono}${c.correo?' · '+c.correo:''}${c.ciudad?' · '+c.ciudad:''}</div>
-    ${c.direccion?`<div class="cli-detail" style="margin-top:2px">📍 ${c.direccion}</div>`:''}
+function confirmarCompra() {
+  if (!cFil) { toast('Selecciona un filamento', 'warn'); return; }
+  const qty   = parseFloat(document.getElementById('c-qty').value);
+  const costo = parseFloat(document.getElementById('c-costo').value);
+  const prov  = document.getElementById('c-prov').value;
+  if (!qty || !costo) { toast('Completa cantidad y costo', 'warn'); return; }
+
+  const btn = document.getElementById('c-confirm-btn');
+  btn.disabled = true; btn.textContent = 'Registrando…';
+
+  api('registrarCompra', {
+    material: cFil.material, color: cFil.color, barcode: cFil.barcode || '',
+    cantidad: qty, costo, proveedor: prov
+  }).then(res => {
+    btn.disabled = false; btn.textContent = 'REGISTRAR COMPRA';
+    document.getElementById('c-step2').classList.add('hidden');
+    document.getElementById('c-step3').classList.remove('hidden');
+    document.getElementById('c-success-item').textContent = `${cFil.color} · ${cFil.material} · ${qty} kg`;
+    document.getElementById('c-success-total').textContent = cop(res.costoTotal);
+    document.getElementById('c-success-stock').textContent = `Nuevo stock: ${res.stockActual} kg`;
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+    api('getFilamentos').then(d => { fils = d; }).catch(() => {});
+    loadHomeAlerts();
+  }).catch(() => {
+    btn.disabled = false; btn.textContent = 'REGISTRAR COMPRA';
+    toast('Error al registrar', 'err');
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// QTY STEPPER
+// ─────────────────────────────────────────────────────────────
+function changeQty(hiddenId, delta) {
+  const el  = document.getElementById(hiddenId);
+  let val   = parseFloat(el.value) || 0;
+  val       = Math.max(0.5, Math.round((val + delta) * 2) / 2);
+  setQtyDisplay(hiddenId, val);
+  if (hiddenId === 'v-qty') actualizarTotalV();
+  if (hiddenId === 'c-qty') actualizarTotalC();
+}
+
+function setQtyDisplay(hiddenId, val) {
+  document.getElementById(hiddenId).value = val;
+  const displayId = hiddenId.replace('qty', 'qty-display');
+  const el = document.getElementById(displayId);
+  if (el) el.textContent = val % 1 === 0 ? val : val.toFixed(1);
+}
+
+// ─────────────────────────────────────────────────────────────
+// CLIENTES (venta inline)
+// ─────────────────────────────────────────────────────────────
+function buscarCliente(q) {
+  const res = document.getElementById('v-cli-results');
+  if (!q || q.length < 2) { res.classList.add('hidden'); return; }
+  const matches = clientes.filter(c =>
+    c.nombre.toLowerCase().includes(q.toLowerCase()) || c.telefono.includes(q)
+  ).slice(0, 6);
+  if (!matches.length) { res.classList.add('hidden'); return; }
+  res.innerHTML = matches.map(c => `
+    <div class="cli-res-item" onclick='selectCliente(${JSON.stringify(c)})'>
+      <div class="cli-res-name">${c.nombre}</div>
+      <div class="cli-res-sub">📞 ${c.telefono}${c.ciudad?' · '+c.ciudad:''}</div>
+    </div>`).join('');
+  res.classList.remove('hidden');
+}
+
+function selectCliente(c) {
+  if (typeof c === 'string') c = JSON.parse(c);
+  vCliente = c;
+  document.getElementById('v-cli-results').classList.add('hidden');
+  document.getElementById('v-cli-wrap').classList.add('hidden');
+  const tag = document.getElementById('v-cli-tag');
+  tag.classList.remove('hidden');
+  tag.innerHTML = `<div class="cli-tag">
+    <div style="flex:1">
+      <div class="name">${c.nombre}</div>
+      <div class="tel">📞 ${c.telefono}${c.ciudad?' · '+c.ciudad:''}</div>
+    </div>
+    <button class="cli-tag-clear" onclick="resetVenderCli()">×</button>
+  </div>`;
+}
+
+function resetVenderCli() {
+  vCliente = null;
+  document.getElementById('v-cli-tag').classList.add('hidden');
+  document.getElementById('v-cli-wrap').classList.remove('hidden');
+  document.getElementById('v-cli-search').value = '';
+  document.getElementById('v-cli-results').classList.add('hidden');
+}
+
+// ─────────────────────────────────────────────────────────────
+// CLIENTES SCREEN
+// ─────────────────────────────────────────────────────────────
+function loadClientes() {
+  api('getClientes').then(data => {
+    clientes = data;
+    renderCliList(data);
+  }).catch(() => toast('Error cargando clientes', 'err'));
+}
+
+function renderCliList(data) {
+  const el = document.getElementById('cli-list-main');
+  if (!data.length) { el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--gray);font-size:13px">Sin clientes aún</div>'; return; }
+  el.innerHTML = data.map(c => `<div class="cli-card">
+    <div class="cli-card-name">${c.nombre}</div>
+    <div class="cli-card-detail">📞 ${c.telefono}${c.correo?' · '+c.correo:''}${c.ciudad?' · '+c.ciudad:''}</div>
+    ${c.direccion?`<div class="cli-card-detail" style="margin-top:2px">📍 ${c.direccion}</div>`:''}
   </div>`).join('');
 }
 
-function filtrarClientes() {
-  const q = document.getElementById('cliSearch').value.toLowerCase();
-  renderClientes(q ? clientes.filter(c=>
-    c.nombre.toLowerCase().includes(q)||c.telefono.includes(q)||c.correo.toLowerCase().includes(q)
+function filtrarClientesPrincipal(q) {
+  renderCliList(q ? clientes.filter(c =>
+    c.nombre.toLowerCase().includes(q.toLowerCase()) || c.telefono.includes(q)
   ) : clientes);
 }
 
-function buscarCliente(q) {
-  const res = document.getElementById('cliResults');
-  if (!q || q.length < 2) { res.style.display='none'; return; }
-  const matches = clientes.filter(c=>
-    c.nombre.toLowerCase().includes(q.toLowerCase()) ||
-    c.telefono.includes(q)
-  ).slice(0,6);
-  if (!matches.length) { res.style.display='none'; return; }
-  res.innerHTML = matches.map(c=>`
-    <div class="cli-item" onclick="seleccionarCliente(${JSON.stringify(c).replace(/"/g,'&quot;')})">
-      <strong>${c.nombre}</strong>
-      <span>📞 ${c.telefono}${c.ciudad?' · '+c.ciudad:''}</span>
+// ─────────────────────────────────────────────────────────────
+// REPORTES
+// ─────────────────────────────────────────────────────────────
+function loadReportes() {
+  document.getElementById('reportes-body').innerHTML = '<div class="spin"></div>';
+  Promise.all([
+    api('getReportes'),
+    api('getSmartAlertas')
+  ]).then(([rep, alerts]) => {
+    smartAlerts = alerts;
+    renderReportes(rep, alerts);
+  }).catch(() => toast('Error cargando reportes', 'err'));
+}
+
+function renderReportes(rep, alerts) {
+  const needsAction = alerts.filter(a => a.level !== 'ok');
+  const trending    = alerts.filter(a => a.trending && a.level === 'ok');
+
+  let html = '';
+
+  // ── Smart alerts section ──
+  if (needsAction.length) {
+    html += `<div class="sect-lbl">🚨 ACCIONES REQUERIDAS</div>`;
+    html += needsAction.map(a => {
+      const icon = a.level === 'agotado' ? '🔴' : a.level === 'urgente' ? '🔴' : '🟡';
+      const cls  = a.level === 'agotado' || a.level === 'urgente' ? 'al-urgente' : 'al-pronto';
+      const daysStr = a.daysLeft !== null ? `~${a.daysLeft} días de stock · ` : '';
+      const velStr  = a.velocity > 0 ? `${a.velocity} unid/día` : 'sin ventas recientes';
+      const detail  = daysStr + velStr;
+      const rec     = a.suggestBox
+        ? `📦 Comprar caja completa: ${a.recommendQty} unidades`
+        : `Comprar ${a.recommendQty}+ unidades`;
+      return `<div class="al-item ${cls}">
+        <span class="al-icon">${icon}</span>
+        <div class="al-body">
+          <div class="al-name">${a.color} · ${a.material}</div>
+          <div class="al-detail">Stock: ${a.stock} kg (mín ${a.minimo}) · ${detail}</div>
+          <div class="al-rec">${rec}${a.trending?' · <span style="color:var(--ok)">↑ Popular</span>':''}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    html += `<div class="card" style="text-align:center;color:var(--ok);font-size:14px;font-weight:700;padding:20px">
+      ✅ Todo el inventario está en buen estado
+    </div>`;
+  }
+
+  if (trending.length) {
+    html += `<div class="sect-lbl">📈 EN TENDENCIA</div>`;
+    html += trending.map(a => `<div class="al-item al-trending">
+      <span class="al-icon">⬆️</span>
+      <div class="al-body">
+        <div class="al-name">${a.color} · ${a.material}</div>
+        <div class="al-detail">↑ Ventas acelerando · últimas 7 días: ${a.last7} unid · ${a.velocity}/día</div>
+        ${a.suggestBox ? `<div class="al-rec">📦 Considerar caja completa (12) en próxima compra</div>` : ''}
+      </div>
     </div>`).join('');
-  res.style.display='block';
+  }
+
+  // ── Sales metrics ──
+  html += `<div class="sect-lbl">💰 VENTAS</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-val">${copk(rep.totalHoy)}</div><div class="metric-lbl">Hoy</div></div>
+    <div class="metric"><div class="metric-val">${copk(rep.totalMes)}</div><div class="metric-lbl">Este mes</div></div>
+    <div class="metric"><div class="metric-val">${copk(rep.totalAnio)}</div><div class="metric-lbl">Este año</div></div>
+  </div>`;
+
+  // ── Top sellers ──
+  if (rep.topSellers && rep.topSellers.length) {
+    const mx = rep.topSellers[0].cant || 1;
+    html += `<div class="card">
+      <div class="card-title">🏆 Top filamentos (kg vendidos)</div>
+      ${rep.topSellers.map(s => `
+        <div class="top-row">
+          <div class="top-name">${s.nombre}</div>
+          <div class="top-bar-wrap"><div class="top-bar" style="width:${s.cant/mx*100}%"></div></div>
+          <div class="top-qty">${s.cant} kg</div>
+        </div>`).join('')}
+    </div>`;
+  }
+
+  // ── Recent sales ──
+  if (rep.recientes && rep.recientes.length) {
+    html += `<div class="card">
+      <div class="card-title">🕒 Últimas ventas</div>
+      ${rep.recientes.map(v => `
+        <div class="sale-row">
+          <div class="sale-info">
+            <div class="sale-item">${v.item}</div>
+            <div class="sale-meta">${v.fecha} · ${v.cantidad} kg${v.cliente?' · '+v.cliente:''}</div>
+          </div>
+          <div class="sale-total">${cop(v.total)}</div>
+        </div>`).join('')}
+    </div>`;
+  }
+
+  document.getElementById('reportes-body').innerHTML = html;
 }
 
-function seleccionarCliente(c) {
-  selectedCliente = c;
-  document.getElementById('cliResults').style.display='none';
-  document.getElementById('cliWrap').style.display='none';
-  const tag = document.getElementById('cliTag');
-  tag.style.display='flex';
-  tag.className='cli-tag';
-  tag.innerHTML=`<div style="flex:1"><div class="name">${c.nombre}</div><div class="tel">📞 ${c.telefono}${c.ciudad?' · '+c.ciudad:''}</div></div><button onclick="limpiarCliente()">×</button>`;
-  document.querySelector('#pg-vender .btn-o').style.display='none';
+// ─────────────────────────────────────────────────────────────
+// BARCODE LOOKUP
+// ─────────────────────────────────────────────────────────────
+function lookupBc(bc, mode) {
+  scanMode = mode;
+  const inputId = mode === 'venta' ? 'v-scan' : 'c-scan';
+  document.getElementById(inputId).value = '';
+  toast('Buscando código…');
+  api('lookupBarcode', { barcode: bc }).then(res => {
+    if (res) {
+      onBarcodeDetected(bc);
+    } else {
+      pendingBc = bc;
+      document.getElementById('bs-bc-code').textContent = bc;
+      document.getElementById('nb-color').value = '';
+      abrirBS('bs-new-bc');
+    }
+  }).catch(() => {
+    pendingBc = bc;
+    document.getElementById('bs-bc-code').textContent = bc;
+    abrirBS('bs-new-bc');
+  });
 }
 
-function limpiarCliente() {
-  selectedCliente = null;
-  document.getElementById('cliTag').style.display='none';
-  document.getElementById('cliWrap').style.display='block';
-  document.getElementById('v-cli-search').value='';
-  document.querySelector('#pg-vender .btn-o').style.display='block';
+function onBarcodeDetected(bc) {
+  api('lookupBarcode', { barcode: bc }).then(res => {
+    if (res) {
+      const f = fils.find(x => x.material === res.material && x.color === res.color)
+        || { ...res, costo: calcCosto(res.material, res.color), precio: calcVenta(res.material, res.color), barcode: bc, stock: 0, minimo: 6, key: res.material+'|'+res.color };
+      f.barcode = bc;
+      if (navigator.vibrate) navigator.vibrate(80);
+      toast('✓ ' + res.material + ' ' + res.color, 'ok');
+      selectFil(scanMode, f);
+    } else {
+      pendingBc = bc;
+      document.getElementById('bs-bc-code').textContent = bc;
+      document.getElementById('nb-color').value = '';
+      abrirBS('bs-new-bc');
+    }
+  }).catch(() => {
+    toast('Error al buscar código', 'err');
+  });
 }
 
-function abrirNuevoCliente() {
-  document.getElementById('newCliModal').classList.add('on');
-  document.getElementById('bsOverlay').style.display='block';
-  setTimeout(()=>document.getElementById('nc-nombre').focus(),300);
+function guardarNuevoBc() {
+  const mat   = document.getElementById('nb-mat').value;
+  const color = document.getElementById('nb-color').value.trim();
+  if (!color) { toast('Escribe el color', 'warn'); return; }
+  api('saveBarcode', { barcode: pendingBc, material: mat, color }).then(() => {
+    cerrarTodosBS();
+    toast('Filamento guardado ✓', 'ok');
+    api('getFilamentos').then(d => {
+      fils = d;
+      const f = fils.find(x => x.material === mat && x.color === color)
+        || { material: mat, color, costo: calcCosto(mat, color), precio: calcVenta(mat, color), barcode: pendingBc, stock: 0, minimo: 6, key: mat+'|'+color };
+      selectFil(scanMode, f);
+    }).catch(() => {});
+  }).catch(() => toast('Error guardando', 'err'));
 }
 
-function cerrarNuevoCli() {
-  document.getElementById('newCliModal').classList.remove('on');
-  document.getElementById('bsOverlay').style.display='none';
-  ['nc-nombre','nc-tel','nc-correo','nc-ciudad','nc-dir'].forEach(id=>document.getElementById(id).value='');
-}
-
-function guardarCliente() {
-  const nombre   = document.getElementById('nc-nombre').value.trim();
-  const telefono = document.getElementById('nc-tel').value.trim();
-  if (!nombre || !telefono) { toast('Nombre y teléfono son obligatorios','w'); return; }
-  const d = {
-    nombre, telefono,
-    correo   : document.getElementById('nc-correo').value.trim(),
-    ciudad   : document.getElementById('nc-ciudad').value.trim(),
-    direccion: document.getElementById('nc-dir').value.trim()
-  };
-  api('addCliente', d)
-    .then(res => {
-      if (res.ok) {
-        toast('Cliente guardado ✓','s');
-        cerrarNuevoCli();
-        cargarClientes();
-        seleccionarCliente({ nombre, telefono, ciudad: d.ciudad });
-      } else {
-        toast(res.msg,'w');
-      }
-    })
-    .catch(()=>toast('Error guardando cliente','e'));
-}
-
-// ── SCANNER ────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// SCANNER (camera)
+// ─────────────────────────────────────────────────────────────
 function abrirScanner(mode) {
   scanMode = mode;
-  document.getElementById('scanModal').classList.add('on');
+  document.getElementById('scanModal').classList.remove('hidden');
   iniciarCamara();
-  // Auto-focus manual input so a Bluetooth scanner fires straight into it
-  setTimeout(() => {
-    const inp = document.getElementById('manualBcInput');
-    if (inp) inp.focus();
-  }, 400);
+  setTimeout(() => { document.getElementById('manualBcInput').focus(); }, 400);
 }
 
 function cerrarScanner() {
-  document.getElementById('scanModal').classList.remove('on');
+  document.getElementById('scanModal').classList.add('hidden');
   pararCamara();
 }
 
-// ── DUAL-ENGINE SCANNER ─────────────────────────────────────────
-// Engine 1: html5-qrcode (ZXing WASM) — manages camera permissions & stream
-// Engine 2: BarcodeDetector (Google ML Kit) — runs in parallel on same video
-// Whichever fires first wins.
-let h5Scanner = null;
-let bdInterval = null;
-
-const BC_FORMATS_NATIVE = ['code_128','code_39','ean_13','ean_8','upc_a','upc_e','itf','qr_code','data_matrix','aztec','pdf417','codabar'];
-
 function iniciarCamara() {
-  if (!window.Html5Qrcode) { toast('Librería de escaneo no disponible','e'); return; }
+  if (!window.Html5Qrcode) return;
   const el = document.getElementById('scanReader');
-  if (!el) return;
   el.innerHTML = '';
-
   h5Scanner = new Html5Qrcode('scanReader', { verbose: false });
-
-  // Use window.innerWidth — el.offsetWidth is 0 while modal CSS transition runs
   const W = window.innerWidth || 380;
-  const config = {
-    fps: 15,
-    qrbox: { width: Math.min(W - 32, 380), height: 130 },
-    aspectRatio: 1.7778,   // 16:9
-    formatsToSupport: [
-      Html5QrcodeSupportedFormats.CODE_128,
-      Html5QrcodeSupportedFormats.CODE_39,
-      Html5QrcodeSupportedFormats.EAN_13,
-      Html5QrcodeSupportedFormats.EAN_8,
-      Html5QrcodeSupportedFormats.UPC_A,
-      Html5QrcodeSupportedFormats.UPC_E,
-      Html5QrcodeSupportedFormats.ITF,
-      Html5QrcodeSupportedFormats.QR_CODE,
-      Html5QrcodeSupportedFormats.DATA_MATRIX
-    ],
-    experimentalFeatures: { useBarCodeDetectorIfSupported: false } // we handle BD ourselves
-  };
-
   h5Scanner.start(
     { facingMode: 'environment' },
-    config,
-    function onH5Decode(text) {          // ZXing decoded it
-      _scannerResult(text);
+    { fps: 15, qrbox: { width: Math.min(W - 32, 380), height: 130 },
+      formatsToSupport: [
+        Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39,
+        Html5QrcodeSupportedFormats.EAN_13,   Html5QrcodeSupportedFormats.EAN_8,
+        Html5QrcodeSupportedFormats.UPC_A,    Html5QrcodeSupportedFormats.UPC_E,
+        Html5QrcodeSupportedFormats.QR_CODE
+      ],
+      experimentalFeatures: { useBarCodeDetectorIfSupported: false }
     },
-    function() {}                          // per-frame errors — ignore
-  )
-  .then(function() {
-    // Engine 2: BarcodeDetector runs on same video element in parallel
+    text => _scannerResult(text),
+    () => {}
+  ).then(() => {
     if (!('BarcodeDetector' in window)) return;
-    var video = document.querySelector('#scanReader video');
+    const video = document.querySelector('#scanReader video');
     if (!video) return;
-
-    BarcodeDetector.getSupportedFormats()
-      .then(function(fmts) {
-        var formats = (fmts && fmts.length) ? fmts : BC_FORMATS_NATIVE;
-        var detector;
-        try { detector = new BarcodeDetector({ formats: formats }); }
-        catch(e) { return; }
-
-        bdInterval = setInterval(async function() {
-          if (!h5Scanner) { clearInterval(bdInterval); bdInterval = null; return; }
-          if (video.readyState < 2) return;
-          try {
-            var codes = await detector.detect(video);
-            if (codes && codes.length) {
-              _scannerResult(codes[0].rawValue);
-            }
-          } catch(e) {}
-        }, 150);
-      })
-      .catch(function() {});
-  })
-  .catch(function(err) {
-    var msg = String(err || '');
-    if (msg.indexOf('ermission') >= 0 || msg.indexOf('denied') >= 0)
-      toast('Permiso de cámara denegado','e');
-    else
-      toast('Error al abrir cámara','e');
+    BarcodeDetector.getSupportedFormats().then(fmts => {
+      const formats = (fmts && fmts.length) ? fmts : BC_FORMATS;
+      let detector;
+      try { detector = new BarcodeDetector({ formats }); } catch(e) { return; }
+      bdInterval = setInterval(async () => {
+        if (!h5Scanner) { clearInterval(bdInterval); bdInterval = null; return; }
+        if (video.readyState < 2) return;
+        try {
+          const codes = await detector.detect(video);
+          if (codes && codes.length) _scannerResult(codes[0].rawValue);
+        } catch(e) {}
+      }, 150);
+    }).catch(() => {});
+  }).catch(err => {
+    const msg = String(err || '');
+    toast(msg.includes('ermission') || msg.includes('denied') ? 'Permiso de cámara denegado' : 'Error al abrir cámara', 'err');
   });
 }
 
 function _scannerResult(text) {
-  if (!text || !h5Scanner) return;  // guard: ignore if already handled
+  if (!text || !h5Scanner) return;
   pararCamara();
+  cerrarScanner();
   onBarcodeDetected(text);
 }
 
 function pararCamara() {
   if (bdInterval) { clearInterval(bdInterval); bdInterval = null; }
-  var mbi = document.getElementById('manualBcInput'); if (mbi) mbi.value = '';
+  const mbi = document.getElementById('manualBcInput'); if (mbi) mbi.value = '';
   if (!h5Scanner) return;
-  var s = h5Scanner;
-  h5Scanner = null;     // null first so _scannerResult guard works
-  try { if (s.isScanning) s.stop().catch(function(){}); } catch(e) {}
+  const s = h5Scanner; h5Scanner = null;
+  try { if (s.isScanning) s.stop().catch(() => {}); } catch(e) {}
 }
 
-
-function onBarcodeDetected(bc) {
-  cerrarScanner();
-  if (navigator.vibrate) navigator.vibrate(100);
-  toast('Código detectado','s');
-  api('lookupBarcode', { barcode: bc })
-    .then(res => {
-      if (res) {
-        seleccionarFil(scanMode, res.material, res.color, bc);
-      } else {
-        pendingBc = bc;
-        document.getElementById('newBcCode').textContent = bc;
-        document.getElementById('newBcModal').classList.add('on');
-        document.getElementById('bsOverlay').style.display='block';
-      }
-    })
-    .catch(() => {
-      pendingBc = bc;
-      document.getElementById('newBcCode').textContent = bc;
-      document.getElementById('newBcModal').classList.add('on');
-      document.getElementById('bsOverlay').style.display='block';
-    });
+// ─────────────────────────────────────────────────────────────
+// BOTTOM SHEETS
+// ─────────────────────────────────────────────────────────────
+function abrirBS(id) {
+  document.getElementById('bs-overlay').style.display = 'block';
+  document.getElementById(id).classList.add('on');
 }
 
-function seleccionarFil(mode, material, color, bc) {
-  const key   = material+'|'+color;
-  const selId = mode==='venta' ? 'v-fil' : 'c-fil';
-  const infoId= mode==='venta' ? 'v-bc-info' : 'c-bc-info';
-  const sel   = document.getElementById(selId);
-  let found = false;
-  for (let o of sel.options) { if (o.value===key) { sel.value=key; found=true; break; } }
-  if (!found) {
-    const o = document.createElement('option');
-    o.value=key; o.textContent=material+' '+color+' (escaneado)';
-    sel.appendChild(o); sel.value=key;
-  }
-  const info = document.getElementById(infoId);
-  info.style.display='block';
-  info.innerHTML=`<div class="bc-pill">✓ ${material} ${color} <span style="margin-left:auto;font-size:10px;opacity:.7">${bc.slice(-8)}</span></div>`;
-  sel.dataset.bc = bc;
-  const f = fils.find(x=>x.key===key) || { costo: calcCosto(material,color), precio: calcVenta(material,color) };
-  if (mode==='venta') {
-    document.getElementById('v-precio').value = f.precio || calcVenta(material,color);
-    document.getElementById('vh-costo').textContent = copk(f.costo || calcCosto(material,color));
-    document.getElementById('vh-venta').textContent = copk(f.precio || calcVenta(material,color));
-    document.getElementById('v-prices').style.display='flex';
-  } else {
-    document.getElementById('c-costo').value = f.costo || calcCosto(material,color);
-    document.getElementById('ch-costo').textContent = copk(f.costo || calcCosto(material,color));
-    document.getElementById('c-prices').style.display='flex';
-  }
+function cerrarTodosBS() {
+  document.getElementById('bs-overlay').style.display = 'none';
+  document.querySelectorAll('.bsheet').forEach(b => b.classList.remove('on'));
 }
 
+function abrirNuevoCli() { abrirBS('bs-new-cli'); setTimeout(() => document.getElementById('nc-nombre').focus(), 300); }
+function cerrarNuevoCli() { cerrarTodosBS(); ['nc-nombre','nc-tel','nc-correo','nc-ciudad','nc-dir'].forEach(id=>document.getElementById(id).value=''); }
+
+function guardarCliente() {
+  const nombre   = document.getElementById('nc-nombre').value.trim();
+  const telefono = document.getElementById('nc-tel').value.trim();
+  if (!nombre || !telefono) { toast('Nombre y teléfono son obligatorios', 'warn'); return; }
+  const d = { nombre, telefono,
+    correo: document.getElementById('nc-correo').value.trim(),
+    ciudad: document.getElementById('nc-ciudad').value.trim(),
+    direccion: document.getElementById('nc-dir').value.trim()
+  };
+  api('addCliente', d).then(res => {
+    if (res.ok) {
+      toast('Cliente guardado ✓', 'ok');
+      cerrarNuevoCli();
+      api('getClientes').then(data => { clientes = data; renderCliList(data); }).catch(() => {});
+      selectCliente({ nombre, telefono, ciudad: d.ciudad });
+    } else { toast(res.msg, 'warn'); }
+  }).catch(() => toast('Error guardando', 'err'));
+}
+
+// ─────────────────────────────────────────────────────────────
+// PRICE HELPERS (frontend fallback)
+// ─────────────────────────────────────────────────────────────
 function calcCosto(mat, col) {
-  col = (col||'').toLowerCase();
-  if (mat==='TPU') return 74549;
+  col = (col || '').toLowerCase();
+  if (mat === 'TPU') return 74549;
   if (['PLA BICOLOR','PP','PLA 2.85'].includes(mat)) return 62156;
-  if ((mat==='PLA'||mat==='PETG') && /madera|m.rmol|carbon/i.test(col)) return 62156;
+  if ((mat === 'PLA' || mat === 'PETG') && /madera|m.rmol|carbon/i.test(col)) return 62156;
   return 57766;
 }
 function calcVenta(mat, col) {
-  col = (col||'').toLowerCase();
-  if (mat==='TPU') return 95000;
+  col = (col || '').toLowerCase();
+  if (mat === 'TPU') return 95000;
   if (['PLA BICOLOR','PP','PLA 2.85'].includes(mat)) return 80000;
-  if ((mat==='PLA'||mat==='PETG') && /madera|m.rmol|carbon/i.test(col)) return 80000;
+  if ((mat === 'PLA' || mat === 'PETG') && /madera|m.rmol|carbon/i.test(col)) return 80000;
   return 75000;
 }
 
-function guardarNuevoBarcode() {
-  const mat   = document.getElementById('nb-mat').value;
-  const color = document.getElementById('nb-color').value.trim();
-  if (!color) { toast('Escribe el color','w'); return; }
-  api('saveBarcode', { barcode: pendingBc, material: mat, color })
-    .then(() => {
-      toast('Filamento guardado ✓','s');
-      cerrarNuevoBc();
-      seleccionarFil(scanMode, mat, color, pendingBc);
-      cargarFils();
-    })
-    .catch(()=>toast('Error guardando','e'));
+// ─────────────────────────────────────────────────────────────
+// FORMAT HELPERS
+// ─────────────────────────────────────────────────────────────
+function cop(v)  { return '$' + Math.round(v || 0).toLocaleString('es-CO'); }
+function copk(v) {
+  if (!v) return '$0';
+  if (v >= 1000000) return '$' + (v / 1000000).toFixed(1) + 'M';
+  if (v >= 1000)    return '$' + Math.round(v / 1000) + 'k';
+  return '$' + Math.round(v);
 }
 
-function cerrarNuevoBc() {
-  document.getElementById('newBcModal').classList.remove('on');
-  document.getElementById('bsOverlay').style.display='none';
-  document.getElementById('nb-color').value='';
-  pendingBc='';
+// ─────────────────────────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────────────────────────
+function toast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = 'toast show' + (type ? ' ' + type : '');
+  clearTimeout(t._to);
+  t._to = setTimeout(() => { t.className = 'toast'; }, 2800);
 }
-
-function cerrarTodosModales() {
-  ['newBcModal','newCliModal'].forEach(id=>document.getElementById(id).classList.remove('on'));
-  document.getElementById('bsOverlay').style.display='none';
-}
-
-// ── VENDER ────────────────────────────────────────────────────
-function vender() {
-  const key    = document.getElementById('v-fil').value;
-  const cant   = parseFloat(document.getElementById('v-cant').value);
-  const precio = parseFloat(document.getElementById('v-precio').value);
-  const canal  = document.getElementById('v-canal').value;
-  const vend   = document.getElementById('v-vend').value;
-  if (!key||!cant||!precio){toast('Completa todos los campos','w');return}
-  const f   = fils.find(x=>x.key===key);
-  const sel = document.getElementById('v-fil');
-  const btn = document.querySelector('#pg-vender .btn-g');
-  btn.disabled=true; btn.textContent='Registrando...';
-  api('registrarVenta', {
-    material       : f?f.material:key.split('|')[0],
-    color          : f?f.color:key.split('|')[1],
-    barcode        : sel.dataset.bc||f?.barcode||'',
-    cantidad: cant, precio, canal, vendedor: vend,
-    clienteNombre  : selectedCliente?.nombre||'',
-    clienteTelefono: selectedCliente?.telefono||''
-  })
-    .then(res=>{
-      btn.disabled=false; btn.textContent='Registrar venta';
-      const box=document.getElementById('v-res'); box.style.display='block';
-      document.getElementById('v-total').textContent=cop(res.total);
-      document.getElementById('v-stock-info').textContent='Stock actual: '+res.stockActual+' kg';
-      document.getElementById('v-alerta').style.display=res.alerta?'block':'none';
-      toast('Venta registrada ✓','s');
-      document.getElementById('v-bc-info').style.display='none';
-      document.getElementById('v-prices').style.display='none';
-      limpiarCliente();
-      cargarFils();
-    })
-    .catch(()=>{btn.disabled=false;btn.textContent='Registrar venta';toast('Error al registrar','e')});
-}
-
-// ── INVENTARIO ────────────────────────────────────────────────
-function cargarInv() {
-  document.getElementById('invList').innerHTML='<div class="spin-wrap"><div class="spin"></div>Cargando...</div>';
-  api('getInventario')
-    .then(data=>{inv=data;renderInv(data);mostrarBanner(data)})
-    .catch(()=>toast('Error','e'));
-}
-
-function renderInv(data) {
-  const q=document.getElementById('invSearch').value.toLowerCase();
-  const list=q?data.filter(i=>(i.material+' '+i.color).toLowerCase().includes(q)):data;
-  if(!list.length){document.getElementById('invList').innerHTML='<div class="spin-wrap">Sin resultados</div>';return}
-  const ordenado=[...list].sort((a,b)=>{
-    if(a.stock<=a.minimo&&b.stock>b.minimo)return -1;
-    if(b.stock<=b.minimo&&a.stock>a.minimo)return 1;
-    return a.material.localeCompare(b.material);
-  });
-  document.getElementById('invList').innerHTML=ordenado.map(i=>{
-    const pct=Math.min(100,(i.stock/i.maximo)*100);
-    const sc=i.stock===0?'d':i.stock<=i.minimo?'w':'g';
-    const cc=i.stock<=i.minimo?'alert':i.stock>=i.maximo*.8?'ok':'';
-    const pt=i.stock===0?'🚨 Sin stock':i.stock<=i.minimo?'⚠ Reponer':'✓ Ok';
-    const pc=i.stock<=i.minimo?'pa':'po';
-    return `<div class="fc ${cc}">
-      <div class="fi">
-        <div class="fn">${i.color}</div>
-        <div class="fm">${i.material}${i.barcode?' · '+i.barcode.slice(-6):''}</div>
-        <div style="margin-top:5px;height:4px;background:#e0e0e0;border-radius:2px;overflow:hidden">
-          <div style="height:100%;width:${pct}%;background:${i.stock<=i.minimo?'#e53935':'#7BAE7F'};border-radius:2px"></div>
-        </div>
-        <span class="pill ${pc}">${pt}</span>
-      </div>
-      <div class="fs"><div class="sn ${sc}">${i.stock}</div><div class="sl">kg / mín ${i.minimo}</div></div>
-    </div>`;
-  }).join('');
-}
-
-function filtrarInv(){renderInv(inv)}
-
-function mostrarBanner(data) {
-  const al=data.filter(i=>i.stock<=i.minimo);
-  const bd=document.getElementById('badge'),bn=document.getElementById('alertBanner');
-  if(al.length){
-    bd.style.display='block';bd.textContent=al.length;
-    bn.style.display='block';
-    document.getElementById('alertList').innerHTML=al.map(i=>`<li>${i.material} ${i.color} — ${i.stock} kg (mín ${i.minimo})</li>`).join('');
-  }else{bd.style.display='none';bn.style.display='none'}
-}
-
-function checkAlertas(){
-  api('getInventario').then(data=>mostrarBanner(data)).catch(()=>{});
-}
-
-function toggleAddFil(){
-  const c=document.getElementById('addFilCard');
-  c.style.display=c.style.display==='none'?'block':'none';
-}
-
-function agregarFil(){
-  const mat=document.getElementById('nf-mat').value;
-  const col=document.getElementById('nf-color').value.trim();
-  if(!col){toast('Escribe el color','w');return}
-  api('addFilamento', { material: mat, color: col, barcode: '' })
-    .then(()=>{toast('Agregado ✓','s');document.getElementById('nf-color').value='';toggleAddFil();cargarFils();cargarInv()})
-    .catch(()=>toast('Error','e'));
-}
-
-// ── COMPRAR ───────────────────────────────────────────────────
-function comprar(){
-  const key  = document.getElementById('c-fil').value;
-  const cant = parseFloat(document.getElementById('c-cant').value);
-  const cost = parseFloat(document.getElementById('c-costo').value);
-  const prov = document.getElementById('c-prov').value;
-  if(!key||!cant||!cost){toast('Completa todos los campos','w');return}
-  const f   = fils.find(x=>x.key===key);
-  const sel = document.getElementById('c-fil');
-  const btn = document.querySelector('#pg-comprar .btn-y');
-  btn.disabled=true;btn.textContent='Registrando...';
-  api('registrarCompra', {
-    material: f?f.material:key.split('|')[0],
-    color   : f?f.color:key.split('|')[1],
-    barcode : sel.dataset.bc||f?.barcode||'',
-    cantidad: cant, costo: cost, proveedor: prov
-  })
-    .then(res=>{
-      btn.disabled=false;btn.textContent='Registrar compra';
-      const box=document.getElementById('c-res');box.style.display='block';
-      document.getElementById('c-total').textContent=cop(res.costoTotal);
-      document.getElementById('c-stock-info').textContent='Nuevo stock: '+res.stockActual+' kg';
-      document.getElementById('c-bc-info').style.display='none';
-      document.getElementById('c-prices').style.display='none';
-      toast('Compra registrada ✓','s');
-      cargarFils();cargarAlertasCompra();
-    })
-    .catch(()=>{btn.disabled=false;btn.textContent='Registrar compra';toast('Error','e')});
-}
-
-function cargarAlertasCompra(){
-  api('getAlertas')
-    .then(al=>{
-      document.getElementById('compraAlertas').innerHTML=al.length
-        ?al.map(a=>`<div class="fc alert">
-            <div class="fi"><div class="fn">${a.color}</div><div class="fm">${a.material}</div></div>
-            <div class="fs"><div class="sn d">${a.stock}</div><div class="sl">mín ${a.minimo}</div></div>
-          </div>`).join('')
-        :'<div style="text-align:center;color:#7BAE7F;padding:14px;font-size:13px">✓ Todo el inventario OK</div>';
-    })
-    .catch(()=>{});
-}
-
-// ── REPORTES ──────────────────────────────────────────────────
-function cargarReportes(){
-  ['r-hoy','r-mes','r-anio'].forEach(id=>document.getElementById(id).textContent='...');
-  api('getReportes')
-    .then(r=>{
-      document.getElementById('r-hoy').textContent=cop(r.totalHoy);
-      document.getElementById('r-mes').textContent=copk(r.totalMes);
-      document.getElementById('r-anio').textContent=copk(r.totalAnio);
-      const mx=r.topSellers.length?r.topSellers[0].cant:1;
-      document.getElementById('r-top').innerHTML=r.topSellers.length
-        ?r.topSellers.map(s=>`<div class="sell-r">
-            <div class="sell-n">${s.nombre}</div>
-            <div class="sell-bw"><div class="sell-b" style="width:${s.cant/mx*100}%"></div></div>
-            <div class="sell-c">${s.cant} kg</div>
-          </div>`).join('')
-        :'<div style="color:#999;font-size:13px;text-align:center;padding:12px">Sin datos aún</div>';
-      document.getElementById('r-rec').innerHTML=r.recientes.length
-        ?r.recientes.map(v=>`<div class="sr">
-            <div>
-              <div class="si">${v.item}</div>
-              <div class="sm">${v.fecha} · ${v.cantidad} kg${v.cliente?' · '+v.cliente:''}</div>
-            </div>
-            <div class="st">${cop(v.total)}</div>
-          </div>`).join('')
-        :'<div style="color:#999;font-size:13px;text-align:center;padding:12px">Sin ventas aún</div>';
-    })
-    .catch(()=>toast('Error reportes','e'));
-}
-
-// ── Helpers ────────────────────────────────────────────────────
-function cop(v){return '$'+Math.round(v||0).toLocaleString('es-CO')}
-function copk(v){if(!v)return'$0';if(v>=1000000)return'$'+(v/1000000).toFixed(1)+'M';if(v>=1000)return'$'+(v/1000).toFixed(0)+'k';return'$'+Math.round(v)}
-function toast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast on '+(type||'');setTimeout(()=>{t.className='toast'},2800)}
 </script>
 </body>
 </html>
