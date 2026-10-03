@@ -310,10 +310,10 @@ input:focus,select:focus{border-color:var(--y)}
   </div>
   <div class="screen-body">
 
-    <!-- Step 1: Cliente + tipo de venta -->
+    <!-- Step 1: Carrito -->
     <div id="v-step1">
 
-      <!-- CLIENTE (siempre visible arriba) -->
+      <!-- CLIENTE -->
       <div class="card" style="border:2px solid var(--g);padding:14px;margin-bottom:10px">
         <div class="card-title" style="color:var(--gd);margin-bottom:10px">👤 Cliente (opcional)</div>
         <div id="v-cli-quick" class="cli-quick" onclick="abrirBsCliVenta()">
@@ -326,10 +326,21 @@ input:focus,select:focus{border-color:var(--y)}
         </div>
       </div>
 
-      <!-- TABS: tipo de venta -->
+      <!-- CARRITO -->
+      <div class="card" style="padding:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div class="card-title" style="margin-bottom:0">🛒 Carrito</div>
+          <div id="v-cart-total" style="font-size:18px;font-weight:900;color:var(--gd)">$0</div>
+        </div>
+        <div id="v-cart-items">
+          <div style="text-align:center;padding:14px 0;color:var(--gray);font-size:13px">Carrito vacío — agrega productos abajo</div>
+        </div>
+      </div>
+
+      <!-- TABS: agregar tipo -->
       <div class="vtabs">
         <button id="vtab-fil" class="vtab active" onclick="setVTipo('filamento')">🧵 Filamento</button>
-        <button id="vtab-pro" class="vtab" onclick="setVTipo('producto')">📦 Otro Producto</button>
+        <button id="vtab-pro" class="vtab" onclick="setVTipo('producto')">📦 Otro</button>
       </div>
 
       <!-- Panel: Filamento -->
@@ -338,26 +349,22 @@ input:focus,select:focus{border-color:var(--y)}
         <div class="smart-search-wrap">
           <input id="v-scan" class="smart-search" type="text" inputmode="text"
             placeholder="🔍 Nombre, color o código de barras…"
-            oninput="smartSearchV(this.value)"
-            onkeydown="onSmartKeyV(event)"
-            autocomplete="off">
+            oninput="smartSearchV(this.value)" onkeydown="onSmartKeyV(event)" autocomplete="off">
           <button class="scan-cam-btn" onclick="abrirScanner('venta')">📷</button>
         </div>
-        <div class="fil-list" id="v-flist">
-          <div class="spin"></div>
-        </div>
+        <div class="fil-list" id="v-flist"><div class="spin"></div></div>
       </div>
 
       <!-- Panel: Otro Producto -->
       <div id="v-panel-pro" class="card hidden">
-        <div class="card-title">Descripción del producto</div>
+        <div class="card-title">Agregar producto</div>
         <div class="fg">
           <label>Nombre / descripción</label>
-          <input type="text" id="v-pro-nombre" placeholder="Ej: Cama de impresión, Lubricante…" autocomplete="off">
+          <input type="text" id="v-pro-nombre" placeholder="Ej: Nozzle, Lubricante…" autocomplete="off">
         </div>
         <div class="r2">
           <div class="fg">
-            <label>Precio</label>
+            <label>Precio unitario</label>
             <input type="number" id="v-pro-precio" placeholder="25000" inputmode="numeric">
           </div>
           <div class="fg">
@@ -365,72 +372,39 @@ input:focus,select:focus{border-color:var(--y)}
             <input type="number" id="v-pro-qty" placeholder="1" value="1" inputmode="numeric" min="1">
           </div>
         </div>
-        <button class="btn btn-g" style="margin-top:8px" onclick="confirmarProductoLibre()">Continuar →</button>
+        <button class="btn btn-g" style="margin-top:10px;width:100%" onclick="agregarProductoAlCarrito()">+ Agregar al carrito</button>
       </div>
+
+      <!-- Proceder al pago -->
+      <button id="v-pagar-btn" class="btn btn-g" onclick="showVenderStep2()"
+        style="font-size:17px;padding:18px;opacity:.4;pointer-events:none">
+        Proceder al pago →
+      </button>
     </div>
 
-    <!-- Step 2: Detalles de la venta -->
+    <!-- Step 2: Pago -->
     <div id="v-step2" class="hidden">
 
-      <!-- Summary chips -->
-      <div class="summary-chips">
-        <div class="chip chip-cli">
-          <span class="chip-icon">👤</span>
-          <div class="chip-body">
-            <div class="chip-label">Cliente</div>
-            <div class="chip-val" id="v-chip-cli">Sin cliente</div>
-          </div>
-          <button class="chip-change" onclick="volver_step1()">Cambiar</button>
+      <!-- Resumen carrito -->
+      <div class="card" style="padding:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div class="card-title" style="margin-bottom:0">🛒 Resumen</div>
+          <button onclick="volver_step1()" style="background:none;border:none;color:var(--g);font-size:13px;font-weight:700;cursor:pointer">Editar</button>
         </div>
-        <div class="chip chip-fil">
-          <span class="chip-icon" id="v-chip-fil-icon">🧵</span>
-          <div class="chip-body">
-            <div class="chip-label" id="v-chip-fil-label">Filamento</div>
-            <div class="chip-val" id="v-chip-fil">—</div>
-          </div>
-          <button class="chip-change" onclick="volver_step1()">Cambiar</button>
+        <div id="v-s2-cart"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:2px solid var(--bdr)">
+          <div style="font-size:13px;color:var(--gray);font-weight:700">SUBTOTAL</div>
+          <div id="v-s2-subtotal" style="font-size:20px;font-weight:900;color:var(--gd)">$0</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+          <span style="font-size:14px;color:var(--k);font-weight:600">👤</span>
+          <span id="v-s2-cliente" style="font-size:13px;color:var(--gray)">Sin cliente</span>
         </div>
       </div>
 
-      <!-- Cantidad + precio -->
+      <!-- Canal + Vendedor -->
       <div class="card">
-        <div class="card-title">3 · Cantidad y precio</div>
-
-        <!-- Sección filamento -->
-        <div id="v-s2-fil">
-          <label style="margin-bottom:8px" id="v-qty-label">Cantidad (kg)</label>
-          <div class="qty-wrap">
-            <button class="qty-btn" onclick="changeQty('v-qty',-0.5)">−</button>
-            <div>
-              <div class="qty-val" id="v-qty-display">1</div>
-              <div class="qty-lbl" id="v-qty-unit">kg</div>
-            </div>
-            <button class="qty-btn" onclick="changeQty('v-qty',0.5)">+</button>
-          </div>
-          <div class="qty-quick">
-            <button class="qty-quick-btn" onclick="setQtyFixed(0.5)">0.5</button>
-            <button class="qty-quick-btn active" onclick="setQtyFixed(1)">1</button>
-            <button class="qty-quick-btn" onclick="setQtyFixed(2)">2</button>
-            <button class="qty-quick-btn" onclick="setQtyFixed(3)">3</button>
-            <button class="qty-quick-btn" onclick="setQtyFixed(6)">6</button>
-          </div>
-          <div id="v-price-row" class="price-row" style="margin-top:14px">
-            <div class="price-box">
-              <div class="price-val" id="v-costo-val">—</div>
-              <div class="price-lbl">Costo/kg</div>
-            </div>
-            <div class="price-box venta">
-              <div class="price-val" id="v-precio-val">—</div>
-              <div class="price-lbl">Precio sugerido/kg</div>
-            </div>
-          </div>
-        </div>
-
-        <input type="hidden" id="v-qty" value="1">
-        <div class="fg">
-          <label id="v-precio-label">Precio/kg (editable)</label>
-          <input type="number" id="v-precio" placeholder="75000" oninput="actualizarTotalV()">
-        </div>
+        <div class="card-title">Detalles</div>
         <div class="r2">
           <div class="fg">
             <label>Canal</label>
@@ -445,7 +419,7 @@ input:focus,select:focus{border-color:var(--y)}
 
       <!-- Pago -->
       <div class="card">
-        <div class="card-title">4 · Pago</div>
+        <div class="card-title">Pago</div>
         <div class="fg">
           <label>¿Pagado?</label>
           <div class="pay-toggle">
@@ -463,9 +437,8 @@ input:focus,select:focus{border-color:var(--y)}
         </div>
       </div>
 
-      <!-- Total + confirmar -->
       <div style="background:#fff;border-radius:16px;padding:20px;margin-bottom:14px;text-align:center;border:2px solid var(--g)">
-        <div style="font-size:12px;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px">Total de la venta</div>
+        <div style="font-size:11px;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px">Total de la venta</div>
         <div id="v-total-display" style="font-size:40px;font-weight:900;color:#2E7D32">$0</div>
       </div>
 
@@ -480,7 +453,17 @@ input:focus,select:focus{border-color:var(--y)}
       <div class="success-total" id="v-success-total">$0</div>
       <div class="success-sub" id="v-success-stock">—</div>
       <div id="v-success-alert" class="success-alert hidden">⚠ Stock bajo — necesita reabastecimiento</div>
-      <div style="margin-top:24px" class="btn-row">
+
+      <!-- Mensaje WhatsApp -->
+      <div id="v-wa-wrap" style="margin-top:18px;width:100%;display:none">
+        <div style="background:#f0faf0;border:1.5px solid var(--g);border-radius:14px;padding:14px;text-align:left;position:relative">
+          <div style="font-size:11px;font-weight:700;color:var(--g);letter-spacing:.5px;margin-bottom:8px">MENSAJE PARA EL CLIENTE</div>
+          <pre id="v-wa-msg" style="margin:0;font-family:inherit;font-size:13px;color:var(--k);white-space:pre-wrap;line-height:1.6"></pre>
+          <button id="v-wa-copy-btn" onclick="copiarMsgWA()" style="position:absolute;top:10px;right:10px;background:none;border:1px solid var(--g);border-radius:8px;padding:4px 10px;font-size:12px;font-weight:700;color:var(--g);cursor:pointer">Copiar</button>
+        </div>
+      </div>
+
+      <div style="margin-top:20px" class="btn-row">
         <button class="btn btn-ghost" onclick="goTo('home')">Inicio</button>
         <button class="btn btn-g" onclick="nuevaVenta()">Nueva venta</button>
       </div>
@@ -496,6 +479,34 @@ input:focus,select:focus{border-color:var(--y)}
   <div id="bs-cli-results" class="cli-results" style="max-height:280px;overflow-y:auto;border:2px solid var(--bdr);border-radius:10px;margin-bottom:10px"></div>
   <button class="btn btn-ghost btn-sm" onclick="setClienteRapido(null)">Sin cliente / Anónimo</button>
   <button class="btn btn-ghost btn-sm" onclick="abrirNuevoCli()" style="margin-top:6px">+ Crear nuevo cliente</button>
+</div>
+
+<!-- Bottom sheet: agregar filamento al carrito -->
+<div class="bsheet" id="bs-add-fil">
+  <div class="bsheet-title" id="badd-nombre">Agregar filamento</div>
+  <div id="badd-precios" class="price-row" style="margin:10px 0"></div>
+  <label style="font-size:13px;font-weight:700;color:var(--gray);margin-bottom:8px;display:block">Cantidad (kg)</label>
+  <div class="qty-wrap">
+    <button class="qty-btn" onclick="setBaddQty(Math.max(0.5, parseFloat(document.getElementById('badd-qty').value||1) - 0.5))">−</button>
+    <div>
+      <div class="qty-val" id="badd-qty-display">1</div>
+      <div class="qty-lbl">kg</div>
+    </div>
+    <button class="qty-btn" onclick="setBaddQty(parseFloat(document.getElementById('badd-qty').value||1) + 0.5)">+</button>
+  </div>
+  <input type="hidden" id="badd-qty" value="1">
+  <div class="qty-quick" style="margin-bottom:14px">
+    <button class="qty-quick-btn badd-qbtn" data-val="0.5" onclick="setBaddQty(0.5)">0.5</button>
+    <button class="qty-quick-btn badd-qbtn active" data-val="1" onclick="setBaddQty(1)">1</button>
+    <button class="qty-quick-btn badd-qbtn" data-val="2" onclick="setBaddQty(2)">2</button>
+    <button class="qty-quick-btn badd-qbtn" data-val="3" onclick="setBaddQty(3)">3</button>
+    <button class="qty-quick-btn badd-qbtn" data-val="6" onclick="setBaddQty(6)">6</button>
+  </div>
+  <div class="fg">
+    <label>Precio / kg</label>
+    <input type="number" id="badd-precio" placeholder="75000" inputmode="numeric">
+  </div>
+  <button class="btn btn-g" style="margin-top:14px;width:100%" onclick="confirmarAgregarFil()">+ Agregar al carrito</button>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -763,6 +774,9 @@ let vFil = null, vCliente = null, vPagado = true, vMetodo = 'Efectivo';
 let vQty = 1;
 let vTipo = 'filamento'; // 'filamento' | 'producto'
 let vProductoLibre = null; // { nombre, precio, cantidad }
+let vCarrito = []; // [{id, tipo, nombre, material, color, barcode, cantidad, precio}]
+let vCartId  = 0;
+let vFilPendiente = null; // filament being added to cart
 
 // Comprar
 let cFil = null;
@@ -876,14 +890,17 @@ function setVTipo(tipo) {
   if (title) title.innerHTML = tipo === 'filamento' ? 'VENDER · <em>Filamento</em>' : 'VENDER · <em>Producto</em>';
 }
 
-function confirmarProductoLibre() {
-  const nombre  = (document.getElementById('v-pro-nombre').value || '').trim();
-  const precio  = parseFloat(document.getElementById('v-pro-precio').value) || 0;
-  const qty     = parseFloat(document.getElementById('v-pro-qty').value) || 1;
+function agregarProductoAlCarrito() {
+  const nombre = (document.getElementById('v-pro-nombre').value || '').trim();
+  const precio = parseFloat(document.getElementById('v-pro-precio').value) || 0;
+  const qty    = parseFloat(document.getElementById('v-pro-qty').value) || 1;
   if (!nombre) { toast('Escribe el nombre del producto', 'warn'); return; }
   if (!precio) { toast('Escribe el precio', 'warn'); return; }
-  vProductoLibre = { nombre, precio, cantidad: qty };
-  showVenderStep2();
+  agregarAlCarrito({ tipo: 'producto', nombre, material: 'Producto', color: nombre, barcode: '', cantidad: qty, precio });
+  document.getElementById('v-pro-nombre').value = '';
+  document.getElementById('v-pro-precio').value = '';
+  document.getElementById('v-pro-qty').value = '1';
+  toast(`"${nombre}" agregado al carrito`, 'ok');
 }
 
 // Smart search: numeric string = barcode, text = filter
@@ -955,11 +972,9 @@ function setClienteRapido(c) {
 }
 
 function volver_step1() {
-  vFil = null; vQty = 1;
   document.getElementById('v-step1').classList.remove('hidden');
   document.getElementById('v-step2').classList.add('hidden');
   renderFilList('v-flist', fils, 'venta');
-  document.getElementById('v-scan').value = '';
   setTimeout(() => { const el = document.getElementById('v-scan'); if(el) el.focus(); }, 100);
 }
 
@@ -972,12 +987,83 @@ function setQtyFixed(val) {
   actualizarTotalV();
 }
 
+// ─── CART FUNCTIONS ───────────────────────────────────────────
+function agregarAlCarrito(item) {
+  item.id = ++vCartId;
+  vCarrito.push(item);
+  renderCarrito();
+}
+
+function quitarDelCarrito(id) {
+  vCarrito = vCarrito.filter(i => i.id !== id);
+  renderCarrito();
+}
+
+function renderCarrito() {
+  const el = document.getElementById('v-cart-items');
+  const totalEl = document.getElementById('v-cart-total');
+  const pagarBtn = document.getElementById('v-pagar-btn');
+  if (!vCarrito.length) {
+    el.innerHTML = '<div style="text-align:center;padding:14px 0;color:var(--gray);font-size:13px">Carrito vacío — agrega productos abajo</div>';
+    totalEl.textContent = '$0';
+    pagarBtn.style.opacity = '.4'; pagarBtn.style.pointerEvents = 'none';
+    return;
+  }
+  const total = vCarrito.reduce((s, i) => s + i.cantidad * i.precio, 0);
+  el.innerHTML = vCarrito.map(i => {
+    const sub = cop(i.cantidad * i.precio);
+    const unit = i.tipo === 'filamento' ? `${i.cantidad} kg` : `${i.cantidad} u`;
+    const tag  = i.tipo === 'filamento' ? `${i.color} · ${i.material}` : i.nombre;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bdr)">
+      <span style="font-size:18px">${i.tipo === 'filamento' ? '🧵' : '📦'}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:14px;color:var(--k);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${tag}</div>
+        <div style="font-size:12px;color:var(--gray)">${unit} × ${cop(i.precio)}</div>
+      </div>
+      <div style="font-weight:800;font-size:15px;color:var(--gd);white-space:nowrap">${sub}</div>
+      <button onclick="quitarDelCarrito(${i.id})" style="background:none;border:1px solid #ddd;border-radius:50%;width:24px;height:24px;font-size:14px;color:#999;cursor:pointer;line-height:1;padding:0;flex-shrink:0">×</button>
+    </div>`;
+  }).join('');
+  totalEl.textContent = cop(total);
+  pagarBtn.style.opacity = '1'; pagarBtn.style.pointerEvents = '';
+}
+
+// Bottom sheet: add filament to cart
+function abrirAddFil(f) {
+  vFilPendiente = f;
+  document.getElementById('badd-nombre').textContent = `${f.color} · ${f.material}`;
+  document.getElementById('badd-precios').innerHTML = `
+    <div class="price-box"><div class="price-val">${copk(f.costo)}</div><div class="price-lbl">Costo/kg</div></div>
+    <div class="price-box venta"><div class="price-val">${copk(f.precio)}</div><div class="price-lbl">Precio sugerido</div></div>`;
+  document.getElementById('badd-qty').value = '1';
+  document.getElementById('badd-qty-display').textContent = '1';
+  document.querySelectorAll('.badd-qbtn').forEach(btn => btn.classList.toggle('active', parseFloat(btn.dataset.val) === 1));
+  document.getElementById('badd-precio').value = f.precio;
+  abrirBS('bs-add-fil');
+}
+
+function setBaddQty(val) {
+  document.getElementById('badd-qty').value = val;
+  document.getElementById('badd-qty-display').textContent = val;
+  document.querySelectorAll('.badd-qbtn').forEach(btn => btn.classList.toggle('active', parseFloat(btn.dataset.val) === val));
+}
+
+function confirmarAgregarFil() {
+  const f = vFilPendiente;
+  if (!f) return;
+  const qty   = parseFloat(document.getElementById('badd-qty').value) || 1;
+  const precio = parseFloat(document.getElementById('badd-precio').value) || 0;
+  if (!precio) { toast('Escribe el precio', 'warn'); return; }
+  cerrarTodosBS();
+  agregarAlCarrito({ tipo: 'filamento', nombre: `${f.color} · ${f.material}`, material: f.material, color: f.color, barcode: f.barcode || '', cantidad: qty, precio });
+  toast(`${f.color} agregado al carrito ✓`, 'ok');
+  vFilPendiente = null;
+}
+
 function selectFil(mode, f) {
   if (!f) return;
   if (mode === 'venta') {
-    vFil = f;
-    vQty = 1;
-    showVenderStep2();
+    abrirAddFil(f);
   } else {
     cFil = f;
     // Smart qty recommendation
@@ -989,36 +1075,31 @@ function selectFil(mode, f) {
 }
 
 function showVenderStep2() {
+  if (!vCarrito.length) { toast('Agrega al menos 1 producto al carrito', 'warn'); return; }
   document.getElementById('v-step1').classList.add('hidden');
   document.getElementById('v-step2').classList.remove('hidden');
   document.getElementById('v-step3').classList.add('hidden');
 
-  // Summary chips
-  document.getElementById('v-chip-cli').textContent = vCliente ? vCliente.nombre : 'Sin cliente asignado';
+  // Cart summary in step 2
+  const s2cart = document.getElementById('v-s2-cart');
+  s2cart.innerHTML = vCarrito.map(i => {
+    const sub  = cop(i.cantidad * i.precio);
+    const unit = i.tipo === 'filamento' ? `${i.cantidad} kg` : `${i.cantidad} u`;
+    const tag  = i.tipo === 'filamento' ? `${i.color} · ${i.material}` : i.nombre;
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--bdr);gap:10px">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:700;color:var(--k);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${tag}</div>
+        <div style="font-size:11px;color:var(--gray)">${unit} × ${cop(i.precio)}</div>
+      </div>
+      <div style="font-weight:800;font-size:15px;color:var(--gd)">${sub}</div>
+    </div>`;
+  }).join('');
 
-  const isFilamento = vTipo === 'filamento';
-  document.getElementById('v-chip-fil-icon').textContent = isFilamento ? '🧵' : '📦';
-  document.getElementById('v-chip-fil-label').textContent = isFilamento ? 'Filamento' : 'Producto';
-  document.getElementById('v-s2-fil').style.display = isFilamento ? '' : 'none';
+  const total = vCarrito.reduce((s, i) => s + i.cantidad * i.precio, 0);
+  document.getElementById('v-s2-subtotal').textContent = cop(total);
+  document.getElementById('v-total-display').textContent = cop(total);
+  document.getElementById('v-s2-cliente').textContent = vCliente ? vCliente.nombre : 'Sin cliente';
 
-  if (isFilamento && vFil) {
-    document.getElementById('v-chip-fil').textContent = `${vFil.color} · ${vFil.material}`;
-    document.getElementById('v-costo-val').textContent = copk(vFil.costo);
-    document.getElementById('v-precio-val').textContent = copk(vFil.precio);
-    document.getElementById('v-precio').value = vFil.precio;
-    document.getElementById('v-precio-label').textContent = 'Precio/kg (editable)';
-    setQtyDisplay('v-qty', vQty);
-    document.querySelectorAll('.qty-quick-btn').forEach(btn => {
-      btn.classList.toggle('active', parseFloat(btn.textContent) === 1);
-    });
-  } else if (!isFilamento && vProductoLibre) {
-    document.getElementById('v-chip-fil').textContent = vProductoLibre.nombre;
-    document.getElementById('v-precio').value = vProductoLibre.precio;
-    document.getElementById('v-precio-label').textContent = 'Precio unitario';
-    setQtyDisplay('v-qty', vProductoLibre.cantidad);
-  }
-
-  actualizarTotalV();
   setPaid(true); setMetodo('Efectivo');
 }
 
@@ -1038,15 +1119,14 @@ function setMetodo(m) {
 function resetVender() {
   vFil = null; vQty = 1; vCliente = null; vPagado = true; vMetodo = 'Efectivo';
   vProductoLibre = null; vTipo = 'filamento';
+  vCarrito = []; vCartId = 0; vFilPendiente = null;
   document.getElementById('v-step1').classList.remove('hidden');
   document.getElementById('v-step2').classList.add('hidden');
   document.getElementById('v-step3').classList.add('hidden');
   document.getElementById('v-scan').value = '';
-  // Reset tabs
   setVTipo('filamento');
-  // Reset client card
   _resetCliCard();
-  // Re-render filament list
+  renderCarrito();
   if (fils.length) renderFilList('v-flist', fils, 'venta');
   setTimeout(() => { const el = document.getElementById('v-scan'); if(el) el.focus(); }, 100);
 }
@@ -1067,64 +1147,123 @@ function _resetCliCard() {
 
 function nuevaVenta() { resetVender(); }
 
-function actualizarTotalV() {
-  const qty   = parseFloat(document.getElementById('v-qty').value) || 0;
-  const price = parseFloat(document.getElementById('v-precio').value) || 0;
-  document.getElementById('v-total-display').textContent = cop(qty * price);
+function generarMensajeWA(totalVenta) {
+  const fecha = new Date().toLocaleDateString('es-CO', { day:'2-digit', month:'2-digit', year:'numeric' });
+  const clienteNombre = vCliente ? vCliente.nombre : null;
+
+  const fils  = vCarrito.filter(i => i.tipo === 'filamento');
+  const otros = vCarrito.filter(i => i.tipo !== 'filamento');
+
+  let lineas = [];
+  if (clienteNombre) lineas.push(`👤 ${clienteNombre}`);
+  lineas.push(`📅 ${fecha}`);
+  lineas.push('');
+
+  if (fils.length) {
+    lineas.push('🧵 Filamentos:');
+    fils.forEach(i => {
+      const qty  = i.cantidad === Math.round(i.cantidad) ? i.cantidad : i.cantidad;
+      const sub  = cop(i.cantidad * i.precio);
+      lineas.push(`• ${i.color} · ${i.material} (${qty} kg) — ${sub}`);
+    });
+  }
+  if (otros.length) {
+    if (fils.length) lineas.push('');
+    lineas.push('📦 Otros:');
+    otros.forEach(i => {
+      const sub = cop(i.cantidad * i.precio);
+      lineas.push(`• ${i.nombre} (${i.cantidad} u) — ${sub}`);
+    });
+  }
+  lineas.push('');
+  lineas.push(`💰 Total: ${cop(totalVenta)}`);
+  if (!vPagado) lineas.push('⏳ Pago pendiente');
+
+  return lineas.join('\n');
 }
 
-function confirmarVenta() {
-  const qty   = parseFloat(document.getElementById('v-qty').value);
-  const precio = parseFloat(document.getElementById('v-precio').value);
+function copiarMsgWA() {
+  const txt = document.getElementById('v-wa-msg').textContent;
+  navigator.clipboard.writeText(txt).then(() => {
+    const btn = document.getElementById('v-wa-copy-btn');
+    btn.textContent = '✓ Copiado';
+    setTimeout(() => { btn.textContent = 'Copiar'; }, 2000);
+  }).catch(() => toast('No se pudo copiar', 'err'));
+}
+
+function mostrarMsgWA(totalVenta) {
+  const wrap = document.getElementById('v-wa-wrap');
+  const msg  = generarMensajeWA(totalVenta);
+  document.getElementById('v-wa-msg').textContent = msg;
+  wrap.style.display = '';
+
+}
+
+function actualizarTotalV() {
+  // Total is now rendered by showVenderStep2 from vCarrito
+}
+
+async function confirmarVenta() {
+  if (!vCarrito.length) { toast('El carrito está vacío', 'warn'); return; }
   const canal = document.getElementById('v-canal').value;
   const vend  = document.getElementById('v-vend').value;
-
-  if (!qty || !precio) { toast('Completa cantidad y precio', 'warn'); return; }
-
-  const btn = document.getElementById('v-confirm-btn');
+  const btn   = document.getElementById('v-confirm-btn');
   btn.disabled = true; btn.textContent = 'Registrando…';
 
-  const payload = {
-    cantidad: qty, precio, canal, vendedor: vend,
+  const basePayload = {
+    canal, vendedor: vend,
     clienteNombre: vCliente ? vCliente.nombre : '',
     clienteTelefono: vCliente ? vCliente.telefono : '',
     pagado: vPagado, metodoPago: vPagado ? vMetodo : 'Pendiente'
   };
 
-  if (vTipo === 'filamento') {
-    if (!vFil) { btn.disabled = false; btn.textContent = '✓ CONFIRMAR VENTA'; toast('Selecciona un filamento', 'warn'); return; }
-    payload.material = vFil.material;
-    payload.color    = vFil.color;
-    payload.barcode  = vFil.barcode || '';
-    payload.esProducto = false;
-  } else {
-    if (!vProductoLibre) { btn.disabled = false; btn.textContent = '✓ CONFIRMAR VENTA'; toast('Completa el producto', 'warn'); return; }
-    payload.material = 'Producto';
-    payload.color    = vProductoLibre.nombre;
-    payload.barcode  = '';
-    payload.esProducto = true;
-  }
+  let totalVenta = 0;
+  let lastRes    = {};
+  let hasAlerta  = false;
+  let hayFilamento = false;
 
-  api('registrarVenta', payload).then(res => {
+  try {
+    for (const item of vCarrito) {
+      const payload = { ...basePayload, cantidad: item.cantidad, precio: item.precio };
+      if (item.tipo === 'filamento') {
+        payload.material = item.material;
+        payload.color    = item.color;
+        payload.barcode  = item.barcode || '';
+        payload.esProducto = false;
+        hayFilamento = true;
+      } else {
+        payload.material = 'Producto';
+        payload.color    = item.nombre;
+        payload.barcode  = '';
+        payload.esProducto = true;
+      }
+      const res = await api('registrarVenta', payload);
+      totalVenta += res.total || (item.cantidad * item.precio);
+      lastRes = res;
+      if (res.alerta) hasAlerta = true;
+    }
+
     btn.disabled = false; btn.textContent = '✓ CONFIRMAR VENTA';
     document.getElementById('v-step2').classList.add('hidden');
     document.getElementById('v-step3').classList.remove('hidden');
-    const label = vTipo === 'filamento'
-      ? `${vFil.color} · ${vFil.material} · ${qty} kg`
-      : `${vProductoLibre.nombre} · ${qty} unid`;
-    document.getElementById('v-success-item').textContent = label;
-    document.getElementById('v-success-total').textContent = cop(res.total);
-    document.getElementById('v-success-stock').textContent = vTipo === 'filamento' && res.stockActual !== undefined
-      ? `Stock actual: ${res.stockActual} kg` : '';
+
+    const nItems = vCarrito.length;
+    document.getElementById('v-success-item').textContent =
+      nItems === 1 ? vCarrito[0].nombre || `${vCarrito[0].color} · ${vCarrito[0].material}` : `${nItems} productos vendidos`;
+    document.getElementById('v-success-total').textContent = cop(totalVenta);
+    document.getElementById('v-success-stock').textContent =
+      hayFilamento && lastRes.stockActual !== undefined ? `Stock actualizado` : '';
     const alEl = document.getElementById('v-success-alert');
-    alEl.classList.toggle('hidden', !res.alerta);
+    alEl.classList.toggle('hidden', !hasAlerta);
+
     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-    if (vTipo === 'filamento') api('getFilamentos').then(d => { fils = d; }).catch(() => {});
+    mostrarMsgWA(totalVenta);
+    if (hayFilamento) api('getFilamentos').then(d => { fils = d; }).catch(() => {});
     loadHomeAlerts();
-  }).catch(() => {
+  } catch(e) {
     btn.disabled = false; btn.textContent = '✓ CONFIRMAR VENTA';
     toast('Error al registrar', 'err');
-  });
+  }
 }
 
 // ─────────────────────────────────────────────────────────────
