@@ -251,6 +251,11 @@ input:focus,select:focus{border-color:var(--y)}
 .qty-quick{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
 .qty-quick-btn{padding:8px 14px;border:2px solid var(--bdr);border-radius:8px;background:#fff;font-size:13px;font-weight:700;cursor:pointer;color:var(--k);transition:all .12s}
 .qty-quick-btn.active{border-color:var(--g);background:#E8F5E9;color:#2E7D32}
+
+/* ── Venta type tabs ── */
+.vtabs{display:flex;gap:0;border-radius:12px;overflow:hidden;border:2px solid var(--bdr);margin-bottom:14px}
+.vtab{flex:1;padding:12px 8px;border:none;background:#f8f8f8;font-size:13px;font-weight:700;cursor:pointer;color:var(--gray);transition:all .15s;letter-spacing:.3px}
+.vtab.active{background:var(--k);color:#fff}
 </style>
 </head>
 <body>
@@ -301,41 +306,66 @@ input:focus,select:focus{border-color:var(--y)}
   <div class="hdr">
     <button class="hdr-back" onclick="goTo('home')">←</button>
     <img src="./Isotipo_Mesa de trabajo 1 sin fondo.png" style="height:28px;width:auto;flex-shrink:0;position:relative;z-index:1" alt="">
-    <div class="hdr-title" style="position:relative;z-index:1">VENDER · <em>Filamento</em></div>
+    <div class="hdr-title" style="position:relative;z-index:1" id="v-hdr-title">VENDER · <em>Filamento</em></div>
   </div>
   <div class="screen-body">
 
-    <!-- Step 1: Cliente primero, luego filamento -->
+    <!-- Step 1: Cliente + tipo de venta -->
     <div id="v-step1">
 
-      <!-- CLIENTE (primero) -->
-      <div class="card" style="border:2px solid var(--g);padding:14px">
-        <div class="card-title" style="color:var(--gd)">1 · Cliente</div>
+      <!-- CLIENTE (siempre visible arriba) -->
+      <div class="card" style="border:2px solid var(--g);padding:14px;margin-bottom:10px">
+        <div class="card-title" style="color:var(--gd);margin-bottom:10px">👤 Cliente (opcional)</div>
         <div id="v-cli-quick" class="cli-quick" onclick="abrirBsCliVenta()">
           <span class="cli-quick-icon">👤</span>
           <div class="cli-quick-body">
             <div class="cli-quick-label">Sin cliente asignado</div>
-            <div class="cli-quick-name" id="v-cli-quick-name">Toca para buscar o crear</div>
+            <div class="cli-quick-name">Toca para buscar o crear</div>
           </div>
           <span class="cli-quick-arrow">›</span>
         </div>
       </div>
 
-      <!-- FILAMENTO (segundo) -->
-      <div class="card">
-        <div class="card-title">2 · Filamento</div>
-        <!-- Input inteligente: texto = filtro, números = barcode -->
+      <!-- TABS: tipo de venta -->
+      <div class="vtabs">
+        <button id="vtab-fil" class="vtab active" onclick="setVTipo('filamento')">🧵 Filamento</button>
+        <button id="vtab-pro" class="vtab" onclick="setVTipo('producto')">📦 Otro Producto</button>
+      </div>
+
+      <!-- Panel: Filamento -->
+      <div id="v-panel-fil" class="card">
+        <div class="card-title">Buscar filamento</div>
         <div class="smart-search-wrap">
           <input id="v-scan" class="smart-search" type="text" inputmode="text"
             placeholder="🔍 Nombre, color o código de barras…"
             oninput="smartSearchV(this.value)"
             onkeydown="onSmartKeyV(event)"
             autocomplete="off">
-          <button class="scan-cam-btn" onclick="abrirScanner('venta')" style="position:relative;z-index:1">📷</button>
+          <button class="scan-cam-btn" onclick="abrirScanner('venta')">📷</button>
         </div>
         <div class="fil-list" id="v-flist">
           <div class="spin"></div>
         </div>
+      </div>
+
+      <!-- Panel: Otro Producto -->
+      <div id="v-panel-pro" class="card hidden">
+        <div class="card-title">Descripción del producto</div>
+        <div class="fg">
+          <label>Nombre / descripción</label>
+          <input type="text" id="v-pro-nombre" placeholder="Ej: Cama de impresión, Lubricante…" autocomplete="off">
+        </div>
+        <div class="r2">
+          <div class="fg">
+            <label>Precio</label>
+            <input type="number" id="v-pro-precio" placeholder="25000" inputmode="numeric">
+          </div>
+          <div class="fg">
+            <label>Cantidad</label>
+            <input type="number" id="v-pro-qty" placeholder="1" value="1" inputmode="numeric" min="1">
+          </div>
+        </div>
+        <button class="btn btn-g" style="margin-top:8px" onclick="confirmarProductoLibre()">Continuar →</button>
       </div>
     </div>
 
@@ -353,9 +383,9 @@ input:focus,select:focus{border-color:var(--y)}
           <button class="chip-change" onclick="volver_step1()">Cambiar</button>
         </div>
         <div class="chip chip-fil">
-          <span class="chip-icon">🧵</span>
+          <span class="chip-icon" id="v-chip-fil-icon">🧵</span>
           <div class="chip-body">
-            <div class="chip-label">Filamento</div>
+            <div class="chip-label" id="v-chip-fil-label">Filamento</div>
             <div class="chip-val" id="v-chip-fil">—</div>
           </div>
           <button class="chip-change" onclick="volver_step1()">Cambiar</button>
@@ -365,35 +395,40 @@ input:focus,select:focus{border-color:var(--y)}
       <!-- Cantidad + precio -->
       <div class="card">
         <div class="card-title">3 · Cantidad y precio</div>
-        <label style="margin-bottom:8px">Cantidad (kg)</label>
-        <div class="qty-wrap">
-          <button class="qty-btn" onclick="changeQty('v-qty',-0.5)">−</button>
-          <div>
-            <div class="qty-val" id="v-qty-display">1</div>
-            <div class="qty-lbl">kg</div>
+
+        <!-- Sección filamento -->
+        <div id="v-s2-fil">
+          <label style="margin-bottom:8px" id="v-qty-label">Cantidad (kg)</label>
+          <div class="qty-wrap">
+            <button class="qty-btn" onclick="changeQty('v-qty',-0.5)">−</button>
+            <div>
+              <div class="qty-val" id="v-qty-display">1</div>
+              <div class="qty-lbl" id="v-qty-unit">kg</div>
+            </div>
+            <button class="qty-btn" onclick="changeQty('v-qty',0.5)">+</button>
           </div>
-          <button class="qty-btn" onclick="changeQty('v-qty',0.5)">+</button>
+          <div class="qty-quick">
+            <button class="qty-quick-btn" onclick="setQtyFixed(0.5)">0.5</button>
+            <button class="qty-quick-btn active" onclick="setQtyFixed(1)">1</button>
+            <button class="qty-quick-btn" onclick="setQtyFixed(2)">2</button>
+            <button class="qty-quick-btn" onclick="setQtyFixed(3)">3</button>
+            <button class="qty-quick-btn" onclick="setQtyFixed(6)">6</button>
+          </div>
+          <div id="v-price-row" class="price-row" style="margin-top:14px">
+            <div class="price-box">
+              <div class="price-val" id="v-costo-val">—</div>
+              <div class="price-lbl">Costo/kg</div>
+            </div>
+            <div class="price-box venta">
+              <div class="price-val" id="v-precio-val">—</div>
+              <div class="price-lbl">Precio sugerido/kg</div>
+            </div>
+          </div>
         </div>
-        <div class="qty-quick" id="v-qty-quick">
-          <button class="qty-quick-btn" onclick="setQtyFixed(0.5)">0.5</button>
-          <button class="qty-quick-btn active" onclick="setQtyFixed(1)">1</button>
-          <button class="qty-quick-btn" onclick="setQtyFixed(2)">2</button>
-          <button class="qty-quick-btn" onclick="setQtyFixed(3)">3</button>
-          <button class="qty-quick-btn" onclick="setQtyFixed(6)">6</button>
-        </div>
+
         <input type="hidden" id="v-qty" value="1">
-        <div id="v-price-row" class="price-row" style="margin-top:14px">
-          <div class="price-box">
-            <div class="price-val" id="v-costo-val">—</div>
-            <div class="price-lbl">Costo/kg</div>
-          </div>
-          <div class="price-box venta">
-            <div class="price-val" id="v-precio-val">—</div>
-            <div class="price-lbl">Precio sugerido/kg</div>
-          </div>
-        </div>
         <div class="fg">
-          <label>Precio/kg (editable)</label>
+          <label id="v-precio-label">Precio/kg (editable)</label>
           <input type="number" id="v-precio" placeholder="75000" oninput="actualizarTotalV()">
         </div>
         <div class="r2">
@@ -683,6 +718,8 @@ let smartAlerts = [];
 // Vender
 let vFil = null, vCliente = null, vPagado = true, vMetodo = 'Efectivo';
 let vQty = 1;
+let vTipo = 'filamento'; // 'filamento' | 'producto'
+let vProductoLibre = null; // { nombre, precio, cantidad }
 
 // Comprar
 let cFil = null;
@@ -784,6 +821,26 @@ function initVender() {
   setTimeout(() => { const el = document.getElementById('v-scan'); if(el) el.focus(); }, 200);
 }
 
+function setVTipo(tipo) {
+  vTipo = tipo;
+  document.getElementById('vtab-fil').classList.toggle('active', tipo === 'filamento');
+  document.getElementById('vtab-pro').classList.toggle('active', tipo === 'producto');
+  document.getElementById('v-panel-fil').classList.toggle('hidden', tipo !== 'filamento');
+  document.getElementById('v-panel-pro').classList.toggle('hidden', tipo !== 'producto');
+  const title = document.getElementById('v-hdr-title');
+  if (title) title.innerHTML = tipo === 'filamento' ? 'VENDER · <em>Filamento</em>' : 'VENDER · <em>Producto</em>';
+}
+
+function confirmarProductoLibre() {
+  const nombre  = (document.getElementById('v-pro-nombre').value || '').trim();
+  const precio  = parseFloat(document.getElementById('v-pro-precio').value) || 0;
+  const qty     = parseFloat(document.getElementById('v-pro-qty').value) || 1;
+  if (!nombre) { toast('Escribe el nombre del producto', 'warn'); return; }
+  if (!precio) { toast('Escribe el precio', 'warn'); return; }
+  vProductoLibre = { nombre, precio, cantidad: qty };
+  showVenderStep2();
+}
+
 // Smart search: numeric string = barcode, text = filter
 function smartSearchV(q) {
   if (!q) { renderFilList('v-flist', fils, 'venta'); return; }
@@ -833,28 +890,22 @@ function cliItem(c) {
 
 function setClienteRapido(c) {
   cerrarTodosBS();
-  vCliente = c;
+  vCliente = c || null;
   const card = document.getElementById('v-cli-quick');
+  if (!card) return;
   if (!c) {
-    card.classList.remove('has-client');
-    card.innerHTML = `<span class="cli-quick-icon">👤</span>
-      <div class="cli-quick-body">
-        <div class="cli-quick-label">Sin cliente asignado</div>
-        <div class="cli-quick-name" id="v-cli-quick-name">Toca para buscar o crear</div>
-      </div>
-      <span class="cli-quick-arrow">›</span>`;
-    card.onclick = () => abrirBsCliVenta();
+    _resetCliCard();
   } else {
-    const initials = c.nombre.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
-    card.classList.add('has-client');
+    const initials = c.nombre.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase() || '?';
+    card.className = 'cli-quick has-client';
+    card.onclick = () => abrirBsCliVenta();
     card.innerHTML = `
-      <div style="width:38px;height:38px;border-radius:50%;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0">${initials}</div>
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0">${initials}</div>
       <div class="cli-quick-body">
-        <div class="cli-quick-label">Cliente seleccionado</div>
-        <div class="cli-quick-name" id="v-cli-quick-name">${c.nombre}</div>
+        <div class="cli-quick-label">Cliente seleccionado ✓</div>
+        <div class="cli-quick-name">${c.nombre}</div>
       </div>
       <button class="cli-quick-clear" onclick="event.stopPropagation();setClienteRapido(null)">×</button>`;
-    card.onclick = () => abrirBsCliVenta();
   }
 }
 
@@ -898,19 +949,30 @@ function showVenderStep2() {
   document.getElementById('v-step3').classList.add('hidden');
 
   // Summary chips
-  const cliName = vCliente ? vCliente.nombre : 'Sin cliente asignado';
-  document.getElementById('v-chip-cli').textContent = cliName;
-  const stockStr = vFil.stock === 0 ? '🚨 Sin stock · ' : vFil.stock <= 6 ? `⚠ Stock bajo (${vFil.stock} kg) · ` : '';
-  document.getElementById('v-chip-fil').textContent = `${vFil.color} · ${vFil.material}`;
+  document.getElementById('v-chip-cli').textContent = vCliente ? vCliente.nombre : 'Sin cliente asignado';
 
-  document.getElementById('v-costo-val').textContent = copk(vFil.costo);
-  document.getElementById('v-precio-val').textContent = copk(vFil.precio);
-  document.getElementById('v-precio').value = vFil.precio;
-  setQtyDisplay('v-qty', vQty);
-  // Reset qty quick buttons
-  document.querySelectorAll('.qty-quick-btn').forEach(btn => {
-    btn.classList.toggle('active', parseFloat(btn.textContent) === 1);
-  });
+  const isFilamento = vTipo === 'filamento';
+  document.getElementById('v-chip-fil-icon').textContent = isFilamento ? '🧵' : '📦';
+  document.getElementById('v-chip-fil-label').textContent = isFilamento ? 'Filamento' : 'Producto';
+  document.getElementById('v-s2-fil').style.display = isFilamento ? '' : 'none';
+
+  if (isFilamento && vFil) {
+    document.getElementById('v-chip-fil').textContent = `${vFil.color} · ${vFil.material}`;
+    document.getElementById('v-costo-val').textContent = copk(vFil.costo);
+    document.getElementById('v-precio-val').textContent = copk(vFil.precio);
+    document.getElementById('v-precio').value = vFil.precio;
+    document.getElementById('v-precio-label').textContent = 'Precio/kg (editable)';
+    setQtyDisplay('v-qty', vQty);
+    document.querySelectorAll('.qty-quick-btn').forEach(btn => {
+      btn.classList.toggle('active', parseFloat(btn.textContent) === 1);
+    });
+  } else if (!isFilamento && vProductoLibre) {
+    document.getElementById('v-chip-fil').textContent = vProductoLibre.nombre;
+    document.getElementById('v-precio').value = vProductoLibre.precio;
+    document.getElementById('v-precio-label').textContent = 'Precio unitario';
+    setQtyDisplay('v-qty', vProductoLibre.cantidad);
+  }
+
   actualizarTotalV();
   setPaid(true); setMetodo('Efectivo');
 }
@@ -930,14 +992,32 @@ function setMetodo(m) {
 
 function resetVender() {
   vFil = null; vQty = 1; vCliente = null; vPagado = true; vMetodo = 'Efectivo';
+  vProductoLibre = null; vTipo = 'filamento';
   document.getElementById('v-step1').classList.remove('hidden');
   document.getElementById('v-step2').classList.add('hidden');
   document.getElementById('v-step3').classList.add('hidden');
   document.getElementById('v-scan').value = '';
-  renderFilList('v-flist', fils, 'venta');
+  // Reset tabs
+  setVTipo('filamento');
   // Reset client card
-  setClienteRapido(null);
+  _resetCliCard();
+  // Re-render filament list
+  if (fils.length) renderFilList('v-flist', fils, 'venta');
   setTimeout(() => { const el = document.getElementById('v-scan'); if(el) el.focus(); }, 100);
+}
+
+function _resetCliCard() {
+  vCliente = null;
+  const card = document.getElementById('v-cli-quick');
+  if (!card) return;
+  card.className = 'cli-quick';
+  card.onclick = () => abrirBsCliVenta();
+  card.innerHTML = `<span class="cli-quick-icon">👤</span>
+    <div class="cli-quick-body">
+      <div class="cli-quick-label">Sin cliente asignado</div>
+      <div class="cli-quick-name">Toca para buscar o crear</div>
+    </div>
+    <span class="cli-quick-arrow">›</span>`;
 }
 
 function nuevaVenta() { resetVender(); }
@@ -949,36 +1029,55 @@ function actualizarTotalV() {
 }
 
 function confirmarVenta() {
-  if (!vFil) { toast('Selecciona un filamento', 'warn'); return; }
   const qty   = parseFloat(document.getElementById('v-qty').value);
   const precio = parseFloat(document.getElementById('v-precio').value);
   const canal = document.getElementById('v-canal').value;
   const vend  = document.getElementById('v-vend').value;
+
   if (!qty || !precio) { toast('Completa cantidad y precio', 'warn'); return; }
 
   const btn = document.getElementById('v-confirm-btn');
   btn.disabled = true; btn.textContent = 'Registrando…';
 
-  api('registrarVenta', {
-    material: vFil.material, color: vFil.color, barcode: vFil.barcode || '',
+  const payload = {
     cantidad: qty, precio, canal, vendedor: vend,
-    clienteNombre: vCliente?.nombre || '', clienteTelefono: vCliente?.telefono || '',
+    clienteNombre: vCliente ? vCliente.nombre : '',
+    clienteTelefono: vCliente ? vCliente.telefono : '',
     pagado: vPagado, metodoPago: vPagado ? vMetodo : 'Pendiente'
-  }).then(res => {
-    btn.disabled = false; btn.textContent = 'CONFIRMAR VENTA';
+  };
+
+  if (vTipo === 'filamento') {
+    if (!vFil) { btn.disabled = false; btn.textContent = '✓ CONFIRMAR VENTA'; toast('Selecciona un filamento', 'warn'); return; }
+    payload.material = vFil.material;
+    payload.color    = vFil.color;
+    payload.barcode  = vFil.barcode || '';
+    payload.esProducto = false;
+  } else {
+    if (!vProductoLibre) { btn.disabled = false; btn.textContent = '✓ CONFIRMAR VENTA'; toast('Completa el producto', 'warn'); return; }
+    payload.material = 'Producto';
+    payload.color    = vProductoLibre.nombre;
+    payload.barcode  = '';
+    payload.esProducto = true;
+  }
+
+  api('registrarVenta', payload).then(res => {
+    btn.disabled = false; btn.textContent = '✓ CONFIRMAR VENTA';
     document.getElementById('v-step2').classList.add('hidden');
     document.getElementById('v-step3').classList.remove('hidden');
-    document.getElementById('v-success-item').textContent = `${vFil.color} · ${vFil.material} · ${qty} kg`;
+    const label = vTipo === 'filamento'
+      ? `${vFil.color} · ${vFil.material} · ${qty} kg`
+      : `${vProductoLibre.nombre} · ${qty} unid`;
+    document.getElementById('v-success-item').textContent = label;
     document.getElementById('v-success-total').textContent = cop(res.total);
-    document.getElementById('v-success-stock').textContent = `Stock actual: ${res.stockActual} kg`;
+    document.getElementById('v-success-stock').textContent = vTipo === 'filamento' && res.stockActual !== undefined
+      ? `Stock actual: ${res.stockActual} kg` : '';
     const alEl = document.getElementById('v-success-alert');
     alEl.classList.toggle('hidden', !res.alerta);
     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-    // Refresh filaments
-    api('getFilamentos').then(d => { fils = d; }).catch(() => {});
+    if (vTipo === 'filamento') api('getFilamentos').then(d => { fils = d; }).catch(() => {});
     loadHomeAlerts();
   }).catch(() => {
-    btn.disabled = false; btn.textContent = 'CONFIRMAR VENTA';
+    btn.disabled = false; btn.textContent = '✓ CONFIRMAR VENTA';
     toast('Error al registrar', 'err');
   });
 }
@@ -1116,46 +1215,8 @@ function setQtyDisplay(hiddenId, val) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// CLIENTES (venta inline)
+// CLIENTES (venta — bottom sheet)
 // ─────────────────────────────────────────────────────────────
-function buscarCliente(q) {
-  const res = document.getElementById('v-cli-results');
-  if (!q || q.length < 2) { res.classList.add('hidden'); return; }
-  const matches = clientes.filter(c =>
-    c.nombre.toLowerCase().includes(q.toLowerCase()) || c.telefono.includes(q)
-  ).slice(0, 6);
-  if (!matches.length) { res.classList.add('hidden'); return; }
-  res.innerHTML = matches.map(c => `
-    <div class="cli-res-item" onclick='selectCliente(${JSON.stringify(c)})'>
-      <div class="cli-res-name">${c.nombre}</div>
-      <div class="cli-res-sub">📞 ${c.telefono}${c.ciudad?' · '+c.ciudad:''}</div>
-    </div>`).join('');
-  res.classList.remove('hidden');
-}
-
-function selectCliente(c) {
-  if (typeof c === 'string') c = JSON.parse(c);
-  vCliente = c;
-  document.getElementById('v-cli-results').classList.add('hidden');
-  document.getElementById('v-cli-wrap').classList.add('hidden');
-  const tag = document.getElementById('v-cli-tag');
-  tag.classList.remove('hidden');
-  tag.innerHTML = `<div class="cli-tag">
-    <div style="flex:1">
-      <div class="name">${c.nombre}</div>
-      <div class="tel">📞 ${c.telefono}${c.ciudad?' · '+c.ciudad:''}</div>
-    </div>
-    <button class="cli-tag-clear" onclick="resetVenderCli()">×</button>
-  </div>`;
-}
-
-function resetVenderCli() {
-  vCliente = null;
-  document.getElementById('v-cli-tag').classList.add('hidden');
-  document.getElementById('v-cli-wrap').classList.remove('hidden');
-  document.getElementById('v-cli-search').value = '';
-  document.getElementById('v-cli-results').classList.add('hidden');
-}
 
 // ─────────────────────────────────────────────────────────────
 // CLIENTES SCREEN
