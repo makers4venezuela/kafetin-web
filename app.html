@@ -791,10 +791,12 @@ function renderFilList(elId, data, mode) {
     el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--gray);font-size:13px">Sin filamentos</div>';
     return;
   }
-  el.innerHTML = data.map(f => {
+  el.innerHTML = data.map((f, i) => {
     const sc = f.stock === 0 ? 'spill-z' : f.stock <= 6 ? 'spill-w' : 'spill-ok';
     const sl = f.stock === 0 ? '🚨 0 kg' : f.stock <= 6 ? `⚠ ${f.stock} kg` : `✓ ${f.stock} kg`;
-    return `<div class="fil-row" onclick="selectFil('${mode}',${JSON.stringify(f).replace(/'/g,"&#39;")})">
+    const safeKey = `_fildata_${mode}_${i}`;
+    window[safeKey] = f;
+    return `<div class="fil-row" onclick="selectFil('${mode}', window['${safeKey}'])">
       <div class="fil-info">
         <div class="fil-name">${f.color}</div>
         <div class="fil-mat">${f.material}</div>
@@ -928,7 +930,7 @@ function setQtyFixed(val) {
 }
 
 function selectFil(mode, f) {
-  if (typeof f === 'string') f = JSON.parse(f);
+  if (!f) return;
   if (mode === 'venta') {
     vFil = f;
     vQty = 1;
@@ -1108,7 +1110,8 @@ function renderComprarAlerts(data) {
     const detail = a.daysLeft !== null ? `~${a.daysLeft} días de stock · ${a.velocity}/día` : `Stock: ${a.stock} (mín ${a.minimo})`;
     const rec   = a.suggestBox ? `📦 Recomendamos comprar ${a.recommendQty} (caja completa)` : `Comprar ${a.recommendQty}+`;
     const filObj = fils.find(f => f.material === a.material && f.color === a.color);
-    const onclick = filObj ? `selectFil('compra',${JSON.stringify(filObj).replace(/'/g,"&#39;")})` : '';
+    if (filObj) { const k = `_fildata_compra_alert_${a.material}_${a.color}`; window[k] = filObj; }
+    const onclick = filObj ? `selectFil('compra', window['_fildata_compra_alert_${a.material}_${a.color}'])` : '';
     return `<div class="al-item ${cls}" style="cursor:${filObj?'pointer':'default'}" onclick="${onclick}">
       <span class="al-icon">${icon}</span>
       <div class="al-body">
