@@ -75,6 +75,9 @@ input:focus,select:focus{border-color:var(--y)}
 
 /* ── Quantity stepper ── */
 .qty-wrap{display:flex;align-items:center;gap:12px}
+.pay-toggle{display:flex;gap:8px;flex-wrap:wrap}
+.pay-btn{flex:1;min-width:80px;padding:12px 8px;border-radius:10px;border:2px solid var(--bdr);background:#fff;font-size:13px;font-weight:700;cursor:pointer;color:var(--gray);letter-spacing:.5px;transition:all .15s}
+.pay-btn.pay-active{border-color:#7BAE7F;background:#7BAE7F;color:#fff}
 .qty-btn{width:52px;height:52px;border-radius:50%;border:2px solid var(--bdr);background:#fff;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:600;color:var(--k);flex-shrink:0;transition:all .1s}
 .qty-btn:active{background:var(--bdr)}
 .qty-val{flex:1;text-align:center;font-size:32px;font-weight:900;color:var(--k)}
@@ -351,6 +354,26 @@ input:focus,select:focus{border-color:var(--y)}
         </div>
       </div>
 
+      <!-- Pago -->
+      <div class="card">
+        <div class="card-title">Pago</div>
+        <div class="fg">
+          <label>¿Pagado?</label>
+          <div class="pay-toggle">
+            <button id="pay-si" class="pay-btn pay-active" onclick="setPaid(true)">SÍ</button>
+            <button id="pay-no" class="pay-btn" onclick="setPaid(false)">NO</button>
+          </div>
+        </div>
+        <div id="pay-method-wrap" class="fg">
+          <label>Método</label>
+          <div class="pay-toggle">
+            <button id="pm-efectivo" class="pay-btn pay-active" onclick="setMetodo('Efectivo')">EFECTIVO</button>
+            <button id="pm-nu" class="pay-btn" onclick="setMetodo('NU')">NU</button>
+            <button id="pm-bancolombia" class="pay-btn" onclick="setMetodo('Bancolombia')">BANCOLOMBIA</button>
+          </div>
+        </div>
+      </div>
+
       <div id="v-total-row" style="text-align:center;margin-bottom:14px">
         <div style="font-size:13px;color:var(--gray)">Total estimado</div>
         <div id="v-total-display" style="font-size:32px;font-weight:900;color:var(--ok)">$0</div>
@@ -593,7 +616,7 @@ let clientes    = [];
 let smartAlerts = [];
 
 // Vender
-let vFil = null, vCliente = null;
+let vFil = null, vCliente = null, vPagado = true, vMetodo = 'Efectivo';
 let vQty = 1;
 
 // Comprar
@@ -727,10 +750,24 @@ function showVenderStep2() {
   setQtyDisplay('v-qty', vQty);
   resetVenderCli();
   actualizarTotalV();
+  setPaid(true); setMetodo('Efectivo');
+}
+
+function setPaid(val) {
+  vPagado = val;
+  document.getElementById('pay-si').classList.toggle('pay-active', val);
+  document.getElementById('pay-no').classList.toggle('pay-active', !val);
+  document.getElementById('pay-method-wrap').style.display = val ? '' : 'none';
+}
+function setMetodo(m) {
+  vMetodo = m;
+  ['Efectivo','NU','Bancolombia'].forEach(x => {
+    document.getElementById('pm-'+x.toLowerCase()).classList.toggle('pay-active', x === m);
+  });
 }
 
 function resetVender() {
-  vFil = null; vQty = 1; vCliente = null;
+  vFil = null; vQty = 1; vCliente = null; vPagado = true; vMetodo = 'Efectivo';
   document.getElementById('v-step1').classList.remove('hidden');
   document.getElementById('v-step2').classList.add('hidden');
   document.getElementById('v-step3').classList.add('hidden');
@@ -762,7 +799,8 @@ function confirmarVenta() {
   api('registrarVenta', {
     material: vFil.material, color: vFil.color, barcode: vFil.barcode || '',
     cantidad: qty, precio, canal, vendedor: vend,
-    clienteNombre: vCliente?.nombre || '', clienteTelefono: vCliente?.telefono || ''
+    clienteNombre: vCliente?.nombre || '', clienteTelefono: vCliente?.telefono || '',
+    pagado: vPagado, metodoPago: vPagado ? vMetodo : 'Pendiente'
   }).then(res => {
     btn.disabled = false; btn.textContent = 'CONFIRMAR VENTA';
     document.getElementById('v-step2').classList.add('hidden');
