@@ -21,7 +21,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .hidden{display:none!important}
 
 /* ── Header ── */
-.hdr{background:var(--k);padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50;min-height:54px}
+.hdr{background:var(--k);padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50;min-height:54px;position:relative;overflow:hidden}
+.hdr::before{content:'';position:absolute;inset:0;background:url('./textura_Mesa de trabajo 1.jpg') center/cover;opacity:.05;pointer-events:none}
 .hdr-back{background:none;border:none;color:rgba(255,255,255,.7);font-size:26px;cursor:pointer;padding:0 4px;line-height:1;flex-shrink:0}
 .hdr-title{color:#fff;font-size:16px;font-weight:700;letter-spacing:.3px;flex:1}
 .hdr-title em{color:var(--y);font-style:normal}
@@ -33,18 +34,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 /* ── HOME ── */
 #s-home{background:#181a20;position:relative;overflow:hidden}
-#s-home::before{content:'';position:absolute;inset:0;background:url('./textura_Mesa de trabajo 1.jpg') center/cover;opacity:.07;pointer-events:none;z-index:0}
-.home-hero{padding:36px 20px 24px;text-align:center;position:relative;z-index:1}
-.home-isotipo{height:76px;width:auto;display:block;margin:0 auto 14px}
-.home-wordmark{font-size:28px;font-weight:900;color:#fff;letter-spacing:4px;margin-bottom:4px;line-height:1;text-transform:uppercase}
-.home-wordmark span{color:#7BAE7F}
-.home-divider{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px}
-.home-divider::before,.home-divider::after{content:'';width:28px;height:2px;background:rgba(255,255,255,.15)}
-.home-divider-dot{width:6px;height:6px;border-radius:50%;background:#F5A623}
-.home-sub{color:rgba(255,255,255,.45);font-size:11px;letter-spacing:1.5px;text-transform:uppercase}
-.home-grid{position:relative;z-index:1}
+.home-hero{padding:28px 20px 20px;text-align:center;background:#fff;position:relative}
+.home-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#7BAE7F 50%,#F5A623 50%)}
+.home-logo{height:68px;width:auto;display:block;margin:0 auto 8px}
+.home-sub{color:#9e9e9e;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+.home-dark{background:#181a20;position:relative;overflow:hidden}
+.home-dark::before{content:'';position:absolute;inset:0;background:url('./textura_Mesa de trabajo 1.jpg') center/cover;opacity:.07;pointer-events:none;z-index:0}
+.home-grid{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 14px 24px}
 .home-alert{position:relative;z-index:1}
-.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 14px 24px}
 .hc{background:var(--card);border-radius:18px;padding:26px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;border:none;width:100%;transition:transform .1s,box-shadow .12s;box-shadow:0 2px 10px rgba(0,0,0,.12)}
 .hc:active{transform:scale(.96);box-shadow:0 1px 4px rgba(0,0,0,.08)}
 .hc-icon{font-size:42px;line-height:1}
@@ -219,6 +216,41 @@ input:focus,select:focus{border-color:var(--y)}
 
 /* ── Section divider ── */
 .sect-lbl{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.8px;margin:16px 0 8px}
+
+/* ── Client quick picker ── */
+.cli-quick{background:#fff;border:2px solid var(--bdr);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:12px;transition:border-color .15s}
+.cli-quick:active{background:#f9f9f9}
+.cli-quick.has-client{border-color:var(--g);background:#E8F5E9}
+.cli-quick-icon{font-size:24px;flex-shrink:0}
+.cli-quick-body{flex:1}
+.cli-quick-label{font-size:11px;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.cli-quick-name{font-size:15px;font-weight:800;color:var(--k);margin-top:1px}
+.cli-quick-arrow{color:var(--gray);font-size:20px;flex-shrink:0}
+.cli-quick-clear{background:none;border:none;color:var(--gray);font-size:22px;cursor:pointer;flex-shrink:0;padding:0;line-height:1}
+
+/* ── Smart search field ── */
+.smart-search-wrap{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.smart-search{flex:1;padding:14px;border:2px solid var(--bdr);border-radius:12px;font-size:16px;background:#fff;outline:none;transition:border-color .15s}
+.smart-search:focus{border-color:var(--y)}
+.scan-cam-btn{background:var(--k);border:none;border-radius:12px;padding:14px 18px;color:#fff;font-size:22px;cursor:pointer;flex-shrink:0;transition:opacity .1s;position:relative;overflow:hidden}
+.scan-cam-btn::before{content:'';position:absolute;inset:0;background:url('./textura_Mesa de trabajo 1.jpg') center/cover;opacity:.1;pointer-events:none}
+.scan-cam-btn:active{opacity:.8}
+
+/* ── Summary chips on step 2 ── */
+.summary-chips{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.chip{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;font-size:13px}
+.chip-cli{background:#E8F5E9;border:1px solid var(--g)}
+.chip-fil{background:#fffef0;border:1px solid var(--y)}
+.chip-icon{font-size:18px;flex-shrink:0}
+.chip-body{flex:1}
+.chip-label{font-size:10px;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.chip-val{font-size:14px;font-weight:800;color:var(--k)}
+.chip-change{background:none;border:1px solid var(--bdr);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--gray);cursor:pointer}
+
+/* ── Quick qty buttons ── */
+.qty-quick{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.qty-quick-btn{padding:8px 14px;border:2px solid var(--bdr);border-radius:8px;background:#fff;font-size:13px;font-weight:700;cursor:pointer;color:var(--k);transition:all .12s}
+.qty-quick-btn.active{border-color:var(--g);background:#E8F5E9;color:#2E7D32}
 </style>
 </head>
 <body>
@@ -228,37 +260,37 @@ input:focus,select:focus{border-color:var(--y)}
 ════════════════════════════════════════ -->
 <div id="s-home">
   <div class="home-hero">
-    <img class="home-isotipo" src="./Isotipo_Mesa de trabajo 1 sin fondo.png" alt="KAFETIN">
-    <div class="home-wordmark"><span>KAFE</span>TIN</div>
-    <div class="home-divider"><div class="home-divider-dot"></div></div>
+    <img class="home-logo" src="./Logo final_Mesa sin fondo.png" alt="KAFETIN">
     <div class="home-sub">Inventario · Filamentos 3D</div>
   </div>
-  <div id="home-alert" class="home-alert hidden" onclick="goTo('reportes')">
-    <span class="home-alert-icon">🚨</span>
-    <span id="home-alert-text">Filamentos agotados o críticos</span>
-    <span style="margin-left:auto">Ver →</span>
-  </div>
-  <div class="home-grid">
-    <button class="hc vc" onclick="goTo('vender')">
-      <span class="hc-icon">🛒</span>
-      <span class="hc-label">VENDER</span>
-      <span class="hc-sub">Registrar una venta</span>
-    </button>
-    <button class="hc cc" onclick="goTo('comprar')">
-      <span class="hc-icon">📦</span>
-      <span class="hc-label">COMPRAR</span>
-      <span class="hc-sub">Recibir filamentos</span>
-    </button>
-    <button class="hc rc" onclick="goTo('reportes')">
-      <span class="hc-icon">📊</span>
-      <span class="hc-label">REPORTES</span>
-      <span class="hc-sub">Ventas y alertas</span>
-    </button>
-    <button class="hc clc" onclick="goTo('clientes')">
-      <span class="hc-icon">👥</span>
-      <span class="hc-label">CLIENTES</span>
-      <span class="hc-sub">Base de clientes</span>
-    </button>
+  <div class="home-dark">
+    <div id="home-alert" class="home-alert hidden" onclick="goTo('reportes')" style="margin:12px 14px 0">
+      <span class="home-alert-icon">🚨</span>
+      <span id="home-alert-text">Filamentos agotados o críticos</span>
+      <span style="margin-left:auto">Ver →</span>
+    </div>
+    <div class="home-grid">
+      <button class="hc vc" onclick="goTo('vender')">
+        <span class="hc-icon">🛒</span>
+        <span class="hc-label">VENDER</span>
+        <span class="hc-sub">Registrar una venta</span>
+      </button>
+      <button class="hc cc" onclick="goTo('comprar')">
+        <span class="hc-icon">📦</span>
+        <span class="hc-label">COMPRAR</span>
+        <span class="hc-sub">Recibir filamentos</span>
+      </button>
+      <button class="hc rc" onclick="goTo('reportes')">
+        <span class="hc-icon">📊</span>
+        <span class="hc-label">REPORTES</span>
+        <span class="hc-sub">Ventas y alertas</span>
+      </button>
+      <button class="hc clc" onclick="goTo('clientes')">
+        <span class="hc-icon">👥</span>
+        <span class="hc-label">CLIENTES</span>
+        <span class="hc-sub">Base de clientes</span>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -268,67 +300,100 @@ input:focus,select:focus{border-color:var(--y)}
 <div id="s-vender" class="hidden screen">
   <div class="hdr">
     <button class="hdr-back" onclick="goTo('home')">←</button>
-    <img src="./Isotipo_Mesa de trabajo 1 sin fondo.png" style="height:30px;width:auto;flex-shrink:0" alt="">
-    <div class="hdr-title"><em>VENDER</em> Filamento</div>
+    <img src="./Isotipo_Mesa de trabajo 1 sin fondo.png" style="height:28px;width:auto;flex-shrink:0;position:relative;z-index:1" alt="">
+    <div class="hdr-title" style="position:relative;z-index:1">VENDER · <em>Filamento</em></div>
   </div>
   <div class="screen-body">
 
-    <!-- Step 1: Select filament -->
+    <!-- Step 1: Cliente primero, luego filamento -->
     <div id="v-step1">
-      <div class="card">
-        <div class="card-title">Escanea o elige un filamento</div>
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
-          <input id="v-scan" class="scan-input" type="text" inputmode="numeric"
-            placeholder="Código de barras…"
-            style="flex:1"
-            onkeydown="if(event.key==='Enter'&&this.value.trim())lookupBc(this.value.trim(),'venta')">
-          <button onclick="abrirScanner('venta')"
-            style="background:var(--k);border:none;border-radius:10px;padding:13px 16px;color:#fff;font-size:20px;cursor:pointer;flex-shrink:0">📷</button>
+
+      <!-- CLIENTE (primero) -->
+      <div class="card" style="border:2px solid var(--g);padding:14px">
+        <div class="card-title" style="color:var(--gd)">1 · Cliente</div>
+        <div id="v-cli-quick" class="cli-quick" onclick="abrirBsCliVenta()">
+          <span class="cli-quick-icon">👤</span>
+          <div class="cli-quick-body">
+            <div class="cli-quick-label">Sin cliente asignado</div>
+            <div class="cli-quick-name" id="v-cli-quick-name">Toca para buscar o crear</div>
+          </div>
+          <span class="cli-quick-arrow">›</span>
         </div>
-        <input type="text" id="v-filter" placeholder="Filtrar filamentos..." oninput="filtrarFils('v-flist',this.value)"
-          style="margin-bottom:8px">
+      </div>
+
+      <!-- FILAMENTO (segundo) -->
+      <div class="card">
+        <div class="card-title">2 · Filamento</div>
+        <!-- Input inteligente: texto = filtro, números = barcode -->
+        <div class="smart-search-wrap">
+          <input id="v-scan" class="smart-search" type="text" inputmode="text"
+            placeholder="🔍 Nombre, color o código de barras…"
+            oninput="smartSearchV(this.value)"
+            onkeydown="onSmartKeyV(event)"
+            autocomplete="off">
+          <button class="scan-cam-btn" onclick="abrirScanner('venta')" style="position:relative;z-index:1">📷</button>
+        </div>
         <div class="fil-list" id="v-flist">
           <div class="spin"></div>
         </div>
       </div>
     </div>
 
-    <!-- Step 2: Confirm sale details -->
+    <!-- Step 2: Detalles de la venta -->
     <div id="v-step2" class="hidden">
-      <div id="v-sel-fil" class="sel-fil">
-        <div class="sel-fil-info">
-          <div class="sel-fil-name" id="v-sel-name">—</div>
-          <div class="sel-fil-meta" id="v-sel-meta">—</div>
+
+      <!-- Summary chips -->
+      <div class="summary-chips">
+        <div class="chip chip-cli">
+          <span class="chip-icon">👤</span>
+          <div class="chip-body">
+            <div class="chip-label">Cliente</div>
+            <div class="chip-val" id="v-chip-cli">Sin cliente</div>
+          </div>
+          <button class="chip-change" onclick="volver_step1()">Cambiar</button>
         </div>
-        <button class="sel-fil-clear" onclick="resetVender()">×</button>
+        <div class="chip chip-fil">
+          <span class="chip-icon">🧵</span>
+          <div class="chip-body">
+            <div class="chip-label">Filamento</div>
+            <div class="chip-val" id="v-chip-fil">—</div>
+          </div>
+          <button class="chip-change" onclick="volver_step1()">Cambiar</button>
+        </div>
       </div>
 
+      <!-- Cantidad + precio -->
       <div class="card">
-        <div class="card-title">Detalles de la venta</div>
-        <div class="fg">
-          <label>Cantidad (kg)</label>
-          <div class="qty-wrap">
-            <button class="qty-btn" onclick="changeQty('v-qty',-0.5)">−</button>
-            <div>
-              <div class="qty-val" id="v-qty-display">1</div>
-              <div class="qty-lbl">kg</div>
-            </div>
-            <button class="qty-btn" onclick="changeQty('v-qty',0.5)">+</button>
+        <div class="card-title">3 · Cantidad y precio</div>
+        <label style="margin-bottom:8px">Cantidad (kg)</label>
+        <div class="qty-wrap">
+          <button class="qty-btn" onclick="changeQty('v-qty',-0.5)">−</button>
+          <div>
+            <div class="qty-val" id="v-qty-display">1</div>
+            <div class="qty-lbl">kg</div>
           </div>
-          <input type="hidden" id="v-qty" value="1">
+          <button class="qty-btn" onclick="changeQty('v-qty',0.5)">+</button>
         </div>
-        <div id="v-price-row" class="price-row">
+        <div class="qty-quick" id="v-qty-quick">
+          <button class="qty-quick-btn" onclick="setQtyFixed(0.5)">0.5</button>
+          <button class="qty-quick-btn active" onclick="setQtyFixed(1)">1</button>
+          <button class="qty-quick-btn" onclick="setQtyFixed(2)">2</button>
+          <button class="qty-quick-btn" onclick="setQtyFixed(3)">3</button>
+          <button class="qty-quick-btn" onclick="setQtyFixed(6)">6</button>
+        </div>
+        <input type="hidden" id="v-qty" value="1">
+        <div id="v-price-row" class="price-row" style="margin-top:14px">
           <div class="price-box">
             <div class="price-val" id="v-costo-val">—</div>
             <div class="price-lbl">Costo/kg</div>
           </div>
           <div class="price-box venta">
             <div class="price-val" id="v-precio-val">—</div>
-            <div class="price-lbl">Precio/kg</div>
+            <div class="price-lbl">Precio sugerido/kg</div>
           </div>
         </div>
         <div class="fg">
-          <label>Precio/kg</label>
+          <label>Precio/kg (editable)</label>
           <input type="number" id="v-precio" placeholder="75000" oninput="actualizarTotalV()">
         </div>
         <div class="r2">
@@ -343,25 +408,14 @@ input:focus,select:focus{border-color:var(--y)}
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-title">Cliente (opcional)</div>
-        <div id="v-cli-tag" class="hidden"></div>
-        <div id="v-cli-wrap">
-          <input type="text" id="v-cli-search" placeholder="Buscar por nombre o teléfono…"
-            oninput="buscarCliente(this.value)" autocomplete="off">
-          <div id="v-cli-results" class="hidden cli-results"></div>
-          <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="abrirNuevoCli()">+ Nuevo cliente</button>
-        </div>
-      </div>
-
       <!-- Pago -->
       <div class="card">
-        <div class="card-title">Pago</div>
+        <div class="card-title">4 · Pago</div>
         <div class="fg">
           <label>¿Pagado?</label>
           <div class="pay-toggle">
             <button id="pay-si" class="pay-btn pay-active" onclick="setPaid(true)">SÍ</button>
-            <button id="pay-no" class="pay-btn" onclick="setPaid(false)">NO</button>
+            <button id="pay-no" class="pay-btn" onclick="setPaid(false)">NO · Fiado</button>
           </div>
         </div>
         <div id="pay-method-wrap" class="fg">
@@ -374,12 +428,13 @@ input:focus,select:focus{border-color:var(--y)}
         </div>
       </div>
 
-      <div id="v-total-row" style="text-align:center;margin-bottom:14px">
-        <div style="font-size:13px;color:var(--gray)">Total estimado</div>
-        <div id="v-total-display" style="font-size:32px;font-weight:900;color:var(--ok)">$0</div>
+      <!-- Total + confirmar -->
+      <div style="background:#fff;border-radius:16px;padding:20px;margin-bottom:14px;text-align:center;border:2px solid var(--g)">
+        <div style="font-size:12px;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px">Total de la venta</div>
+        <div id="v-total-display" style="font-size:40px;font-weight:900;color:#2E7D32">$0</div>
       </div>
 
-      <button class="btn btn-g" id="v-confirm-btn" onclick="confirmarVenta()">CONFIRMAR VENTA</button>
+      <button class="btn btn-g" id="v-confirm-btn" onclick="confirmarVenta()" style="font-size:18px;padding:20px">✓ CONFIRMAR VENTA</button>
     </div>
 
     <!-- Step 3: Success -->
@@ -396,6 +451,16 @@ input:focus,select:focus{border-color:var(--y)}
       </div>
     </div>
   </div>
+</div>
+
+<!-- Bottom sheet: selector de cliente para venta -->
+<div class="bsheet" id="bs-cli-venta">
+  <div class="bsheet-title">Seleccionar cliente</div>
+  <input type="text" id="bs-cli-search" placeholder="Buscar por nombre o teléfono…"
+    oninput="buscarClienteBS(this.value)" autocomplete="off" style="margin-bottom:8px">
+  <div id="bs-cli-results" class="cli-results" style="max-height:280px;overflow-y:auto;border:2px solid var(--bdr);border-radius:10px;margin-bottom:10px"></div>
+  <button class="btn btn-ghost btn-sm" onclick="setClienteRapido(null)">Sin cliente / Anónimo</button>
+  <button class="btn btn-ghost btn-sm" onclick="abrirNuevoCli()" style="margin-top:6px">+ Crear nuevo cliente</button>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -716,8 +781,99 @@ function filtrarFils(elId, q) {
 // ─────────────────────────────────────────────────────────────
 function initVender() {
   resetVender();
-  // Auto-focus scan input
   setTimeout(() => { const el = document.getElementById('v-scan'); if(el) el.focus(); }, 200);
+}
+
+// Smart search: numeric string = barcode, text = filter
+function smartSearchV(q) {
+  if (!q) { renderFilList('v-flist', fils, 'venta'); return; }
+  const isBarcode = /^\d{4,}$/.test(q.trim());
+  if (isBarcode) {
+    // Let user finish typing; trigger on Enter (onSmartKeyV)
+    renderFilList('v-flist', fils, 'venta');
+  } else {
+    filtrarFils('v-flist', q);
+  }
+}
+
+function onSmartKeyV(e) {
+  if (e.key === 'Enter') {
+    const q = e.target.value.trim();
+    if (/^\d{4,}$/.test(q)) lookupBc(q, 'venta');
+  }
+}
+
+// Abrir bottom sheet para buscar cliente antes de la venta
+function abrirBsCliVenta() {
+  document.getElementById('bs-cli-search').value = '';
+  document.getElementById('bs-cli-results').innerHTML =
+    clientes.length ? clientes.slice(0,8).map(cliItem).join('') :
+    '<div style="padding:12px;color:var(--gray);font-size:13px">Sin clientes registrados</div>';
+  abrirBS('bs-cli-venta');
+}
+
+function buscarClienteBS(q) {
+  const matches = !q ? clientes.slice(0,8) :
+    clientes.filter(c => c.nombre.toLowerCase().includes(q.toLowerCase()) || c.telefono.includes(q)).slice(0,10);
+  document.getElementById('bs-cli-results').innerHTML =
+    matches.length ? matches.map(cliItem).join('') :
+    '<div style="padding:12px;color:var(--gray);font-size:13px">Sin resultados</div>';
+}
+
+function cliItem(c) {
+  const initials = c.nombre.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+  return `<div class="cli-res-item" onclick='setClienteRapido(${JSON.stringify(c)})' style="display:flex;align-items:center;gap:12px;padding:12px 10px;border-bottom:1px solid var(--bdr);cursor:pointer">
+    <div style="width:38px;height:38px;border-radius:50%;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0">${initials}</div>
+    <div style="flex:1">
+      <div style="font-weight:800;font-size:15px;color:var(--k)">${c.nombre}</div>
+      <div style="font-size:12px;color:var(--gray)">📞 ${c.telefono}${c.ciudad?' · '+c.ciudad:''}</div>
+    </div>
+  </div>`;
+}
+
+function setClienteRapido(c) {
+  cerrarTodosBS();
+  vCliente = c;
+  const card = document.getElementById('v-cli-quick');
+  if (!c) {
+    card.classList.remove('has-client');
+    card.innerHTML = `<span class="cli-quick-icon">👤</span>
+      <div class="cli-quick-body">
+        <div class="cli-quick-label">Sin cliente asignado</div>
+        <div class="cli-quick-name" id="v-cli-quick-name">Toca para buscar o crear</div>
+      </div>
+      <span class="cli-quick-arrow">›</span>`;
+    card.onclick = () => abrirBsCliVenta();
+  } else {
+    const initials = c.nombre.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+    card.classList.add('has-client');
+    card.innerHTML = `
+      <div style="width:38px;height:38px;border-radius:50%;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0">${initials}</div>
+      <div class="cli-quick-body">
+        <div class="cli-quick-label">Cliente seleccionado</div>
+        <div class="cli-quick-name" id="v-cli-quick-name">${c.nombre}</div>
+      </div>
+      <button class="cli-quick-clear" onclick="event.stopPropagation();setClienteRapido(null)">×</button>`;
+    card.onclick = () => abrirBsCliVenta();
+  }
+}
+
+function volver_step1() {
+  vFil = null; vQty = 1;
+  document.getElementById('v-step1').classList.remove('hidden');
+  document.getElementById('v-step2').classList.add('hidden');
+  renderFilList('v-flist', fils, 'venta');
+  document.getElementById('v-scan').value = '';
+  setTimeout(() => { const el = document.getElementById('v-scan'); if(el) el.focus(); }, 100);
+}
+
+function setQtyFixed(val) {
+  setQtyDisplay('v-qty', val);
+  // Update active state on quick buttons
+  document.querySelectorAll('.qty-quick-btn').forEach(btn => {
+    btn.classList.toggle('active', parseFloat(btn.textContent) === val);
+  });
+  actualizarTotalV();
 }
 
 function selectFil(mode, f) {
@@ -741,14 +897,20 @@ function showVenderStep2() {
   document.getElementById('v-step2').classList.remove('hidden');
   document.getElementById('v-step3').classList.add('hidden');
 
-  document.getElementById('v-sel-name').textContent = `${vFil.color} · ${vFil.material}`;
-  const sc = vFil.stock === 0 ? '🚨 Sin stock' : vFil.stock <= 6 ? `⚠ Stock: ${vFil.stock} kg` : `✓ Stock: ${vFil.stock} kg`;
-  document.getElementById('v-sel-meta').textContent = sc;
+  // Summary chips
+  const cliName = vCliente ? vCliente.nombre : 'Sin cliente asignado';
+  document.getElementById('v-chip-cli').textContent = cliName;
+  const stockStr = vFil.stock === 0 ? '🚨 Sin stock · ' : vFil.stock <= 6 ? `⚠ Stock bajo (${vFil.stock} kg) · ` : '';
+  document.getElementById('v-chip-fil').textContent = `${vFil.color} · ${vFil.material}`;
+
   document.getElementById('v-costo-val').textContent = copk(vFil.costo);
   document.getElementById('v-precio-val').textContent = copk(vFil.precio);
   document.getElementById('v-precio').value = vFil.precio;
   setQtyDisplay('v-qty', vQty);
-  resetVenderCli();
+  // Reset qty quick buttons
+  document.querySelectorAll('.qty-quick-btn').forEach(btn => {
+    btn.classList.toggle('active', parseFloat(btn.textContent) === 1);
+  });
   actualizarTotalV();
   setPaid(true); setMetodo('Efectivo');
 }
@@ -772,8 +934,9 @@ function resetVender() {
   document.getElementById('v-step2').classList.add('hidden');
   document.getElementById('v-step3').classList.add('hidden');
   document.getElementById('v-scan').value = '';
-  document.getElementById('v-filter').value = '';
   renderFilList('v-flist', fils, 'venta');
+  // Reset client card
+  setClienteRapido(null);
   setTimeout(() => { const el = document.getElementById('v-scan'); if(el) el.focus(); }, 100);
 }
 
