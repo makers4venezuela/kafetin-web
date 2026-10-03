@@ -558,7 +558,14 @@ input:focus,select:focus{border-color:var(--y)}
             <input type="text" id="c-rep-nombre" placeholder="Ej: Nozzle 0.4mm, Extrusor…" autocomplete="off"
               oninput="filtrarRepuestos(this.value)">
           </div>
-          <button class="btn btn-y" style="margin-top:8px" onclick="confirmarProductoCompra('repuesto')">Continuar →</button>
+          <div class="fg" style="margin-top:8px">
+            <label>Código de barras (opcional)</label>
+            <div class="smart-search-wrap">
+              <input type="text" id="c-rep-barcode" class="smart-search" placeholder="Escanea o escribe el código…" autocomplete="off" inputmode="text">
+              <button class="scan-cam-btn" onclick="abrirScanner('repuesto')">📷</button>
+            </div>
+          </div>
+          <button class="btn btn-y" style="margin-top:10px" onclick="confirmarProductoCompra('repuesto')">Continuar →</button>
         </div>
       </div>
 
@@ -570,8 +577,15 @@ input:focus,select:focus{border-color:var(--y)}
             <label>Descripción</label>
             <input type="text" id="c-otro-nombre" placeholder="Ej: Lubricante, Cinta Kapton…" autocomplete="off">
           </div>
+          <div class="fg" style="margin-top:8px">
+            <label>Código de barras (opcional)</label>
+            <div class="smart-search-wrap">
+              <input type="text" id="c-otro-barcode" class="smart-search" placeholder="Escanea o escribe el código…" autocomplete="off" inputmode="text">
+              <button class="scan-cam-btn" onclick="abrirScanner('otro')">📷</button>
+            </div>
+          </div>
           <div id="c-otro-historial" style="margin-top:10px"></div>
-          <button class="btn btn-y" style="margin-top:8px" onclick="confirmarProductoCompra('otro')">Continuar →</button>
+          <button class="btn btn-y" style="margin-top:10px" onclick="confirmarProductoCompra('otro')">Continuar →</button>
         </div>
       </div>
 
@@ -1331,10 +1345,12 @@ function _saveOtro(tipo, nombre) {
 }
 
 function confirmarProductoCompra(tipo) {
-  const inputId = tipo === 'repuesto' ? 'c-rep-nombre' : 'c-otro-nombre';
-  const nombre = (document.getElementById(inputId).value || '').trim();
+  const inputId    = tipo === 'repuesto' ? 'c-rep-nombre'   : 'c-otro-nombre';
+  const barcodeId  = tipo === 'repuesto' ? 'c-rep-barcode'  : 'c-otro-barcode';
+  const nombre  = (document.getElementById(inputId).value || '').trim();
+  const barcode = (document.getElementById(barcodeId).value || '').trim();
   if (!nombre) { toast('Escribe el nombre', 'warn'); return; }
-  cFil = { material: tipo === 'repuesto' ? 'Repuesto' : 'Otro', color: nombre, stock: 0, minimo: 0, costo: 0, esProducto: true };
+  cFil = { material: tipo === 'repuesto' ? 'Repuesto' : 'Otro', color: nombre, barcode, stock: 0, minimo: 0, costo: 0, esProducto: true };
   cQty = 1;
   showComprarStep2();
 }
@@ -1651,6 +1667,20 @@ function lookupBc(bc, mode) {
 }
 
 function onBarcodeDetected(bc) {
+  // Repuesto / Otro: solo llenar el campo de barcode, no buscar en inventario
+  if (scanMode === 'repuesto') {
+    document.getElementById('c-rep-barcode').value = bc;
+    if (navigator.vibrate) navigator.vibrate(80);
+    toast('✓ Código escaneado', 'ok');
+    return;
+  }
+  if (scanMode === 'otro') {
+    document.getElementById('c-otro-barcode').value = bc;
+    if (navigator.vibrate) navigator.vibrate(80);
+    toast('✓ Código escaneado', 'ok');
+    return;
+  }
+  // Filamento: lookup normal
   api('lookupBarcode', { barcode: bc }).then(res => {
     if (res) {
       const f = fils.find(x => x.material === res.material && x.color === res.color)
