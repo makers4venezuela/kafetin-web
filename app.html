@@ -295,6 +295,11 @@ input:focus,select:focus{border-color:var(--y)}
         <span class="hc-label">CLIENTES</span>
         <span class="hc-sub">Base de clientes</span>
       </button>
+      <button class="hc" style="background:linear-gradient(135deg,#1a237e,#283593)" onclick="goTo('ordenes')">
+        <span class="hc-icon">🧾</span>
+        <span class="hc-label">ÓRDENES</span>
+        <span class="hc-sub">Historial de ventas</span>
+      </button>
     </div>
   </div>
 </div>
@@ -337,15 +342,9 @@ input:focus,select:focus{border-color:var(--y)}
         </div>
       </div>
 
-      <!-- TABS: agregar tipo -->
-      <div class="vtabs">
-        <button id="vtab-fil" class="vtab active" onclick="setVTipo('filamento')">🧵 Filamento</button>
-        <button id="vtab-pro" class="vtab" onclick="setVTipo('producto')">📦 Otro</button>
-      </div>
-
       <!-- Panel: Filamento -->
-      <div id="v-panel-fil" class="card">
-        <div class="card-title">Buscar filamento</div>
+      <div class="card">
+        <div class="card-title">🧵 Buscar filamento</div>
         <div class="smart-search-wrap">
           <input id="v-scan" class="smart-search" type="text" inputmode="text"
             placeholder="🔍 Nombre, color o código de barras…"
@@ -356,8 +355,8 @@ input:focus,select:focus{border-color:var(--y)}
       </div>
 
       <!-- Panel: Otro Producto -->
-      <div id="v-panel-pro" class="card hidden">
-        <div class="card-title">Agregar producto</div>
+      <div class="card">
+        <div class="card-title">📦 Otro producto</div>
         <div class="fg">
           <label>Nombre / descripción</label>
           <input type="text" id="v-pro-nombre" placeholder="Ej: Nozzle, Lubricante…" autocomplete="off">
@@ -469,6 +468,52 @@ input:focus,select:focus{border-color:var(--y)}
         <button class="btn btn-g" onclick="nuevaVenta()">Nueva venta</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     ÓRDENES SCREEN
+════════════════════════════════════════ -->
+<div id="s-ordenes" class="hidden screen">
+  <div class="hdr">
+    <button class="hdr-back" onclick="goTo('home')">←</button>
+    <img src="./Isotipo_Mesa de trabajo 1 sin fondo.png" style="height:28px;width:auto;flex-shrink:0;position:relative;z-index:1" alt="">
+    <div class="hdr-title" style="position:relative;z-index:1">ÓRDENES</div>
+  </div>
+  <div class="screen-body">
+    <input type="text" id="ord-search" placeholder="🔍 Buscar por cliente, # orden…"
+      oninput="filtrarOrdenes(this.value)"
+      style="width:100%;box-sizing:border-box;padding:12px 16px;border:2px solid var(--bdr);border-radius:12px;font-size:14px;margin-bottom:14px;background:#fff">
+    <div id="ord-list"><div class="spin"></div></div>
+  </div>
+</div>
+
+<!-- Bottom sheet: detalle de orden -->
+<div class="bsheet" id="bs-orden-detalle">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+    <div class="bsheet-title" style="margin-bottom:0;flex:1" id="bod-orden">Orden #—</div>
+    <div id="bod-badge" style="font-size:12px;font-weight:800;padding:4px 10px;border-radius:20px"></div>
+  </div>
+  <div style="font-size:12px;color:var(--gray);margin-bottom:14px" id="bod-fecha"></div>
+  <div id="bod-cliente" style="margin-bottom:10px"></div>
+  <div id="bod-items" style="margin-bottom:10px"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:2px solid var(--bdr);margin-bottom:14px">
+    <span style="font-weight:700;font-size:13px;color:var(--gray)">TOTAL</span>
+    <span id="bod-total" style="font-size:22px;font-weight:900;color:var(--gd)"></span>
+  </div>
+  <!-- Cambiar estado de pago -->
+  <div id="bod-pago-section">
+    <div class="card-title" style="margin-bottom:8px">Estado de pago</div>
+    <div class="pay-toggle" style="margin-bottom:10px">
+      <button id="bod-pay-si" class="pay-btn" onclick="setBodPago(true)">SÍ — Pagado</button>
+      <button id="bod-pay-no" class="pay-btn" onclick="setBodPago(false)">NO — Fiado</button>
+    </div>
+    <div id="bod-metodo-wrap" class="pay-toggle" style="margin-bottom:12px">
+      <button id="bod-pm-ef"  class="pay-btn" onclick="setBodMetodo('Efectivo')">EFECTIVO</button>
+      <button id="bod-pm-nu"  class="pay-btn" onclick="setBodMetodo('NU')">NU</button>
+      <button id="bod-pm-ban" class="pay-btn" onclick="setBodMetodo('Bancolombia')">BANCOLOMBIA</button>
+    </div>
+    <button class="btn btn-g" id="bod-save-btn" onclick="guardarPagoOrden()">Guardar cambio</button>
   </div>
 </div>
 
@@ -753,6 +798,7 @@ input:focus,select:focus{border-color:var(--y)}
     <div class="fg"><label>Nombre *</label><input type="text" id="nc-nombre" placeholder="Juan García" autocomplete="off"></div>
     <div class="fg"><label>Teléfono *</label><input type="tel" id="nc-tel" placeholder="300 123 4567"></div>
   </div>
+  <div class="fg"><label>Empresa (opcional)</label><input type="text" id="nc-empresa" placeholder="Ej: Impresos Bogotá S.A.S." autocomplete="off"></div>
   <div class="fg"><label>Correo</label><input type="email" id="nc-correo" placeholder="juan@email.com"></div>
   <div class="r2">
     <div class="fg"><label>Ciudad</label><input type="text" id="nc-ciudad" placeholder="Bogotá"></div>
@@ -809,7 +855,7 @@ const BC_FORMATS = ['code_128','code_39','ean_13','ean_8','upc_a','upc_e','itf',
 // NAVIGATION
 // ─────────────────────────────────────────────────────────────
 function goTo(screen) {
-  ['home','vender','comprar','reportes','clientes'].forEach(s => {
+  ['home','vender','comprar','reportes','clientes','ordenes'].forEach(s => {
     document.getElementById('s-' + s).classList.toggle('hidden', s !== screen);
   });
   if (screen === 'home')      loadHome();
@@ -817,6 +863,7 @@ function goTo(screen) {
   if (screen === 'comprar')   initComprar();
   if (screen === 'reportes')  loadReportes();
   if (screen === 'clientes')  loadClientes();
+  if (screen === 'ordenes')   loadOrdenes();
   window.scrollTo(0, 0);
 }
 
@@ -895,15 +942,6 @@ function initVender() {
   setTimeout(() => { const el = document.getElementById('v-scan'); if(el) el.focus(); }, 200);
 }
 
-function setVTipo(tipo) {
-  vTipo = tipo;
-  document.getElementById('vtab-fil').classList.toggle('active', tipo === 'filamento');
-  document.getElementById('vtab-pro').classList.toggle('active', tipo === 'producto');
-  document.getElementById('v-panel-fil').classList.toggle('hidden', tipo !== 'filamento');
-  document.getElementById('v-panel-pro').classList.toggle('hidden', tipo !== 'producto');
-  const title = document.getElementById('v-hdr-title');
-  if (title) title.innerHTML = tipo === 'filamento' ? 'VENDER · <em>Filamento</em>' : 'VENDER · <em>Producto</em>';
-}
 
 function agregarProductoAlCarrito() {
   const nombre = (document.getElementById('v-pro-nombre').value || '').trim();
@@ -1139,7 +1177,6 @@ function resetVender() {
   document.getElementById('v-step2').classList.add('hidden');
   document.getElementById('v-step3').classList.add('hidden');
   document.getElementById('v-scan').value = '';
-  setVTipo('filamento');
   _resetCliCard();
   renderCarrito();
   if (fils.length) renderFilList('v-flist', fils, 'venta');
@@ -1237,10 +1274,12 @@ async function confirmarVenta() {
   let lastRes    = {};
   let hasAlerta  = false;
   let hayFilamento = false;
+  let ordenActual  = null; // mismo número para todos los ítems del carrito
 
   try {
     for (const item of vCarrito) {
       const payload = { ...basePayload, cantidad: item.cantidad, precio: item.precio };
+      if (ordenActual) payload.orden = ordenActual; // reusar el # del primer ítem
       if (item.tipo === 'filamento') {
         payload.material = item.material;
         payload.color    = item.color;
@@ -1256,6 +1295,7 @@ async function confirmarVenta() {
       const res = await api('registrarVenta', payload);
       totalVenta += res.total || (item.cantidad * item.precio);
       lastRes = res;
+      if (!ordenActual && res.orden) ordenActual = res.orden;
       if (res.alerta) hasAlerta = true;
     }
 
@@ -1763,13 +1803,14 @@ function cerrarTodosBS() {
 }
 
 function abrirNuevoCli() { abrirBS('bs-new-cli'); setTimeout(() => document.getElementById('nc-nombre').focus(), 300); }
-function cerrarNuevoCli() { cerrarTodosBS(); ['nc-nombre','nc-tel','nc-correo','nc-ciudad','nc-dir'].forEach(id=>document.getElementById(id).value=''); }
+function cerrarNuevoCli() { cerrarTodosBS(); ['nc-nombre','nc-tel','nc-empresa','nc-correo','nc-ciudad','nc-dir'].forEach(id=>document.getElementById(id).value=''); }
 
 function guardarCliente() {
   const nombre   = document.getElementById('nc-nombre').value.trim();
   const telefono = document.getElementById('nc-tel').value.trim();
   if (!nombre || !telefono) { toast('Nombre y teléfono son obligatorios', 'warn'); return; }
   const d = { nombre, telefono,
+    empresa: document.getElementById('nc-empresa').value.trim(),
     correo: document.getElementById('nc-correo').value.trim(),
     ciudad: document.getElementById('nc-ciudad').value.trim(),
     direccion: document.getElementById('nc-dir').value.trim()
@@ -1787,6 +1828,124 @@ function guardarCliente() {
 // ─────────────────────────────────────────────────────────────
 // PRICE HELPERS (frontend fallback)
 // ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// ÓRDENES
+// ─────────────────────────────────────────────────────────────
+let ordenesCache = [];
+let bodOrdenActual = null;
+let bodPagado = true;
+let bodMetodo = 'Efectivo';
+
+function loadOrdenes() {
+  document.getElementById('ord-list').innerHTML = '<div class="spin"></div>';
+  api('getOrdenes').then(data => {
+    ordenesCache = data;
+    renderOrdenes(data);
+  }).catch(() => toast('Error cargando órdenes', 'err'));
+}
+
+function filtrarOrdenes(q) {
+  if (!q) { renderOrdenes(ordenesCache); return; }
+  const ql = q.toLowerCase();
+  renderOrdenes(ordenesCache.filter(o =>
+    o.orden.toLowerCase().includes(ql) ||
+    (o.clienteNombre||'').toLowerCase().includes(ql)
+  ));
+}
+
+function renderOrdenes(list) {
+  const el = document.getElementById('ord-list');
+  if (!list.length) {
+    el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--gray);font-size:14px">Sin órdenes registradas</div>';
+    return;
+  }
+  el.innerHTML = list.map(o => {
+    const pagado  = o.pagado !== 'No';
+    const badge   = pagado
+      ? `<span style="background:#e8f5e9;color:#2E7D32;font-size:11px;font-weight:800;padding:3px 8px;border-radius:20px">PAGADO</span>`
+      : `<span style="background:#fff3e0;color:#e65100;font-size:11px;font-weight:800;padding:3px 8px;border-radius:20px">FIADO</span>`;
+    const nItems  = o.items.length;
+    const preview = nItems === 1
+      ? `${o.items[0].color} · ${o.items[0].material}`
+      : `${nItems} productos`;
+    const safeKey = `_ord_${o.orden.replace(/[^a-z0-9]/gi,'_')}`;
+    window[safeKey] = o;
+    return `<div onclick="abrirOrdenDetalle(window['${safeKey}'])"
+      style="background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;border:1.5px solid var(--bdr);cursor:pointer;display:flex;align-items:center;gap:12px">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+          <span style="font-weight:900;font-size:15px;color:var(--k)">${o.orden}</span>
+          ${badge}
+        </div>
+        <div style="font-size:13px;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${o.clienteNombre || 'Sin cliente'} · ${preview}</div>
+        <div style="font-size:11px;color:#bbb;margin-top:2px">${o.fecha}</div>
+      </div>
+      <div style="font-weight:900;font-size:17px;color:var(--gd);white-space:nowrap">${cop(o.total)}</div>
+    </div>`;
+  }).join('');
+}
+
+function abrirOrdenDetalle(o) {
+  bodOrdenActual = o;
+  bodPagado      = o.pagado !== 'No';
+  bodMetodo      = o.metodoPago || 'Efectivo';
+
+  document.getElementById('bod-orden').textContent = o.orden;
+  document.getElementById('bod-fecha').textContent = o.fecha;
+  document.getElementById('bod-total').textContent = cop(o.total);
+
+  const badge = bodPagado
+    ? `<span style="background:#e8f5e9;color:#2E7D32;font-size:12px;font-weight:800;padding:4px 12px;border-radius:20px">PAGADO</span>`
+    : `<span style="background:#fff3e0;color:#e65100;font-size:12px;font-weight:800;padding:4px 12px;border-radius:20px">FIADO</span>`;
+  document.getElementById('bod-badge').innerHTML = badge;
+
+  const cli = o.clienteNombre
+    ? `<div style="display:flex;align-items:center;gap:8px;padding:10px;background:#f8f8f8;border-radius:10px;margin-bottom:8px">
+        <span style="font-size:18px">👤</span>
+        <div><div style="font-weight:700;font-size:14px">${o.clienteNombre}</div>
+        ${o.clienteTelefono ? `<div style="font-size:12px;color:var(--gray)">📞 ${o.clienteTelefono}</div>` : ''}</div>
+      </div>` : '';
+  document.getElementById('bod-cliente').innerHTML = cli;
+
+  document.getElementById('bod-items').innerHTML = o.items.map(i =>
+    `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bdr);font-size:13px">
+      <span style="color:var(--k)">${i.color} · ${i.material} · ${i.cantidad}${i.material==='Producto'?'u':'kg'}</span>
+      <span style="font-weight:700;color:var(--gd)">${cop(i.subtotal)}</span>
+    </div>`
+  ).join('');
+
+  setBodPago(bodPagado);
+  abrirBS('bs-orden-detalle');
+}
+
+function setBodPago(val) {
+  bodPagado = val;
+  document.getElementById('bod-pay-si').classList.toggle('pay-active', val);
+  document.getElementById('bod-pay-no').classList.toggle('pay-active', !val);
+  document.getElementById('bod-metodo-wrap').style.display = val ? '' : 'none';
+  if (val) setBodMetodo(bodMetodo || 'Efectivo');
+}
+
+function setBodMetodo(m) {
+  bodMetodo = m;
+  ['Efectivo','NU','Bancolombia'].forEach(x => {
+    const id = {Efectivo:'bod-pm-ef',NU:'bod-pm-nu',Bancolombia:'bod-pm-ban'}[x];
+    document.getElementById(id).classList.toggle('pay-active', x === m);
+  });
+}
+
+function guardarPagoOrden() {
+  if (!bodOrdenActual) return;
+  const btn = document.getElementById('bod-save-btn');
+  btn.disabled = true; btn.textContent = 'Guardando…';
+  api('updatePago', { orden: bodOrdenActual.orden, pagado: bodPagado, metodo: bodMetodo }).then(() => {
+    btn.disabled = false; btn.textContent = 'Guardar cambio';
+    toast('Pago actualizado ✓', 'ok');
+    cerrarTodosBS();
+    loadOrdenes();
+  }).catch(() => { btn.disabled = false; btn.textContent = 'Guardar cambio'; toast('Error guardando', 'err'); });
+}
+
 function calcCosto(mat, col) {
   col = (col || '').toLowerCase();
   if (mat === 'TPU') return 74549;
