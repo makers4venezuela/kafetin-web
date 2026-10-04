@@ -449,6 +449,7 @@ input:focus,select:focus{border-color:var(--y)}
     <div id="v-step3" class="hidden success-screen">
       <div class="success-icon">✅</div>
       <div class="success-title">¡Venta registrada!</div>
+      <div id="v-success-orden" style="font-size:13px;font-weight:800;color:var(--g);letter-spacing:1px;margin-bottom:4px"></div>
       <div class="success-sub" id="v-success-item">—</div>
       <div class="success-total" id="v-success-total">$0</div>
       <div class="success-sub" id="v-success-stock">—</div>
@@ -1161,7 +1162,7 @@ function _resetCliCard() {
 
 function nuevaVenta() { resetVender(); }
 
-function generarMensajeWA(totalVenta) {
+function generarMensajeWA(totalVenta, orden) {
   const fecha = new Date().toLocaleDateString('es-CO', { day:'2-digit', month:'2-digit', year:'numeric' });
   const clienteNombre = vCliente ? vCliente.nombre : null;
 
@@ -1171,6 +1172,7 @@ function generarMensajeWA(totalVenta) {
   let lineas = [];
   if (clienteNombre) lineas.push(`👤 ${clienteNombre}`);
   lineas.push(`📅 ${fecha}`);
+  if (orden) lineas.push(`🔖 Orden ${orden}`);
   lineas.push('');
 
   if (fils.length) {
@@ -1205,9 +1207,9 @@ function copiarMsgWA() {
   }).catch(() => toast('No se pudo copiar', 'err'));
 }
 
-function mostrarMsgWA(totalVenta) {
+function mostrarMsgWA(totalVenta, orden) {
   const wrap = document.getElementById('v-wa-wrap');
-  const msg  = generarMensajeWA(totalVenta);
+  const msg  = generarMensajeWA(totalVenta, orden);
   document.getElementById('v-wa-msg').textContent = msg;
   wrap.style.display = '';
 
@@ -1262,6 +1264,7 @@ async function confirmarVenta() {
     document.getElementById('v-step3').classList.remove('hidden');
 
     const nItems = vCarrito.length;
+    document.getElementById('v-success-orden').textContent = lastRes.orden || '';
     document.getElementById('v-success-item').textContent =
       nItems === 1 ? vCarrito[0].nombre || `${vCarrito[0].color} · ${vCarrito[0].material}` : `${nItems} productos vendidos`;
     document.getElementById('v-success-total').textContent = cop(totalVenta);
@@ -1271,7 +1274,7 @@ async function confirmarVenta() {
     alEl.classList.toggle('hidden', !hasAlerta);
 
     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-    mostrarMsgWA(totalVenta);
+    mostrarMsgWA(totalVenta, lastRes.orden);
     if (hayFilamento) api('getFilamentos').then(d => { fils = d; }).catch(() => {});
     loadHomeAlerts();
   } catch(e) {
@@ -1558,49 +1561,7 @@ function loadReportes() {
 }
 
 function renderReportes(rep, alerts) {
-  const needsAction = alerts.filter(a => a.level !== 'ok');
-  const trending    = alerts.filter(a => a.trending && a.level === 'ok');
-
   let html = '';
-
-  // ── Smart alerts section ──
-  if (needsAction.length) {
-    html += `<div class="sect-lbl">🚨 ACCIONES REQUERIDAS</div>`;
-    html += needsAction.map(a => {
-      const icon = a.level === 'agotado' ? '🔴' : a.level === 'urgente' ? '🔴' : '🟡';
-      const cls  = a.level === 'agotado' || a.level === 'urgente' ? 'al-urgente' : 'al-pronto';
-      const daysStr = a.daysLeft !== null ? `~${a.daysLeft} días de stock · ` : '';
-      const velStr  = a.velocity > 0 ? `${a.velocity} unid/día` : 'sin ventas recientes';
-      const detail  = daysStr + velStr;
-      const rec     = a.suggestBox
-        ? `📦 Comprar caja completa: ${a.recommendQty} unidades`
-        : `Comprar ${a.recommendQty}+ unidades`;
-      return `<div class="al-item ${cls}">
-        <span class="al-icon">${icon}</span>
-        <div class="al-body">
-          <div class="al-name">${a.color} · ${a.material}</div>
-          <div class="al-detail">Stock: ${a.stock} kg (mín ${a.minimo}) · ${detail}</div>
-          <div class="al-rec">${rec}${a.trending?' · <span style="color:var(--ok)">↑ Popular</span>':''}</div>
-        </div>
-      </div>`;
-    }).join('');
-  } else {
-    html += `<div class="card" style="text-align:center;color:var(--ok);font-size:14px;font-weight:700;padding:20px">
-      ✅ Todo el inventario está en buen estado
-    </div>`;
-  }
-
-  if (trending.length) {
-    html += `<div class="sect-lbl">📈 EN TENDENCIA</div>`;
-    html += trending.map(a => `<div class="al-item al-trending">
-      <span class="al-icon">⬆️</span>
-      <div class="al-body">
-        <div class="al-name">${a.color} · ${a.material}</div>
-        <div class="al-detail">↑ Ventas acelerando · últimas 7 días: ${a.last7} unid · ${a.velocity}/día</div>
-        ${a.suggestBox ? `<div class="al-rec">📦 Considerar caja completa (12) en próxima compra</div>` : ''}
-      </div>
-    </div>`).join('');
-  }
 
   // ── Sales metrics ──
   html += `<div class="sect-lbl">💰 VENTAS</div>
