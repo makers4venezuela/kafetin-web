@@ -495,20 +495,57 @@ input:focus,select:focus{border-color:var(--y)}
 </div>
 
 <!-- Bottom sheet: detalle de orden -->
-<div class="bsheet" id="bs-orden-detalle">
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+<div class="bsheet" id="bs-orden-detalle" style="max-height:90vh;overflow-y:auto">
+  <!-- Header -->
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:2px">
     <div class="bsheet-title" style="margin-bottom:0;flex:1" id="bod-orden">Orden #—</div>
     <div id="bod-badge" style="font-size:12px;font-weight:800;padding:4px 10px;border-radius:20px"></div>
   </div>
-  <div style="font-size:12px;color:var(--gray);margin-bottom:14px" id="bod-fecha"></div>
+  <div style="font-size:12px;color:var(--gray);margin-bottom:10px" id="bod-fecha"></div>
   <div id="bod-cliente" style="margin-bottom:10px"></div>
-  <div id="bod-items" style="margin-bottom:10px"></div>
-  <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:2px solid var(--bdr);margin-bottom:14px">
+
+  <!-- Ítems editables -->
+  <div style="font-size:11px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">Productos</div>
+  <div id="bod-items" style="margin-bottom:8px"></div>
+
+  <!-- Total -->
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:2px solid var(--bdr);margin-bottom:12px">
     <span style="font-weight:700;font-size:13px;color:var(--gray)">TOTAL</span>
     <span id="bod-total" style="font-size:22px;font-weight:900;color:var(--gd)"></span>
   </div>
-  <!-- Cambiar estado de pago -->
-  <div id="bod-pago-section">
+
+  <!-- Agregar filamento a la orden -->
+  <div style="margin-bottom:10px">
+    <button onclick="toggleBodAddFil()" style="width:100%;background:#f0faf0;border:1.5px dashed var(--g);border-radius:10px;padding:10px;font-size:13px;font-weight:700;color:var(--g);cursor:pointer">
+      + Agregar filamento a esta orden
+    </button>
+    <div id="bod-add-fil-panel" style="display:none;margin-top:8px">
+      <input type="text" id="bod-fil-search" class="smart-search" placeholder="🔍 Buscar filamento…"
+        oninput="filtrarBodFils(this.value)" style="width:100%;box-sizing:border-box;margin-bottom:6px">
+      <div id="bod-fil-list" class="fil-list" style="max-height:180px;overflow-y:auto"></div>
+    </div>
+  </div>
+
+  <!-- Agregar producto libre a la orden -->
+  <div style="margin-bottom:14px">
+    <button onclick="toggleBodAddPro()" style="width:100%;background:#f8f8f8;border:1.5px dashed var(--bdr);border-radius:10px;padding:10px;font-size:13px;font-weight:700;color:var(--gray);cursor:pointer">
+      + Agregar otro producto a esta orden
+    </button>
+    <div id="bod-add-pro-panel" style="display:none;margin-top:8px;padding:12px;background:#f8f8f8;border-radius:10px">
+      <div class="fg" style="margin-bottom:8px">
+        <label>Nombre</label>
+        <input type="text" id="bod-pro-nombre" placeholder="Ej: Nozzle, Lubricante…" autocomplete="off">
+      </div>
+      <div class="r2" style="margin-bottom:10px">
+        <div class="fg"><label>Precio</label><input type="number" id="bod-pro-precio" placeholder="25000" inputmode="numeric"></div>
+        <div class="fg"><label>Cantidad</label><input type="number" id="bod-pro-qty" value="1" inputmode="numeric" min="1"></div>
+      </div>
+      <button class="btn btn-g" style="width:100%" onclick="agregarProAOrden()">+ Agregar</button>
+    </div>
+  </div>
+
+  <!-- Pago -->
+  <div style="border-top:2px solid var(--bdr);padding-top:12px">
     <div class="card-title" style="margin-bottom:8px">Estado de pago</div>
     <div class="pay-toggle" style="margin-bottom:10px">
       <button id="bod-pay-si" class="pay-btn" onclick="setBodPago(true)">SÍ — Pagado</button>
@@ -519,8 +556,32 @@ input:focus,select:focus{border-color:var(--y)}
       <button id="bod-pm-nu"  class="pay-btn" onclick="setBodMetodo('NU')">NU</button>
       <button id="bod-pm-ban" class="pay-btn" onclick="setBodMetodo('Bancolombia')">BANCOLOMBIA</button>
     </div>
-    <button class="btn btn-g" id="bod-save-btn" onclick="guardarPagoOrden()">Guardar cambio</button>
+    <button class="btn btn-g" id="bod-save-btn" onclick="guardarPagoOrden()">Guardar pago</button>
   </div>
+</div>
+
+<!-- Bottom sheet: confirmar agregar filamento a orden existente -->
+<div class="bsheet" id="bs-bod-fil">
+  <div class="bsheet-title" id="bodf-nombre">Agregar a orden</div>
+  <div id="bodf-precios" class="price-row" style="margin:10px 0"></div>
+  <label style="font-size:13px;font-weight:700;color:var(--gray);margin-bottom:8px;display:block">Cantidad (kg)</label>
+  <div class="qty-wrap">
+    <button class="qty-btn" onclick="setBodFilQty(Math.max(0.5,parseFloat(document.getElementById('bodf-qty').value||1)-0.5))">−</button>
+    <div><div class="qty-val" id="bodf-qty-display">1</div><div class="qty-lbl">kg</div></div>
+    <button class="qty-btn" onclick="setBodFilQty(parseFloat(document.getElementById('bodf-qty').value||1)+0.5)">+</button>
+  </div>
+  <input type="hidden" id="bodf-qty" value="1">
+  <div class="qty-quick" style="margin:10px 0 14px">
+    <button class="qty-quick-btn bodf-qbtn active" data-val="1" onclick="setBodFilQty(1)">1</button>
+    <button class="qty-quick-btn bodf-qbtn" data-val="2" onclick="setBodFilQty(2)">2</button>
+    <button class="qty-quick-btn bodf-qbtn" data-val="3" onclick="setBodFilQty(3)">3</button>
+    <button class="qty-quick-btn bodf-qbtn" data-val="6" onclick="setBodFilQty(6)">6</button>
+  </div>
+  <div class="fg">
+    <label>Precio / kg</label>
+    <input type="number" id="bodf-precio" placeholder="75000" inputmode="numeric">
+  </div>
+  <button class="btn btn-g" style="margin-top:14px;width:100%" onclick="confirmarAgregarFilAOrden()">+ Agregar a la orden</button>
 </div>
 
 <!-- Bottom sheet: selector de cliente para venta -->
@@ -1808,6 +1869,13 @@ function cerrarTodosBS() {
   document.querySelectorAll('.bsheet').forEach(b => b.classList.remove('on'));
 }
 
+function cerrarBS(id) {
+  document.getElementById(id).classList.remove('on');
+  // If no other bottom sheet is open, hide overlay
+  const anyOpen = document.querySelector('.bsheet.on');
+  if (!anyOpen) document.getElementById('bs-overlay').style.display = 'none';
+}
+
 function abrirNuevoCli() { abrirBS('bs-new-cli'); setTimeout(() => document.getElementById('nc-nombre').focus(), 300); }
 function cerrarNuevoCli() { cerrarTodosBS(); ['nc-nombre','nc-tel','nc-empresa','nc-correo','nc-ciudad','nc-dir'].forEach(id=>document.getElementById(id).value=''); }
 
@@ -1895,12 +1963,24 @@ function abrirOrdenDetalle(o) {
   bodOrdenActual = o;
   bodPagado      = o.pagado !== 'No';
   bodMetodo      = o.metodoPago || 'Efectivo';
+  // Reset add panels
+  const afp = document.getElementById('bod-add-fil-panel');
+  const app = document.getElementById('bod-add-pro-panel');
+  if (afp) afp.style.display = 'none';
+  if (app) app.style.display = 'none';
+  renderBodDetalle(o);
+  setBodPago(bodPagado);
+  abrirBS('bs-orden-detalle');
+}
 
+function renderBodDetalle(o) {
+  bodOrdenActual = o;
   document.getElementById('bod-orden').textContent = o.orden;
   document.getElementById('bod-fecha').textContent = o.fecha;
   document.getElementById('bod-total').textContent = cop(o.total);
 
-  const badge = bodPagado
+  const pagado = o.pagado !== 'No';
+  const badge = pagado
     ? `<span style="background:#e8f5e9;color:#2E7D32;font-size:12px;font-weight:800;padding:4px 12px;border-radius:20px">PAGADO</span>`
     : `<span style="background:#fff3e0;color:#e65100;font-size:12px;font-weight:800;padding:4px 12px;border-radius:20px">FIADO</span>`;
   document.getElementById('bod-badge').innerHTML = badge;
@@ -1913,15 +1993,174 @@ function abrirOrdenDetalle(o) {
       </div>` : '';
   document.getElementById('bod-cliente').innerHTML = cli;
 
-  document.getElementById('bod-items').innerHTML = o.items.map(i =>
-    `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bdr);font-size:13px">
-      <span style="color:var(--k)">${i.color} · ${i.material} · ${i.cantidad}${i.material==='Producto'?'u':'kg'}</span>
-      <span style="font-weight:700;color:var(--gd)">${cop(i.subtotal)}</span>
-    </div>`
-  ).join('');
+  document.getElementById('bod-items').innerHTML = o.items.map((item, idx) => {
+    const safeKey = `_boditem_${idx}`;
+    window[safeKey] = item;
+    const unidad = ['Producto','Repuesto','Otro'].includes(item.material) ? 'u' : 'kg';
+    return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bdr)">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;color:var(--k)">${item.color} · ${item.material}</div>
+        <div style="font-size:12px;color:var(--gray)">${item.cantidad}${unidad} · ${cop(item.precio)}/${unidad}</div>
+      </div>
+      <span style="font-weight:800;font-size:14px;color:var(--gd);white-space:nowrap">${cop(item.subtotal)}</span>
+      <button onclick="removerItemOrden(window['${safeKey}'])"
+        style="background:#fee;border:none;border-radius:8px;color:#c62828;font-size:16px;font-weight:900;
+               width:32px;height:32px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">×</button>
+    </div>`;
+  }).join('');
+}
 
-  setBodPago(bodPagado);
-  abrirBS('bs-orden-detalle');
+function recargarOrdenDetalle() {
+  if (!bodOrdenActual) return;
+  api('getOrden', { orden: bodOrdenActual.orden }).then(o => {
+    if (!o || !o.orden) { toast('Orden no encontrada', 'err'); return; }
+    renderBodDetalle(o);
+    setBodPago(o.pagado !== 'No');
+  }).catch(() => toast('Error recargando orden', 'err'));
+}
+
+function removerItemOrden(item) {
+  if (!bodOrdenActual) return;
+  if (!confirm(`¿Quitar "${item.color} · ${item.material}" de la orden?`)) return;
+  api('removeOrdenItem', {
+    rowNum:   item.rowNum,
+    material: item.material,
+    color:    item.color,
+    cantidad: item.cantidad
+  }).then(() => {
+    toast('Ítem eliminado ✓', 'ok');
+    recargarOrdenDetalle();
+    loadOrdenes();
+  }).catch(() => toast('Error eliminando ítem', 'err'));
+}
+
+// ── Agregar filamento a orden existente ──────────────────────────
+let bodFilPendiente = null;
+let bodFilsCache    = [];
+
+function toggleBodAddFil() {
+  const panel = document.getElementById('bod-add-fil-panel');
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : '';
+  if (!isOpen) {
+    // Load filament list if empty
+    if (!bodFilsCache.length) {
+      api('getFilamentos').then(data => {
+        bodFilsCache = data || [];
+        filtrarBodFils('');
+      });
+    } else {
+      filtrarBodFils('');
+    }
+    document.getElementById('bod-fil-search').value = '';
+    document.getElementById('bod-fil-search').focus();
+  }
+}
+
+function filtrarBodFils(q) {
+  const list = document.getElementById('bod-fil-list');
+  const ql   = (q || '').toLowerCase();
+  const fils  = ql
+    ? bodFilsCache.filter(f => (f.material+' '+f.color).toLowerCase().includes(ql))
+    : bodFilsCache;
+  list.innerHTML = fils.map(f => {
+    const safeKey = `_bodfil_${f.material}_${f.color}`.replace(/[^a-z0-9_]/gi,'_');
+    window[safeKey] = f;
+    return `<div class="fil-item" onclick="selectBodFil(window['${safeKey}'])">
+      <div class="fil-dot" style="background:${f.hexColor||'#ccc'}"></div>
+      <div class="fil-info">
+        <div class="fil-name">${f.color}</div>
+        <div class="fil-mat">${f.material} · ${f.stock}kg</div>
+      </div>
+      <div class="fil-price">${cop(calcVenta(f.material, f.color))}</div>
+    </div>`;
+  }).join('') || '<div style="padding:12px;color:var(--gray);text-align:center;font-size:13px">Sin resultados</div>';
+}
+
+function selectBodFil(f) {
+  bodFilPendiente = f;
+  document.getElementById('bodf-nombre').textContent = `${f.color} · ${f.material}`;
+  const precio    = calcVenta(f.material, f.color);
+  document.getElementById('bodf-precio').value = precio;
+  setBodFilQty(1);
+  document.getElementById('bodf-precios').innerHTML =
+    `<span>Venta sugerida: <b>${cop(precio)}/kg</b></span>`;
+  abrirBS('bs-bod-fil');
+}
+
+function setBodFilQty(val) {
+  val = Math.round(val * 2) / 2;
+  if (val < 0.5) val = 0.5;
+  document.getElementById('bodf-qty').value        = val;
+  document.getElementById('bodf-qty-display').textContent = val;
+  document.querySelectorAll('.bodf-qbtn').forEach(b =>
+    b.classList.toggle('active', parseFloat(b.dataset.val) === val));
+}
+
+function confirmarAgregarFilAOrden() {
+  if (!bodFilPendiente || !bodOrdenActual) return;
+  const qty    = parseFloat(document.getElementById('bodf-qty').value) || 1;
+  const precio = parseFloat(document.getElementById('bodf-precio').value) || 0;
+  api('addOrdenItem', {
+    orden:           bodOrdenActual.orden,
+    material:        bodFilPendiente.material,
+    color:           bodFilPendiente.color,
+    barcode:         bodFilPendiente.barcode || '',
+    cantidad:        qty,
+    precio:          precio,
+    canal:           bodOrdenActual.canal || 'Directo',
+    vendedor:        bodOrdenActual.vendedor || 'Seb',
+    clienteNombre:   bodOrdenActual.clienteNombre || '',
+    clienteTelefono: bodOrdenActual.clienteTelefono || '',
+    pagado:          bodOrdenActual.pagado === 'No' ? 'No' : 'Yes',
+    metodoPago:      bodOrdenActual.metodoPago || 'Efectivo'
+  }).then(() => {
+    toast('Filamento agregado ✓', 'ok');
+    cerrarBS('bs-bod-fil');
+    document.getElementById('bod-add-fil-panel').style.display = 'none';
+    recargarOrdenDetalle();
+    loadOrdenes();
+  }).catch(() => toast('Error agregando', 'err'));
+}
+
+// ── Agregar producto libre a orden existente ──────────────────────
+function toggleBodAddPro() {
+  const panel = document.getElementById('bod-add-pro-panel');
+  panel.style.display = panel.style.display !== 'none' ? 'none' : '';
+  if (panel.style.display !== 'none') {
+    document.getElementById('bod-pro-nombre').focus();
+    document.getElementById('bod-pro-nombre').value = '';
+    document.getElementById('bod-pro-precio').value = '';
+    document.getElementById('bod-pro-qty').value    = '1';
+  }
+}
+
+function agregarProAOrden() {
+  if (!bodOrdenActual) return;
+  const nombre = document.getElementById('bod-pro-nombre').value.trim();
+  const precio = parseFloat(document.getElementById('bod-pro-precio').value) || 0;
+  const qty    = parseInt(document.getElementById('bod-pro-qty').value) || 1;
+  if (!nombre) { toast('Escribe el nombre del producto', 'warn'); return; }
+  if (!precio)  { toast('Ingresa el precio', 'warn'); return; }
+  api('addOrdenItem', {
+    orden:           bodOrdenActual.orden,
+    material:        'Producto',
+    color:           nombre,
+    barcode:         '',
+    cantidad:        qty,
+    precio:          precio,
+    canal:           bodOrdenActual.canal || 'Directo',
+    vendedor:        bodOrdenActual.vendedor || 'Seb',
+    clienteNombre:   bodOrdenActual.clienteNombre || '',
+    clienteTelefono: bodOrdenActual.clienteTelefono || '',
+    pagado:          bodOrdenActual.pagado === 'No' ? 'No' : 'Yes',
+    metodoPago:      bodOrdenActual.metodoPago || 'Efectivo'
+  }).then(() => {
+    toast('Producto agregado ✓', 'ok');
+    document.getElementById('bod-add-pro-panel').style.display = 'none';
+    recargarOrdenDetalle();
+    loadOrdenes();
+  }).catch(() => toast('Error agregando', 'err'));
 }
 
 function setBodPago(val) {
@@ -1945,11 +2184,11 @@ function guardarPagoOrden() {
   const btn = document.getElementById('bod-save-btn');
   btn.disabled = true; btn.textContent = 'Guardando…';
   api('updatePago', { orden: bodOrdenActual.orden, pagado: bodPagado, metodo: bodMetodo }).then(() => {
-    btn.disabled = false; btn.textContent = 'Guardar cambio';
+    btn.disabled = false; btn.textContent = 'Guardar pago';
     toast('Pago actualizado ✓', 'ok');
     cerrarTodosBS();
     loadOrdenes();
-  }).catch(() => { btn.disabled = false; btn.textContent = 'Guardar cambio'; toast('Error guardando', 'err'); });
+  }).catch(() => { btn.disabled = false; btn.textContent = 'Guardar pago'; toast('Error guardando', 'err'); });
 }
 
 function calcCosto(mat, col) {
