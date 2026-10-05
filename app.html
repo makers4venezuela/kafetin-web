@@ -543,8 +543,12 @@ input:focus,select:focus{border-color:var(--y)}
         <option value="stock-desc">Mayor stock</option>
         <option value="name">A → Z</option>
       </select>
+      <button onclick="exportarPedidoCSV()"
+        title="Descargar resumen de pedido en Excel"
+        style="font-size:12px;font-weight:700;color:#1b5e20;background:#e8f5e9;border:1.5px solid #a5d6a7;
+               border-radius:10px;padding:8px 11px;cursor:pointer;white-space:nowrap">📥 Pedido</button>
       <button id="inv-recalc-btn" onclick="recalcularInv()"
-        title="Recalcular desde transacciones"
+        title="Recalcular stock desde transacciones"
         style="font-size:13px;font-weight:700;color:var(--gray);background:#f0f0f0;border:none;
                border-radius:10px;padding:8px 11px;cursor:pointer">🔄</button>
     </div>
@@ -2107,7 +2111,6 @@ function renderInventario() {
         <tr style="background:#f5f5f5;border-bottom:2px solid var(--bdr)">
           <th style="padding:8px 10px;text-align:left;font-weight:700;color:var(--gray);font-size:10px;letter-spacing:.4px">COLOR</th>
           <th style="padding:8px 6px;text-align:center;font-weight:700;color:var(--gray);font-size:10px;letter-spacing:.4px">STOCK</th>
-          <th style="padding:8px 6px;text-align:center;font-weight:700;color:var(--gray);font-size:10px;letter-spacing:.4px">DÍAS</th>
           <th style="padding:8px 6px;text-align:center;font-weight:700;color:var(--gray);font-size:10px;letter-spacing:.4px">ESTADO</th>
         </tr>
       </thead>
@@ -2118,8 +2121,6 @@ function renderInventario() {
     const rowBg     = i.level==='agotado'?'#fff5f5':i.level==='urgente'?'#fff8f0':i.level==='pronto'?'#fffef0':'#fff';
     const leftBorder= i.level==='agotado'?'3px solid #ef5350':i.level==='urgente'?'3px solid #ff9800':i.level==='pronto'?'3px solid #fdd835':'3px solid transparent';
     const stockColor= i.stock===0?'#ef5350':i.stock<=i.minimo?'#e65100':'var(--k)';
-    const diasTxt   = i.daysLeft !== null ? i.daysLeft+'d' : '—';
-    const diasColor = i.daysLeft !== null && i.daysLeft < 7 ? '#ef5350' : i.daysLeft !== null && i.daysLeft < 21 ? '#e65100' : 'var(--gray)';
     const badgeMap  = { agotado:'🔴', urgente:'🟠', pronto:'🟡', ok:'' };
     const badge     = badgeMap[i.level] || '';
     const trend     = i.trending ? ' 📈' : '';
@@ -2128,7 +2129,7 @@ function renderInventario() {
     let sepRow = '';
     if (sort === 'mat' && i.material !== lastMat) {
       lastMat = i.material;
-      sepRow = `<tr style="background:#f0f0f0"><td colspan="4" style="padding:5px 10px;font-size:10px;font-weight:800;color:var(--gray);letter-spacing:.6px">${i.material}</td></tr>`;
+      sepRow = `<tr style="background:#f0f0f0"><td colspan="3" style="padding:5px 10px;font-size:10px;font-weight:800;color:var(--gray);letter-spacing:.6px">${i.material}</td></tr>`;
     }
 
     const safeKey = `_invt_${idx}`;
@@ -2143,7 +2144,6 @@ function renderInventario() {
         </div>
       </td>
       <td style="padding:9px 6px;text-align:center;font-weight:900;color:${stockColor}">${i.stock}<span style="font-size:9px;font-weight:500;color:var(--gray)">kg</span></td>
-      <td style="padding:9px 6px;text-align:center;font-weight:600;color:${diasColor}">${diasTxt}</td>
       <td style="padding:9px 8px;text-align:center">${badge || '<span style="color:#bbb;font-size:10px">OK</span>'}</td>
     </tr>`;
   });
@@ -2231,15 +2231,59 @@ function abrirInvDetalle(item) {
 
 function recalcularInv() {
   const btn = document.getElementById('inv-recalc-btn');
-  btn.disabled = true; btn.textContent = '⏳ Recalculando…';
+  btn.disabled = true; btn.textContent = '⏳';
   api('recalcularInventario').then(() => {
-    btn.disabled = false; btn.textContent = '🔄 Recalcular';
+    btn.disabled = false; btn.textContent = '🔄';
     toast('Inventario recalculado ✓', 'ok');
     loadInventario();
   }).catch(() => {
-    btn.disabled = false; btn.textContent = '🔄 Recalcular';
+    btn.disabled = false; btn.textContent = '🔄';
     toast('Error al recalcular', 'err');
   });
+}
+
+function exportarPedidoCSV() {
+  if (!invCache.length) { toast('Carga el inventario primero', 'warn'); return; }
+
+  // Filtrar los que se deben pedir (nivel != ok) + toda la lista para referencia
+  const aPedir  = invCache.filter(i => i.level !== 'ok');
+  const todos   = invCache.slice();
+
+  // BOM para que Excel abra UTF-8 correctamente
+  const BOM = '﻿';
+  const sep = ',';
+  const q   = s => `"${String(s||'').replace(/"/g,'""')}"`;
+  const fecha = new Date().toLocaleDateString('es-CO', {day:'2-digit',month:'2-digit',year:'numeric'});
+
+  let csv = BOM;
+
+  // ── Hoja 1: Resumen de pedido ────────────────────────────────
+  csv += `KAFETIN · RESUMEN DE PEDIDO — ${fecha}\n\n`;
+  csv += `FILAMENTOS A PEDIR\n`;
+  csv += [q('Material'),q('Color'),q('Barcode'),q('Stock actual (kg)'),q('Mínimo (kg)'),q('Cantidad a pedir (kg)'),q('Estado'),q('Precio costo/kg')].join(sep)+'\n';
+
+  if (aPedir.length) {
+    aPedir.forEach(i => {
+      csv += [q(i.material),q(i.color),q(i.barcode||''),q(i.stock),q(i.minimo),q(i.recommendQty),q(i.level.toUpperCase()),q(i.costo)].join(sep)+'\n';
+    });
+  } else {
+    csv += q('✓ Todo el inventario está en niveles correctos')+'\n';
+  }
+
+  csv += '\n\nINVENTARIO COMPLETO\n';
+  csv += [q('Material'),q('Color'),q('Barcode'),q('Stock (kg)'),q('Mínimo'),q('Máximo'),q('Estado'),q('Precio venta/kg'),q('Precio costo/kg')].join(sep)+'\n';
+  todos.forEach(i => {
+    csv += [q(i.material),q(i.color),q(i.barcode||''),q(i.stock),q(i.minimo),q(i.maximo),q(i.level==='ok'?'OK':i.level.toUpperCase()),q(i.precio),q(i.costo)].join(sep)+'\n';
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `Pedido_Kafetin_${fecha.replace(/\//g,'-')}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Archivo descargado ✓', 'ok');
 }
 
 // ─────────────────────────────────────────────────────────────
