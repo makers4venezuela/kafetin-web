@@ -533,16 +533,48 @@ input:focus,select:focus{border-color:var(--y)}
       <div id="inv-alerts-list"></div>
     </div>
 
-    <!-- Lista de stock -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-      <div class="sect-lbl" style="margin-bottom:0">📦 STOCK ACTUAL</div>
+    <!-- Ordenar + recalcular -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+      <select id="inv-sort" onchange="renderInventario()"
+        style="flex:1;padding:8px 12px;border:2px solid var(--bdr);border-radius:10px;font-size:13px;font-weight:600;background:#fff;color:var(--k)">
+        <option value="level">Ordenar: alertas primero</option>
+        <option value="name">Ordenar: A → Z</option>
+        <option value="stock-asc">Ordenar: menor stock</option>
+        <option value="stock-desc">Ordenar: mayor stock</option>
+      </select>
       <button id="inv-recalc-btn" onclick="recalcularInv()"
         style="font-size:11px;font-weight:700;color:var(--gray);background:#f0f0f0;border:none;
-               border-radius:8px;padding:5px 10px;cursor:pointer">🔄 Recalcular</button>
+               border-radius:8px;padding:8px 10px;cursor:pointer;white-space:nowrap">🔄</button>
     </div>
-    <div id="inv-list"><div class="spin"></div></div>
+
+    <!-- Tarjetas 2 columnas -->
+    <div id="inv-list" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="spin" style="grid-column:1/-1"></div>
+    </div>
 
   </div>
+</div>
+
+<!-- Bottom sheet: detalle de filamento -->
+<div class="bsheet" id="bs-inv-detalle" style="max-height:90vh;overflow-y:auto">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+    <div id="bid-swatch" style="width:48px;height:48px;border-radius:12px;flex-shrink:0;border:2px solid rgba(0,0,0,.1)"></div>
+    <div>
+      <div class="bsheet-title" style="margin-bottom:0" id="bid-titulo">—</div>
+      <div style="font-size:12px;color:var(--gray)" id="bid-material">—</div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px" id="bid-kpis"></div>
+
+  <!-- Últimas ventas -->
+  <div style="font-size:11px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">Últimas ventas</div>
+  <div id="bid-ventas" style="margin-bottom:14px"></div>
+
+  <!-- Últimas compras -->
+  <div style="font-size:11px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">Últimas compras</div>
+  <div id="bid-compras"></div>
 </div>
 
 <div id="s-ordenes" class="hidden screen">
@@ -2021,80 +2053,153 @@ function filtrarInventario() {
 }
 
 function renderInventario() {
-  const q   = (document.getElementById('inv-search').value || '').toLowerCase();
-  let list  = invCache;
+  const q    = (document.getElementById('inv-search').value || '').toLowerCase();
+  const sort = document.getElementById('inv-sort')?.value || 'level';
+  let list   = invCache.slice();
 
   if (invFiltroMat !== 'todos') list = list.filter(i => i.material === invFiltroMat);
   if (q) list = list.filter(i => i.color.toLowerCase().includes(q) || i.material.toLowerCase().includes(q));
 
-  // Alertas (nivel != ok)
+  // Ordenar
+  const lvlOrd = { agotado:0, urgente:1, pronto:2, ok:3 };
+  if (sort === 'level')      list.sort((a,b) => (lvlOrd[a.level]??3)-(lvlOrd[b.level]??3));
+  else if (sort === 'name')  list.sort((a,b) => (a.color+a.material).localeCompare(b.color+b.material));
+  else if (sort === 'stock-asc')  list.sort((a,b) => a.stock - b.stock);
+  else if (sort === 'stock-desc') list.sort((a,b) => b.stock - a.stock);
+
+  // Alertas rápidas arriba
   const alerts = list.filter(i => i.level !== 'ok');
   const alertSec = document.getElementById('inv-alerts-section');
   if (alerts.length) {
     alertSec.style.display = '';
     document.getElementById('inv-alerts-list').innerHTML = alerts.map(i => {
-      const colBg   = i.level === 'agotado' ? '#ffcdd2' : i.level === 'urgente' ? '#ffe0b2' : '#fff9c4';
-      const colTxt  = i.level === 'agotado' ? '#c62828' : i.level === 'urgente' ? '#e65100' : '#f57f17';
-      const icon    = i.level === 'agotado' ? '🔴' : i.level === 'urgente' ? '🟠' : '🟡';
+      const colTxt = i.level==='agotado'?'#c62828':i.level==='urgente'?'#e65100':'#f57f17';
+      const colBg  = i.level==='agotado'?'#ffcdd2':i.level==='urgente'?'#ffe0b2':'#fff9c4';
       const diasTxt = i.daysLeft !== null ? `${i.daysLeft}d de stock` : 'sin ventas recientes';
-      const trending = i.trending ? ' 📈' : '';
-      return `<div class="alert-row">
+      return `<div class="alert-row" onclick="abrirInvDetalle(invCache.find(x=>x.material==='${i.material}'&&x.color==='${i.color.replace(/'/g,"\\'")}'))" style="cursor:pointer">
         <div style="width:10px;height:40px;border-radius:4px;background:${colTxt};flex-shrink:0"></div>
         <div style="flex:1;min-width:0">
-          <div style="font-weight:800;font-size:14px;color:var(--k)">${i.color} · ${i.material}${trending}</div>
-          <div style="font-size:12px;color:var(--gray)">${diasTxt} · ${i.stock}kg restantes · Pedir ${i.recommendQty}kg</div>
+          <div style="font-weight:800;font-size:13px;color:var(--k)">${i.color} · ${i.material}${i.trending?' 📈':''}</div>
+          <div style="font-size:11px;color:var(--gray)">${diasTxt} · ${i.stock}kg · Pedir ${i.recommendQty}kg</div>
         </div>
-        <span class="inv-badge ${i.level}" style="background:${colBg};color:${colTxt}">${i.level.toUpperCase()}</span>
+        <span class="inv-badge" style="background:${colBg};color:${colTxt}">${i.level.toUpperCase()}</span>
       </div>`;
     }).join('');
   } else {
     alertSec.style.display = 'none';
   }
 
-  // Lista completa
   if (!list.length) {
     document.getElementById('inv-list').innerHTML =
-      '<div style="text-align:center;padding:30px;color:var(--gray);font-size:14px">Sin resultados</div>';
+      '<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--gray);font-size:14px">Sin resultados</div>';
     return;
   }
 
+  // Tarjetas compactas 2 columnas
   document.getElementById('inv-list').innerHTML = list.map(i => {
-    const hex       = invColorHex(i.color);
-    const pct       = i.maximo > 0 ? Math.min(100, Math.round(i.stock / i.maximo * 100)) : 0;
-    const barColor  = i.level === 'agotado' ? '#ef5350'
-                    : i.level === 'urgente' ? '#ff9800'
-                    : i.level === 'pronto'  ? '#fdd835'
-                    : '#66bb6a';
-    const badges = [];
-    if (i.level !== 'ok') {
-      const lvlColor = i.level==='agotado'?'#c62828':i.level==='urgente'?'#e65100':'#f57f17';
-      const lvlBg    = i.level==='agotado'?'#ffcdd2':i.level==='urgente'?'#ffe0b2':'#fff9c4';
-      badges.push(`<span class="inv-badge" style="background:${lvlBg};color:${lvlColor}">${i.level.toUpperCase()}</span>`);
-    }
-    if (i.trending) badges.push(`<span class="inv-badge trending">📈 TENDENCIA</span>`);
-    const diasTxt = i.daysLeft !== null ? `~${i.daysLeft}d` : '—';
-    return `<div class="inv-row ${i.level}">
-      <div class="inv-swatch" style="background:${hex}"></div>
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:2px">
-          <span style="font-weight:800;font-size:14px;color:var(--k)">${i.color}</span>
-          <span style="font-size:11px;color:var(--gray);font-weight:600">${i.material}</span>
-          ${badges.join('')}
-        </div>
-        <div style="font-size:12px;color:var(--gray);margin-bottom:4px">
-          <b style="color:var(--k)">${i.stock}kg</b> · mín ${i.minimo}kg · ${diasTxt} de stock
-          ${i.velocity > 0 ? `· ${i.velocity}kg/d` : ''}
-        </div>
-        <div class="inv-stock-bar-wrap">
-          <div class="inv-stock-bar" style="width:${pct}%;background:${barColor}"></div>
-        </div>
+    const hex      = invColorHex(i.color);
+    const pct      = i.maximo > 0 ? Math.min(100, Math.round(i.stock / i.maximo * 100)) : 0;
+    const barColor = i.level==='agotado'?'#ef5350':i.level==='urgente'?'#ff9800':i.level==='pronto'?'#fdd835':'#66bb6a';
+    const alertDot = i.level !== 'ok'
+      ? `<div style="position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:${barColor}"></div>` : '';
+    const trending  = i.trending
+      ? `<div style="position:absolute;top:6px;left:6px;font-size:11px">📈</div>` : '';
+    const safeKey  = `_invitem_${i.material}_${i.color}`.replace(/[^a-z0-9_]/gi,'_');
+    window[safeKey] = i;
+    return `<div onclick="abrirInvDetalle(window['${safeKey}'])"
+      style="background:#fff;border-radius:14px;padding:12px;border:1.5px solid ${i.level!=='ok'?barColor:'var(--bdr)'};
+             cursor:pointer;position:relative;overflow:hidden">
+      ${alertDot}${trending}
+      <div style="width:100%;height:70px;border-radius:10px;background:${hex};margin-bottom:8px;
+                  border:1.5px solid rgba(0,0,0,.08)"></div>
+      <div style="font-weight:800;font-size:12px;color:var(--k);line-height:1.2;margin-bottom:2px;
+                  white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${i.color}</div>
+      <div style="font-size:10px;color:var(--gray);font-weight:600;margin-bottom:6px">${i.material}</div>
+      <div style="font-size:15px;font-weight:900;color:${i.stock===0?'#ef5350':i.stock<=i.minimo?'#ff9800':'var(--k)'};margin-bottom:4px">
+        ${i.stock}<span style="font-size:10px;font-weight:600;color:var(--gray)"> kg</span>
       </div>
-      <div style="text-align:right;flex-shrink:0">
-        <div style="font-size:11px;color:var(--gray);line-height:1.4">Venta</div>
-        <div style="font-weight:800;font-size:13px;color:var(--gd)">${cop(i.precio)}</div>
+      <div class="inv-stock-bar-wrap">
+        <div class="inv-stock-bar" style="width:${pct}%;background:${barColor}"></div>
       </div>
     </div>`;
   }).join('');
+}
+
+// ── Detalle de filamento ─────────────────────────────────────────
+function abrirInvDetalle(item) {
+  if (!item) return;
+  const hex = invColorHex(item.color);
+  document.getElementById('bid-swatch').style.background = hex;
+  document.getElementById('bid-titulo').textContent  = item.color;
+  document.getElementById('bid-material').textContent = item.material;
+
+  // KPIs rápidos
+  const barColor = item.level==='agotado'?'#ef5350':item.level==='urgente'?'#ff9800':item.level==='pronto'?'#fdd835':'#66bb6a';
+  document.getElementById('bid-kpis').innerHTML = `
+    <div style="background:#f8f8f8;border-radius:10px;padding:10px;text-align:center">
+      <div style="font-size:20px;font-weight:900;color:${item.stock===0?'#ef5350':'var(--k)'}">${item.stock}</div>
+      <div style="font-size:10px;color:var(--gray);font-weight:600">kg stock</div>
+    </div>
+    <div style="background:#f8f8f8;border-radius:10px;padding:10px;text-align:center">
+      <div style="font-size:14px;font-weight:900;color:var(--gd)">${cop(item.precio)}</div>
+      <div style="font-size:10px;color:var(--gray);font-weight:600">precio/kg</div>
+    </div>
+    <div style="background:#f8f8f8;border-radius:10px;padding:10px;text-align:center">
+      <div style="font-size:14px;font-weight:900;color:var(--gray)">${item.daysLeft !== null ? item.daysLeft+'d' : '—'}</div>
+      <div style="font-size:10px;color:var(--gray);font-weight:600">días stock</div>
+    </div>`;
+
+  // Cargar historial desde backend
+  document.getElementById('bid-ventas').innerHTML  = '<div class="spin"></div>';
+  document.getElementById('bid-compras').innerHTML = '<div class="spin"></div>';
+  abrirBS('bs-inv-detalle');
+
+  api('getFilamentoDetalle', { material: item.material, color: item.color }).then(d => {
+    // Ventas
+    if (!d.ventas || !d.ventas.length) {
+      document.getElementById('bid-ventas').innerHTML =
+        '<div style="font-size:12px;color:var(--gray);padding:8px 0">Sin ventas registradas</div>';
+    } else {
+      document.getElementById('bid-ventas').innerHTML = d.ventas.map(v =>
+        `<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bdr);font-size:12px">
+          <div>
+            <span style="color:var(--gray)">${v.fecha}</span>
+            <span style="margin-left:6px;color:var(--k);font-weight:700">${v.orden}</span>
+            ${v.cliente !== '—' ? `<span style="margin-left:4px;color:var(--gray)">· ${v.cliente}</span>` : ''}
+          </div>
+          <div style="text-align:right">
+            <span style="font-weight:700;color:var(--k)">${v.qty}kg</span>
+            <span style="color:var(--gd);font-weight:800;margin-left:6px">${cop(v.total)}</span>
+            ${!v.pagado ? '<span style="color:#e53935;font-size:10px;margin-left:4px">FIADO</span>' : ''}
+          </div>
+        </div>`
+      ).join('') +
+      `<div style="font-size:11px;color:var(--gray);padding:6px 0">Total histórico: <b>${d.totalVendido}kg</b></div>`;
+    }
+
+    // Compras
+    if (!d.compras || !d.compras.length) {
+      document.getElementById('bid-compras').innerHTML =
+        '<div style="font-size:12px;color:var(--gray);padding:8px 0">Sin compras registradas</div>';
+    } else {
+      document.getElementById('bid-compras').innerHTML = d.compras.map(c =>
+        `<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bdr);font-size:12px">
+          <div>
+            <span style="color:var(--gray)">${c.fecha}</span>
+            <span style="margin-left:6px;color:var(--gray)">· ${c.proveedor}</span>
+          </div>
+          <div style="text-align:right">
+            <span style="font-weight:700;color:var(--k)">${c.qty}kg</span>
+            <span style="color:var(--gray);margin-left:6px">${cop(c.costo)}/kg</span>
+          </div>
+        </div>`
+      ).join('') +
+      `<div style="font-size:11px;color:var(--gray);padding:6px 0">Total ingresado: <b>${d.totalIngresado}kg</b></div>`;
+    }
+  }).catch(() => {
+    document.getElementById('bid-ventas').innerHTML  = '<div style="color:var(--r);font-size:12px">Error cargando historial</div>';
+    document.getElementById('bid-compras').innerHTML = '';
+  });
 }
 
 function recalcularInv() {
