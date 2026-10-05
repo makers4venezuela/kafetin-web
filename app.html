@@ -987,7 +987,7 @@ const BC_FORMATS = ['code_128','code_39','ean_13','ean_8','upc_a','upc_e','itf',
 // NAVIGATION
 // ─────────────────────────────────────────────────────────────
 function goTo(screen) {
-  ['home','vender','comprar','reportes','clientes','ordenes'].forEach(s => {
+  ['home','vender','comprar','reportes','clientes','ordenes','inventario'].forEach(s => {
     document.getElementById('s-' + s).classList.toggle('hidden', s !== screen);
   });
   if (screen === 'home')      loadHome();
