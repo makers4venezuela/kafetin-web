@@ -55,6 +55,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .hc.orc .hc-label{color:#fff;font-size:17px}
 .hc.orc .hc-sub{color:rgba(255,255,255,.7)}
 .hc.orc .hc-icon{font-size:32px}
+.hc.ivc{grid-column:1/-1;flex-direction:row;justify-content:center;gap:14px;padding:18px 20px;background:linear-gradient(135deg,#1b5e20,#2e7d32);color:#fff}
+.hc.ivc .hc-label{color:#fff;font-size:17px}
+.hc.ivc .hc-sub{color:rgba(255,255,255,.7)}
+.hc.ivc .hc-icon{font-size:32px}
+/* Inventario */
+.inv-chip{padding:6px 14px;border-radius:20px;border:2px solid var(--bdr);background:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;color:var(--gray);transition:.15s}
+.inv-chip.active{background:var(--g);border-color:var(--g);color:#fff}
+.inv-row{background:#fff;border-radius:14px;padding:13px 14px;margin-bottom:8px;border:1.5px solid var(--bdr);display:flex;align-items:center;gap:12px}
+.inv-row.agotado{border-color:#ef9a9a;background:#fff8f8}
+.inv-row.urgente{border-color:#ffcc80;background:#fffbf5}
+.inv-row.pronto{border-color:#fff176;background:#fffffb}
+.inv-swatch{width:36px;height:36px;border-radius:10px;flex-shrink:0;border:2px solid rgba(0,0,0,.08)}
+.inv-stock-bar-wrap{height:5px;background:#eee;border-radius:3px;margin-top:5px;overflow:hidden}
+.inv-stock-bar{height:100%;border-radius:3px;transition:.3s}
+.inv-badge{font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;white-space:nowrap}
+.inv-badge.agotado{background:#ffcdd2;color:#c62828}
+.inv-badge.urgente{background:#ffe0b2;color:#e65100}
+.inv-badge.pronto{background:#fff9c4;color:#f57f17}
+.inv-badge.trending{background:#e8f5e9;color:#2e7d32}
+.alert-row{background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px;border:1.5px solid #ef9a9a;display:flex;align-items:center;gap:10px}
 .home-alert{margin:0 14px 14px;background:var(--r);color:#fff;border-radius:12px;padding:12px 16px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:10px;cursor:pointer}
 .home-alert-icon{font-size:20px}
 
@@ -306,6 +326,13 @@ input:focus,select:focus{border-color:var(--y)}
           <div class="hc-sub">Historial y seguimiento de ventas</div>
         </div>
       </button>
+      <button class="hc ivc" onclick="goTo('inventario')">
+        <span class="hc-icon">📦</span>
+        <div>
+          <div class="hc-label">INVENTARIO</div>
+          <div class="hc-sub">Stock actual · alertas de pedido</div>
+        </div>
+      </button>
     </div>
   </div>
 </div>
@@ -480,6 +507,39 @@ input:focus,select:focus{border-color:var(--y)}
 <!-- ═══════════════════════════════════════
      ÓRDENES SCREEN
 ════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════
+     INVENTARIO SCREEN
+════════════════════════════════════════ -->
+<div id="s-inventario" class="hidden screen">
+  <div class="hdr">
+    <button class="hdr-back" onclick="goTo('home')">←</button>
+    <img src="./Isotipo_Mesa de trabajo 1 sin fondo.png" style="height:28px;width:auto;flex-shrink:0;position:relative;z-index:1" alt="">
+    <div class="hdr-title" style="position:relative;z-index:1">INVENTARIO</div>
+  </div>
+  <div class="screen-body">
+
+    <!-- Buscar + filtros de material -->
+    <input type="text" id="inv-search" placeholder="🔍 Buscar color…"
+      oninput="filtrarInventario()"
+      style="width:100%;box-sizing:border-box;padding:12px 16px;border:2px solid var(--bdr);border-radius:12px;font-size:14px;margin-bottom:10px;background:#fff">
+
+    <div id="inv-filtros" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none"></div>
+
+    <!-- Alertas de pedido -->
+    <div id="inv-alerts-section" style="display:none;margin-bottom:18px">
+      <div class="sect-lbl" style="display:flex;align-items:center;gap:6px">
+        <span>🚨 PEDIR PRONTO</span>
+      </div>
+      <div id="inv-alerts-list"></div>
+    </div>
+
+    <!-- Lista de stock -->
+    <div class="sect-lbl">📦 STOCK ACTUAL</div>
+    <div id="inv-list"><div class="spin"></div></div>
+
+  </div>
+</div>
+
 <div id="s-ordenes" class="hidden screen">
   <div class="hdr">
     <button class="hdr-back" onclick="goTo('home')">←</button>
@@ -930,7 +990,8 @@ function goTo(screen) {
   if (screen === 'comprar')   initComprar();
   if (screen === 'reportes')  loadReportes();
   if (screen === 'clientes')  loadClientes();
-  if (screen === 'ordenes')   loadOrdenes();
+  if (screen === 'ordenes')    loadOrdenes();
+  if (screen === 'inventario') loadInventario();
   window.scrollTo(0, 0);
 }
 
@@ -1902,6 +1963,135 @@ function guardarCliente() {
 // ─────────────────────────────────────────────────────────────
 // PRICE HELPERS (frontend fallback)
 // ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// INVENTARIO
+// ─────────────────────────────────────────────────────────────
+let invCache        = [];
+let invFiltroMat    = 'todos';
+const INV_COLOR_MAP = {
+  'negro':'#212121','blanco':'#f5f5f5','gris':'#9e9e9e','gris claro':'#bdbdbd','gris oscuro':'#616161',
+  'rojo':'#e53935','azul':'#1e88e5','verde':'#43a047','amarillo':'#fdd835','naranja':'#fb8c00',
+  'morado':'#8e24aa','rosa':'#e91e63','cafe':'#6d4c41','marron':'#5d4037','beige':'#d7ccc8',
+  'transparente':'#e0e0e0','natural':'#efebe9','celeste':'#29b6f6','turquesa':'#00897b',
+  'salmon':'#ef9a9a','dorado':'#ffd54f','plateado':'#b0bec5','madera':'#8d6e63','marmol':'#eeeeee',
+  'carbon':'#37474f','fosforescente':'#c6ff00','magenta':'#e91e63','cyan':'#00bcd4','lila':'#ce93d8',
+};
+
+function invColorHex(colorName) {
+  if (!colorName) return '#ccc';
+  const lower = colorName.toLowerCase();
+  for (const [k, v] of Object.entries(INV_COLOR_MAP)) {
+    if (lower.includes(k)) return v;
+  }
+  return '#b0bec5';
+}
+
+function loadInventario() {
+  document.getElementById('inv-list').innerHTML = '<div class="spin"></div>';
+  document.getElementById('inv-alerts-section').style.display = 'none';
+  api('getInventarioCompleto').then(data => {
+    invCache = data || [];
+    buildInvFiltros();
+    renderInventario();
+  }).catch(() => toast('Error cargando inventario', 'err'));
+}
+
+function buildInvFiltros() {
+  const mats = ['todos', ...new Set(invCache.map(i => i.material))].sort((a,b) => a==='todos'?-1:b==='todos'?1:a.localeCompare(b));
+  document.getElementById('inv-filtros').innerHTML = mats.map(m =>
+    `<button class="inv-chip${m===invFiltroMat?' active':''}" onclick="setInvFiltro('${m}')">${m==='todos'?'Todos':m}</button>`
+  ).join('');
+}
+
+function setInvFiltro(mat) {
+  invFiltroMat = mat;
+  document.querySelectorAll('.inv-chip').forEach(c =>
+    c.classList.toggle('active', c.textContent.trim() === (mat==='todos'?'Todos':mat))
+  );
+  renderInventario();
+}
+
+function filtrarInventario() {
+  renderInventario();
+}
+
+function renderInventario() {
+  const q   = (document.getElementById('inv-search').value || '').toLowerCase();
+  let list  = invCache;
+
+  if (invFiltroMat !== 'todos') list = list.filter(i => i.material === invFiltroMat);
+  if (q) list = list.filter(i => i.color.toLowerCase().includes(q) || i.material.toLowerCase().includes(q));
+
+  // Alertas (nivel != ok)
+  const alerts = list.filter(i => i.level !== 'ok');
+  const alertSec = document.getElementById('inv-alerts-section');
+  if (alerts.length) {
+    alertSec.style.display = '';
+    document.getElementById('inv-alerts-list').innerHTML = alerts.map(i => {
+      const colBg   = i.level === 'agotado' ? '#ffcdd2' : i.level === 'urgente' ? '#ffe0b2' : '#fff9c4';
+      const colTxt  = i.level === 'agotado' ? '#c62828' : i.level === 'urgente' ? '#e65100' : '#f57f17';
+      const icon    = i.level === 'agotado' ? '🔴' : i.level === 'urgente' ? '🟠' : '🟡';
+      const diasTxt = i.daysLeft !== null ? `${i.daysLeft}d de stock` : 'sin ventas recientes';
+      const trending = i.trending ? ' 📈' : '';
+      return `<div class="alert-row">
+        <div style="width:10px;height:40px;border-radius:4px;background:${colTxt};flex-shrink:0"></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:800;font-size:14px;color:var(--k)">${i.color} · ${i.material}${trending}</div>
+          <div style="font-size:12px;color:var(--gray)">${diasTxt} · ${i.stock}kg restantes · Pedir ${i.recommendQty}kg</div>
+        </div>
+        <span class="inv-badge ${i.level}" style="background:${colBg};color:${colTxt}">${i.level.toUpperCase()}</span>
+      </div>`;
+    }).join('');
+  } else {
+    alertSec.style.display = 'none';
+  }
+
+  // Lista completa
+  if (!list.length) {
+    document.getElementById('inv-list').innerHTML =
+      '<div style="text-align:center;padding:30px;color:var(--gray);font-size:14px">Sin resultados</div>';
+    return;
+  }
+
+  document.getElementById('inv-list').innerHTML = list.map(i => {
+    const hex       = invColorHex(i.color);
+    const pct       = i.maximo > 0 ? Math.min(100, Math.round(i.stock / i.maximo * 100)) : 0;
+    const barColor  = i.level === 'agotado' ? '#ef5350'
+                    : i.level === 'urgente' ? '#ff9800'
+                    : i.level === 'pronto'  ? '#fdd835'
+                    : '#66bb6a';
+    const badges = [];
+    if (i.level !== 'ok') {
+      const lvlColor = i.level==='agotado'?'#c62828':i.level==='urgente'?'#e65100':'#f57f17';
+      const lvlBg    = i.level==='agotado'?'#ffcdd2':i.level==='urgente'?'#ffe0b2':'#fff9c4';
+      badges.push(`<span class="inv-badge" style="background:${lvlBg};color:${lvlColor}">${i.level.toUpperCase()}</span>`);
+    }
+    if (i.trending) badges.push(`<span class="inv-badge trending">📈 TENDENCIA</span>`);
+    const diasTxt = i.daysLeft !== null ? `~${i.daysLeft}d` : '—';
+    return `<div class="inv-row ${i.level}">
+      <div class="inv-swatch" style="background:${hex}"></div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:2px">
+          <span style="font-weight:800;font-size:14px;color:var(--k)">${i.color}</span>
+          <span style="font-size:11px;color:var(--gray);font-weight:600">${i.material}</span>
+          ${badges.join('')}
+        </div>
+        <div style="font-size:12px;color:var(--gray);margin-bottom:4px">
+          <b style="color:var(--k)">${i.stock}kg</b> · mín ${i.minimo}kg · ${diasTxt} de stock
+          ${i.velocity > 0 ? `· ${i.velocity}kg/d` : ''}
+        </div>
+        <div class="inv-stock-bar-wrap">
+          <div class="inv-stock-bar" style="width:${pct}%;background:${barColor}"></div>
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:11px;color:var(--gray);line-height:1.4">Venta</div>
+        <div style="font-weight:800;font-size:13px;color:var(--gd)">${cop(i.precio)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 // ─────────────────────────────────────────────────────────────
 // ÓRDENES
 // ─────────────────────────────────────────────────────────────
