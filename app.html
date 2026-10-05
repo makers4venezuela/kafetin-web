@@ -534,7 +534,12 @@ input:focus,select:focus{border-color:var(--y)}
     </div>
 
     <!-- Lista de stock -->
-    <div class="sect-lbl">📦 STOCK ACTUAL</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <div class="sect-lbl" style="margin-bottom:0">📦 STOCK ACTUAL</div>
+      <button id="inv-recalc-btn" onclick="recalcularInv()"
+        style="font-size:11px;font-weight:700;color:var(--gray);background:#f0f0f0;border:none;
+               border-radius:8px;padding:5px 10px;cursor:pointer">🔄 Recalcular</button>
+    </div>
     <div id="inv-list"><div class="spin"></div></div>
 
   </div>
@@ -2090,6 +2095,19 @@ function renderInventario() {
       </div>
     </div>`;
   }).join('');
+}
+
+function recalcularInv() {
+  const btn = document.getElementById('inv-recalc-btn');
+  btn.disabled = true; btn.textContent = '⏳ Recalculando…';
+  api('recalcularInventario').then(() => {
+    btn.disabled = false; btn.textContent = '🔄 Recalcular';
+    toast('Inventario recalculado ✓', 'ok');
+    loadInventario();
+  }).catch(() => {
+    btn.disabled = false; btn.textContent = '🔄 Recalcular';
+    toast('Error al recalcular', 'err');
+  });
 }
 
 // ─────────────────────────────────────────────────────────────
