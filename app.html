@@ -533,23 +533,25 @@ input:focus,select:focus{border-color:var(--y)}
       <div id="inv-alerts-list"></div>
     </div>
 
-    <!-- Ordenar + recalcular -->
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+    <!-- Barra de herramientas -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
       <select id="inv-sort" onchange="renderInventario()"
-        style="flex:1;padding:8px 12px;border:2px solid var(--bdr);border-radius:10px;font-size:13px;font-weight:600;background:#fff;color:var(--k)">
-        <option value="level">Ordenar: alertas primero</option>
-        <option value="name">Ordenar: A → Z</option>
-        <option value="stock-asc">Ordenar: menor stock</option>
-        <option value="stock-desc">Ordenar: mayor stock</option>
+        style="flex:1;padding:8px 10px;border:2px solid var(--bdr);border-radius:10px;font-size:12px;font-weight:600;background:#fff;color:var(--k)">
+        <option value="level">Alertas primero</option>
+        <option value="mat">Agrupar material</option>
+        <option value="stock-asc">Menor stock</option>
+        <option value="stock-desc">Mayor stock</option>
+        <option value="name">A → Z</option>
       </select>
       <button id="inv-recalc-btn" onclick="recalcularInv()"
-        style="font-size:11px;font-weight:700;color:var(--gray);background:#f0f0f0;border:none;
-               border-radius:8px;padding:8px 10px;cursor:pointer;white-space:nowrap">🔄</button>
+        title="Recalcular desde transacciones"
+        style="font-size:13px;font-weight:700;color:var(--gray);background:#f0f0f0;border:none;
+               border-radius:10px;padding:8px 11px;cursor:pointer">🔄</button>
     </div>
 
-    <!-- Tarjetas 2 columnas -->
-    <div id="inv-list" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div class="spin" style="grid-column:1/-1"></div>
+    <!-- Tabla -->
+    <div id="inv-list">
+      <div class="spin"></div>
     </div>
 
   </div>
@@ -2060,69 +2062,94 @@ function renderInventario() {
   if (invFiltroMat !== 'todos') list = list.filter(i => i.material === invFiltroMat);
   if (q) list = list.filter(i => i.color.toLowerCase().includes(q) || i.material.toLowerCase().includes(q));
 
-  // Ordenar
   const lvlOrd = { agotado:0, urgente:1, pronto:2, ok:3 };
-  if (sort === 'level')      list.sort((a,b) => (lvlOrd[a.level]??3)-(lvlOrd[b.level]??3));
-  else if (sort === 'name')  list.sort((a,b) => (a.color+a.material).localeCompare(b.color+b.material));
+  if      (sort === 'level')      list.sort((a,b) => (lvlOrd[a.level]??3)-(lvlOrd[b.level]??3));
+  else if (sort === 'name')       list.sort((a,b) => a.color.localeCompare(b.color));
   else if (sort === 'stock-asc')  list.sort((a,b) => a.stock - b.stock);
   else if (sort === 'stock-desc') list.sort((a,b) => b.stock - a.stock);
+  else if (sort === 'mat')        list.sort((a,b) => a.material.localeCompare(b.material) || a.color.localeCompare(b.color));
 
-  // Alertas rápidas arriba
-  const alerts = list.filter(i => i.level !== 'ok');
-  const alertSec = document.getElementById('inv-alerts-section');
-  if (alerts.length) {
-    alertSec.style.display = '';
-    document.getElementById('inv-alerts-list').innerHTML = alerts.map(i => {
-      const colTxt = i.level==='agotado'?'#c62828':i.level==='urgente'?'#e65100':'#f57f17';
-      const colBg  = i.level==='agotado'?'#ffcdd2':i.level==='urgente'?'#ffe0b2':'#fff9c4';
-      const diasTxt = i.daysLeft !== null ? `${i.daysLeft}d de stock` : 'sin ventas recientes';
-      return `<div class="alert-row" onclick="abrirInvDetalle(invCache.find(x=>x.material==='${i.material}'&&x.color==='${i.color.replace(/'/g,"\\'")}'))" style="cursor:pointer">
-        <div style="width:10px;height:40px;border-radius:4px;background:${colTxt};flex-shrink:0"></div>
-        <div style="flex:1;min-width:0">
-          <div style="font-weight:800;font-size:13px;color:var(--k)">${i.color} · ${i.material}${i.trending?' 📈':''}</div>
-          <div style="font-size:11px;color:var(--gray)">${diasTxt} · ${i.stock}kg · Pedir ${i.recommendQty}kg</div>
-        </div>
-        <span class="inv-badge" style="background:${colBg};color:${colTxt}">${i.level.toUpperCase()}</span>
-      </div>`;
-    }).join('');
-  } else {
-    alertSec.style.display = 'none';
-  }
+  // Ocultar sección alertas (la tabla ya las muestra con color)
+  document.getElementById('inv-alerts-section').style.display = 'none';
 
   if (!list.length) {
     document.getElementById('inv-list').innerHTML =
-      '<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--gray);font-size:14px">Sin resultados</div>';
+      '<div style="text-align:center;padding:30px;color:var(--gray);font-size:14px">Sin resultados</div>';
     return;
   }
 
-  // Tarjetas compactas 2 columnas
-  document.getElementById('inv-list').innerHTML = list.map(i => {
-    const hex      = invColorHex(i.color);
-    const pct      = i.maximo > 0 ? Math.min(100, Math.round(i.stock / i.maximo * 100)) : 0;
-    const barColor = i.level==='agotado'?'#ef5350':i.level==='urgente'?'#ff9800':i.level==='pronto'?'#fdd835':'#66bb6a';
-    const alertDot = i.level !== 'ok'
-      ? `<div style="position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:${barColor}"></div>` : '';
-    const trending  = i.trending
-      ? `<div style="position:absolute;top:6px;left:6px;font-size:11px">📈</div>` : '';
-    const safeKey  = `_invitem_${i.material}_${i.color}`.replace(/[^a-z0-9_]/gi,'_');
-    window[safeKey] = i;
-    return `<div onclick="abrirInvDetalle(window['${safeKey}'])"
-      style="background:#fff;border-radius:14px;padding:12px;border:1.5px solid ${i.level!=='ok'?barColor:'var(--bdr)'};
-             cursor:pointer;position:relative;overflow:hidden">
-      ${alertDot}${trending}
-      <div style="width:100%;height:70px;border-radius:10px;background:${hex};margin-bottom:8px;
-                  border:1.5px solid rgba(0,0,0,.08)"></div>
-      <div style="font-weight:800;font-size:12px;color:var(--k);line-height:1.2;margin-bottom:2px;
-                  white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${i.color}</div>
-      <div style="font-size:10px;color:var(--gray);font-weight:600;margin-bottom:6px">${i.material}</div>
-      <div style="font-size:15px;font-weight:900;color:${i.stock===0?'#ef5350':i.stock<=i.minimo?'#ff9800':'var(--k)'};margin-bottom:4px">
-        ${i.stock}<span style="font-size:10px;font-weight:600;color:var(--gray)"> kg</span>
+  // Stats rápidos
+  const totalKg  = list.reduce((s,i) => s+i.stock, 0);
+  const nAlerts  = list.filter(i => i.level !== 'ok').length;
+  const nOk      = list.length - nAlerts;
+
+  let html = `
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <div style="flex:1;background:#f8f8f8;border-radius:10px;padding:8px 10px;text-align:center">
+        <div style="font-size:16px;font-weight:900;color:var(--k)">${totalKg.toFixed(1)}</div>
+        <div style="font-size:10px;color:var(--gray);font-weight:600">kg total</div>
       </div>
-      <div class="inv-stock-bar-wrap">
-        <div class="inv-stock-bar" style="width:${pct}%;background:${barColor}"></div>
+      <div style="flex:1;background:#e8f5e9;border-radius:10px;padding:8px 10px;text-align:center">
+        <div style="font-size:16px;font-weight:900;color:#2e7d32">${nOk}</div>
+        <div style="font-size:10px;color:#2e7d32;font-weight:600">en orden</div>
+      </div>
+      <div style="flex:1;background:${nAlerts>0?'#fff3e0':'#f8f8f8'};border-radius:10px;padding:8px 10px;text-align:center">
+        <div style="font-size:16px;font-weight:900;color:${nAlerts>0?'#e65100':'var(--gray)'}">${nAlerts}</div>
+        <div style="font-size:10px;color:${nAlerts>0?'#e65100':'var(--gray)'};font-weight:600">alertas</div>
       </div>
     </div>`;
-  }).join('');
+
+  // Tabla
+  let lastMat = null;
+  html += `<div style="background:#fff;border-radius:14px;overflow:hidden;border:1.5px solid var(--bdr)">
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead>
+        <tr style="background:#f5f5f5;border-bottom:2px solid var(--bdr)">
+          <th style="padding:8px 10px;text-align:left;font-weight:700;color:var(--gray);font-size:10px;letter-spacing:.4px">COLOR</th>
+          <th style="padding:8px 6px;text-align:center;font-weight:700;color:var(--gray);font-size:10px;letter-spacing:.4px">STOCK</th>
+          <th style="padding:8px 6px;text-align:center;font-weight:700;color:var(--gray);font-size:10px;letter-spacing:.4px">DÍAS</th>
+          <th style="padding:8px 6px;text-align:center;font-weight:700;color:var(--gray);font-size:10px;letter-spacing:.4px">ESTADO</th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+  list.forEach((i, idx) => {
+    const hex       = invColorHex(i.color);
+    const rowBg     = i.level==='agotado'?'#fff5f5':i.level==='urgente'?'#fff8f0':i.level==='pronto'?'#fffef0':'#fff';
+    const leftBorder= i.level==='agotado'?'3px solid #ef5350':i.level==='urgente'?'3px solid #ff9800':i.level==='pronto'?'3px solid #fdd835':'3px solid transparent';
+    const stockColor= i.stock===0?'#ef5350':i.stock<=i.minimo?'#e65100':'var(--k)';
+    const diasTxt   = i.daysLeft !== null ? i.daysLeft+'d' : '—';
+    const diasColor = i.daysLeft !== null && i.daysLeft < 7 ? '#ef5350' : i.daysLeft !== null && i.daysLeft < 21 ? '#e65100' : 'var(--gray)';
+    const badgeMap  = { agotado:'🔴', urgente:'🟠', pronto:'🟡', ok:'' };
+    const badge     = badgeMap[i.level] || '';
+    const trend     = i.trending ? ' 📈' : '';
+
+    // Separador de material si sort=mat
+    let sepRow = '';
+    if (sort === 'mat' && i.material !== lastMat) {
+      lastMat = i.material;
+      sepRow = `<tr style="background:#f0f0f0"><td colspan="4" style="padding:5px 10px;font-size:10px;font-weight:800;color:var(--gray);letter-spacing:.6px">${i.material}</td></tr>`;
+    }
+
+    const safeKey = `_invt_${idx}`;
+    window[safeKey] = i;
+
+    html += sepRow + `<tr onclick="abrirInvDetalle(window['${safeKey}'])" style="cursor:pointer;background:${rowBg};border-left:${leftBorder};border-bottom:1px solid #f0f0f0">
+      <td style="padding:9px 10px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:14px;height:14px;border-radius:4px;flex-shrink:0;background:${hex};border:1px solid rgba(0,0,0,.1)"></div>
+          <span style="font-weight:700;color:var(--k)">${i.color}${trend}</span>
+          ${sort !== 'mat' ? `<span style="font-size:10px;color:var(--gray)">${i.material}</span>` : ''}
+        </div>
+      </td>
+      <td style="padding:9px 6px;text-align:center;font-weight:900;color:${stockColor}">${i.stock}<span style="font-size:9px;font-weight:500;color:var(--gray)">kg</span></td>
+      <td style="padding:9px 6px;text-align:center;font-weight:600;color:${diasColor}">${diasTxt}</td>
+      <td style="padding:9px 8px;text-align:center">${badge || '<span style="color:#bbb;font-size:10px">OK</span>'}</td>
+    </tr>`;
+  });
+
+  html += '</tbody></table></div>';
+  document.getElementById('inv-list').innerHTML = html;
 }
 
 // ── Detalle de filamento ─────────────────────────────────────────
