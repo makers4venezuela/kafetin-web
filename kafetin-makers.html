@@ -999,6 +999,7 @@ function switchPage(id) {
 const CT_SHEET_ID = "1CoLC56zmPh8bT2DHNTKHm0XHVgNk7AuvgwVPZRN2nWM";
 const CT_GVIZ_URL = `https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/gviz/tq?tqx=out:json&sheet=Disponibilidad&range=A4:E200`;
 const CT_WA = "573155425240";
+const CT_GAS_URL = "https://script.google.com/macros/s/AKfycbxNerre-jVzAZ3028w0irCV5WM6UkgyLg8a7QdBFl90rk1Q2fANaoktZybJneJgc_puig/exec";
 
 const CT_MATERIALS = [
   {key:"all",label:"Todos",match:()=>true},
@@ -1026,6 +1027,38 @@ window.google=window.google||{}; window.google.visualization=window.google.visua
 window.google.visualization.Query.setResponse=function(json){try{const rows=(json.table&&json.table.rows)||[];const products=[];rows.forEach((row,i)=>{const cells=row.c||[];const rawMat=cells[0]&&(cells[0].v??cells[0].f);const rawColor=cells[1]&&(cells[1].v??cells[1].f);const rawBrand=cells[2]&&(cells[2].v??cells[2].f);const rawPrice=cells[3]&&(cells[3].v??cells[3].f);const rawStatus=cells[4];const rawStatusVal=rawStatus&&(rawStatus.v??rawStatus.f);if(!rawMat||!rawColor)return;const matKey=ctNormMat(rawMat,rawColor);if(!matKey)return;let price=0;if(typeof rawPrice==="number")price=rawPrice;else if(rawPrice)price=Number(String(rawPrice).replace(/[^0-9.]/g,""))||0;if(!price)return;const available=rawStatusVal===true||rawStatusVal===1||(typeof rawStatusVal==="string"&&(ctDeburr(rawStatusVal).includes("disponible")||rawStatusVal.includes("✅")));const color=String(rawColor).trim();const brand=rawBrand?String(rawBrand).trim().toUpperCase():"4DLAB";const statusStr=typeof rawStatusVal==="string"?rawStatusVal:available?"Disponible":"Agotado";products.push({id:`${matKey}-${ctSlug(color)}-${i}`,material:matKey,color,price,available,brand,statusLabel:statusStr.replace(/[✅⛔️🚫⏳]/g,"").trim()||(available?"Disponible":"Agotado")});});ctState.products=products;ctState.loading=false;ctState.error=null;ctRender();}catch(err){ctState.loading=false;ctState.error=err.message;ctRender();}};
 
 async function ctLoadProducts(){
+  // Intenta primero el inventario real (GAS) — disponibilidad en tiempo real
+  try{
+    const res=await fetch(CT_GAS_URL+'?action=getCatalogo',{cache:'no-cache'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const items=await res.json();
+    if(!Array.isArray(items))throw new Error('Bad response');
+    const products=[];
+    items.forEach((item,i)=>{
+      if(!item.material||!item.color)return;
+      const matKey=ctNormMat(item.material,item.color);
+      if(!matKey)return;
+      const price=Number(item.price)||0;
+      if(!price)return;
+      products.push({
+        id:`${matKey}-${ctSlug(item.color)}-${i}`,
+        material:matKey,
+        color:item.color,
+        price,
+        available:item.available!==false,
+        brand:item.brand||'4DLAB',
+        statusLabel:item.available!==false?'Disponible':'Agotado'
+      });
+    });
+    ctState.products=products;
+    ctState.loading=false;
+    ctState.error=null;
+    ctRender();
+    return;
+  }catch(e){
+    console.warn('GAS catalog failed, using gviz fallback:',e.message);
+  }
+  // Fallback: Google Sheets gviz (datos estáticos)
   const parseGviz=text=>{const stripped=text.replace(/^\/\*[\s\S]*?\*\/\s*/,'').replace(/^google\.visualization\.Query\.setResponse\(/,'').replace(/\);\s*$/,'');return JSON.parse(stripped);};
   try{
     const res=await fetch(CT_GVIZ_URL);
@@ -1036,7 +1069,7 @@ async function ctLoadProducts(){
     // CORS fallback: JSONP script tag
     const s=document.createElement('script');
     s.src=CT_GVIZ_URL;
-    s.onerror=function(){ctState.loading=false;ctState.error='No se pudo cargar el catálogo. Revisa tu conexión o intenta servir el archivo desde un servidor local.';ctRender();};
+    s.onerror=function(){ctState.loading=false;ctState.error='No se pudo cargar el catálogo. Revisa tu conexión.';ctRender();};
     document.head.appendChild(s);
   }
 }
