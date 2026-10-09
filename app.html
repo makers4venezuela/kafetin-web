@@ -741,9 +741,8 @@ input:focus,select:focus{border-color:var(--y)}
 
       <!-- Tabs -->
       <div class="vtabs">
-        <button id="ctab-fil"  class="vtab active" onclick="setCTipo('filamento')">🧵 Filamento</button>
-        <button id="ctab-rep"  class="vtab"        onclick="setCTipo('repuesto')">🔧 Repuesto</button>
-        <button id="ctab-otro" class="vtab"        onclick="setCTipo('otro')">📦 Otro</button>
+        <button id="ctab-fil" class="vtab active" onclick="setCTipo('filamento')">🧵 Filamento</button>
+        <button id="ctab-pro" class="vtab"        onclick="setCTipo('producto')">📦 Producto</button>
       </div>
 
       <!-- Panel: Filamento -->
@@ -764,45 +763,85 @@ input:focus,select:focus{border-color:var(--y)}
         <div id="c-alerts-list"><div class="spin"></div></div>
       </div>
 
-      <!-- Panel: Repuesto -->
-      <div id="c-panel-rep" class="hidden">
-        <div class="card">
-          <div class="card-title">Selecciona o escribe un repuesto</div>
-          <div id="c-rep-chips" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"></div>
-          <div class="fg">
-            <label>Nombre del repuesto</label>
-            <input type="text" id="c-rep-nombre" placeholder="Ej: Nozzle 0.4mm, Extrusor…" autocomplete="off"
-              oninput="filtrarRepuestos(this.value)">
-          </div>
-          <div class="fg" style="margin-top:8px">
-            <label>Código de barras (opcional)</label>
-            <div class="smart-search-wrap">
-              <input type="text" id="c-rep-barcode" class="smart-search" placeholder="Escanea o escribe el código…" autocomplete="off" inputmode="text">
-              <button class="scan-cam-btn" onclick="abrirScanner('repuesto')">📷</button>
-            </div>
-          </div>
-          <button class="btn btn-y" style="margin-top:10px" onclick="confirmarProductoCompra('repuesto')">Continuar →</button>
-        </div>
-      </div>
+      <!-- Panel: Producto (Repuesto / Accesorio) -->
+      <div id="c-panel-pro" class="hidden">
 
-      <!-- Panel: Otro -->
-      <div id="c-panel-otro" class="hidden">
-        <div class="card">
-          <div class="card-title">¿Qué compraste?</div>
-          <div class="fg">
-            <label>Descripción</label>
-            <input type="text" id="c-otro-nombre" placeholder="Ej: Lubricante, Cinta Kapton…" autocomplete="off">
-          </div>
-          <div class="fg" style="margin-top:8px">
-            <label>Código de barras (opcional)</label>
+        <!-- Sub-estado A: Escanear -->
+        <div id="c-pro-scan">
+          <div class="card">
+            <div class="card-title">Escanea el producto</div>
             <div class="smart-search-wrap">
-              <input type="text" id="c-otro-barcode" class="smart-search" placeholder="Escanea o escribe el código…" autocomplete="off" inputmode="text">
-              <button class="scan-cam-btn" onclick="abrirScanner('otro')">📷</button>
+              <input type="text" id="c-pro-bc" class="smart-search" inputmode="text" autocomplete="off"
+                placeholder="Código de barras…"
+                onkeydown="if(event.key==='Enter'){const q=this.value.trim();if(q)lookupBcProducto(q)}">
+              <button class="scan-cam-btn" onclick="abrirScanner('producto-compra')">📷</button>
+            </div>
+            <div style="text-align:center;margin-top:10px">
+              <button onclick="mostrarFormNuevoProducto()" style="background:none;border:none;color:var(--g);font-size:13px;font-weight:700;cursor:pointer;text-decoration:underline">+ Registrar sin código de barras</button>
             </div>
           </div>
-          <div id="c-otro-historial" style="margin-top:10px"></div>
-          <button class="btn btn-y" style="margin-top:10px" onclick="confirmarProductoCompra('otro')">Continuar →</button>
         </div>
+
+        <!-- Sub-estado B: Producto existente encontrado -->
+        <div id="c-pro-found" class="hidden">
+          <div class="card">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+              <div style="font-size:30px" id="c-pro-found-icon">📦</div>
+              <div>
+                <div style="font-weight:800;font-size:15px" id="c-pro-found-nombre">—</div>
+                <div style="font-size:12px;color:var(--gray)">
+                  <span id="c-pro-found-cat"></span> · Stock actual: <b id="c-pro-found-stock">—</b> und
+                </div>
+              </div>
+            </div>
+            <div style="font-size:13px;color:var(--gray);margin-bottom:8px">Precio venta: <b id="c-pro-found-precio">—</b></div>
+            <button onclick="seleccionarProductoEncontrado()" class="btn btn-y" style="width:100%">Agregar existencias →</button>
+            <button onclick="document.getElementById('c-pro-found').classList.add('hidden');document.getElementById('c-pro-scan').classList.remove('hidden')"
+              style="background:none;border:none;color:var(--gray);font-size:12px;margin-top:8px;width:100%;cursor:pointer">← Escanear otro</button>
+          </div>
+        </div>
+
+        <!-- Sub-estado C: Nuevo producto -->
+        <div id="c-pro-new" class="hidden">
+          <div class="card">
+            <div class="card-title">Nuevo producto</div>
+            <div class="fg">
+              <label>Nombre / descripción *</label>
+              <input type="text" id="c-pro-nombre" placeholder="Ej: Nozzle 0.4mm, Cinta Kapton…" autocomplete="off">
+            </div>
+            <div class="r2" style="margin-top:8px">
+              <div class="fg">
+                <label>Categoría</label>
+                <select id="c-pro-cat" style="width:100%;padding:10px;border:1.5px solid var(--bdr);border-radius:8px;font-size:14px">
+                  <option value="Repuesto">🔧 Repuesto</option>
+                  <option value="Accesorio">🧰 Accesorio</option>
+                </select>
+              </div>
+              <div class="fg">
+                <label>Stock inicial (und)</label>
+                <input type="number" id="c-pro-stock-ini" placeholder="0" value="0" inputmode="numeric" min="0">
+              </div>
+            </div>
+            <div class="r2" style="margin-top:8px">
+              <div class="fg">
+                <label>Precio venta *</label>
+                <input type="number" id="c-pro-precio" placeholder="25000" inputmode="numeric" min="0">
+              </div>
+              <div class="fg">
+                <label>Costo de compra</label>
+                <input type="number" id="c-pro-costo" placeholder="15000" inputmode="numeric" min="0">
+              </div>
+            </div>
+            <div class="fg" style="margin-top:8px">
+              <label>Proveedor</label>
+              <input type="text" id="c-pro-prov" placeholder="Ej: BambuLab, Amazon…" autocomplete="off">
+            </div>
+            <div style="font-size:12px;color:var(--gray);margin:6px 0 0">Código escaneado: <span id="c-pro-bc-preview" style="font-weight:700">—</span></div>
+            <button onclick="registrarNuevoProducto()" class="btn btn-g" style="margin-top:12px;width:100%">✓ Registrar producto</button>
+            <button onclick="mostrarScanProducto()" style="background:none;border:none;color:var(--gray);font-size:12px;margin-top:8px;width:100%;cursor:pointer">← Volver</button>
+          </div>
+        </div>
+
       </div>
 
     </div>
@@ -1512,62 +1551,108 @@ function initComprar() {
 
 function setCTipo(tipo) {
   cTipo = tipo;
-  ['fil','rep','otro'].forEach(t => {
-    document.getElementById(`ctab-${t}`).classList.toggle('active', tipo === {fil:'filamento',rep:'repuesto',otro:'otro'}[t]);
-    document.getElementById(`c-panel-${t}`).classList.toggle('hidden', tipo !== {fil:'filamento',rep:'repuesto',otro:'otro'}[t]);
+  ['fil','pro'].forEach(t => {
+    document.getElementById(`ctab-${t}`).classList.toggle('active', tipo === {fil:'filamento',pro:'producto'}[t]);
+    document.getElementById(`c-panel-${t}`).classList.toggle('hidden', tipo !== {fil:'filamento',pro:'producto'}[t]);
   });
-  if (tipo === 'repuesto') renderRepuestosChips('');
-  if (tipo === 'otro') renderOtroHistorial();
+  if (tipo === 'producto') mostrarScanProducto();
 }
 
-function renderRepuestosChips(filtro) {
-  const guardados = _getOtrosGuardados('repuesto');
-  const todos = [...new Set([...REPUESTOS_COMUNES, ...guardados])];
-  const lista = filtro ? todos.filter(r => r.toLowerCase().includes(filtro.toLowerCase())) : todos;
-  document.getElementById('c-rep-chips').innerHTML = lista.map(r =>
-    `<button onclick="selRepuesto('${r.replace(/'/g,"&#39;")}');event.preventDefault()"
-      style="padding:8px 12px;border:2px solid var(--y);border-radius:20px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;color:var(--k)">${r}</button>`
-  ).join('');
+// ── Producto compra: helpers ──────────────────────────────────
+let cProFoundData = null; // datos del producto encontrado por scan
+
+function mostrarScanProducto() {
+  document.getElementById('c-pro-scan').classList.remove('hidden');
+  document.getElementById('c-pro-found').classList.add('hidden');
+  document.getElementById('c-pro-new').classList.add('hidden');
+  document.getElementById('c-pro-bc').value = '';
+  setTimeout(() => document.getElementById('c-pro-bc').focus(), 150);
 }
 
-function filtrarRepuestos(q) { renderRepuestosChips(q); }
-
-function selRepuesto(nombre) {
-  document.getElementById('c-rep-nombre').value = nombre;
+function mostrarFormNuevoProducto(bc) {
+  document.getElementById('c-pro-scan').classList.add('hidden');
+  document.getElementById('c-pro-found').classList.add('hidden');
+  document.getElementById('c-pro-new').classList.remove('hidden');
+  document.getElementById('c-pro-bc-preview').textContent = bc || document.getElementById('c-pro-bc').value || '—';
+  document.getElementById('c-pro-nombre').value = '';
+  document.getElementById('c-pro-precio').value = '';
+  document.getElementById('c-pro-costo').value = '';
+  document.getElementById('c-pro-stock-ini').value = '0';
+  document.getElementById('c-pro-prov').value = '';
+  setTimeout(() => document.getElementById('c-pro-nombre').focus(), 150);
 }
 
-function renderOtroHistorial() {
-  const guardados = _getOtrosGuardados('otro');
-  const el = document.getElementById('c-otro-historial');
-  if (!guardados.length) { el.innerHTML = ''; return; }
-  el.innerHTML = `<div style="font-size:11px;color:var(--gray);font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px">Usados antes</div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px">` +
-    guardados.map(n =>
-      `<button onclick="document.getElementById('c-otro-nombre').value='${n.replace(/'/g,"&#39;")}'"
-        style="padding:6px 12px;border:2px solid var(--bdr);border-radius:16px;background:#f8f8f8;font-size:12px;cursor:pointer">${n}</button>`
-    ).join('') + '</div>';
+function lookupBcProducto(bc) {
+  toast('Buscando código…');
+  api('lookupBarcode', { barcode: bc }).then(res => {
+    if (res && res.esProducto) {
+      // Producto ya registrado
+      cProFoundData = { ...res, barcode: bc };
+      document.getElementById('c-pro-found-nombre').textContent = res.nombre || res.color;
+      document.getElementById('c-pro-found-cat').textContent    = res.material;
+      document.getElementById('c-pro-found-stock').textContent  = res.stock;
+      document.getElementById('c-pro-found-precio').textContent = cop(res.precio);
+      document.getElementById('c-pro-found-icon').textContent   = res.material === 'Repuesto' ? '🔧' : '🧰';
+      document.getElementById('c-pro-scan').classList.add('hidden');
+      document.getElementById('c-pro-found').classList.remove('hidden');
+      if (navigator.vibrate) navigator.vibrate(80);
+    } else if (res && !res.esProducto) {
+      // Es un filamento
+      toast('Este código es de un filamento', 'warn');
+    } else {
+      // Código no registrado → formulario nuevo
+      mostrarFormNuevoProducto(bc);
+    }
+  }).catch(() => mostrarFormNuevoProducto(bc));
 }
 
-function _getOtrosGuardados(tipo) {
-  try { return JSON.parse(localStorage.getItem('kftn_' + tipo) || '[]'); } catch(e) { return []; }
-}
-function _saveOtro(tipo, nombre) {
-  const lista = _getOtrosGuardados(tipo);
-  if (!lista.includes(nombre)) {
-    lista.unshift(nombre);
-    try { localStorage.setItem('kftn_' + tipo, JSON.stringify(lista.slice(0, 20))); } catch(e) {}
-  }
-}
-
-function confirmarProductoCompra(tipo) {
-  const inputId    = tipo === 'repuesto' ? 'c-rep-nombre'   : 'c-otro-nombre';
-  const barcodeId  = tipo === 'repuesto' ? 'c-rep-barcode'  : 'c-otro-barcode';
-  const nombre  = (document.getElementById(inputId).value || '').trim();
-  const barcode = (document.getElementById(barcodeId).value || '').trim();
-  if (!nombre) { toast('Escribe el nombre', 'warn'); return; }
-  cFil = { material: tipo === 'repuesto' ? 'Repuesto' : 'Otro', color: nombre, barcode, stock: 0, minimo: 0, costo: 0, esProducto: true };
+function seleccionarProductoEncontrado() {
+  if (!cProFoundData) return;
+  cFil = {
+    material  : cProFoundData.material,
+    color     : cProFoundData.color,
+    barcode   : cProFoundData.barcode,
+    stock     : cProFoundData.stock,
+    minimo    : 2,
+    costo     : cProFoundData.costo || 0,
+    precio    : cProFoundData.precio || 0,
+    esProducto: true
+  };
   cQty = 1;
   showComprarStep2();
+}
+
+function registrarNuevoProducto() {
+  const nombre   = document.getElementById('c-pro-nombre').value.trim();
+  const categoria= document.getElementById('c-pro-cat').value;
+  const precio   = parseFloat(document.getElementById('c-pro-precio').value) || 0;
+  const costo    = parseFloat(document.getElementById('c-pro-costo').value)  || 0;
+  const stockIni = parseInt(document.getElementById('c-pro-stock-ini').value) || 0;
+  const proveedor= document.getElementById('c-pro-prov').value.trim();
+  const barcode  = document.getElementById('c-pro-bc').value.trim() ||
+                   document.getElementById('c-pro-bc-preview').textContent.replace('—','').trim();
+  if (!nombre)  { toast('Escribe el nombre del producto', 'warn'); return; }
+  if (!precio)  { toast('Escribe el precio de venta', 'warn'); return; }
+
+  const btn = document.querySelector('#c-pro-new .btn-g');
+  btn.disabled = true; btn.textContent = 'Registrando…';
+
+  api('addProducto', { nombre, categoria, barcode, precio, costo, stockInicial: stockIni, proveedor }).then(res => {
+    btn.disabled = false; btn.textContent = '✓ Registrar producto';
+    if (res && res.ok) {
+      toast(`${nombre} registrado ✓`, 'ok');
+      if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+      // Mostrar step 3 con resumen simple
+      document.getElementById('c-step1').classList.add('hidden');
+      document.getElementById('c-step2').classList.add('hidden');
+      document.getElementById('c-step3').classList.remove('hidden');
+      document.getElementById('c-success-item').textContent  = `${nombre} · ${categoria}`;
+      document.getElementById('c-success-total').textContent = cop(stockIni * costo);
+      document.getElementById('c-success-stock').textContent = stockIni > 0 ? `Stock inicial: ${stockIni} und` : 'Registrado sin stock inicial';
+    } else {
+      toast(res?.msg || 'Error al registrar', 'err');
+    }
+  }).catch(() => { btn.disabled = false; btn.textContent = '✓ Registrar producto'; toast('Error de conexión', 'err'); });
 }
 
 function smartSearchC(q) {
@@ -1607,7 +1692,7 @@ function showComprarStep2() {
   document.getElementById('c-step3').classList.add('hidden');
 
   const isFilamento = !cFil.esProducto;
-  const icons = { filamento:'🧵', Repuesto:'🔧', Otro:'📦' };
+  const icons = { filamento:'🧵', Repuesto:'🔧', Accesorio:'🧰', Otro:'📦' };
   document.getElementById('c-chip-icon').textContent = isFilamento ? '🧵' : (icons[cFil.material] || '📦');
   document.getElementById('c-chip-label').textContent = isFilamento ? 'Filamento' : cFil.material;
   document.getElementById('c-chip-nombre').textContent = isFilamento ? `${cFil.color} · ${cFil.material}` : cFil.color;
@@ -1648,7 +1733,7 @@ function showComprarStep2() {
 }
 
 function resetComprar() {
-  cFil = null; cQty = 6; cTipo = 'filamento';
+  cFil = null; cQty = 6; cTipo = 'filamento'; cProFoundData = null;
   document.getElementById('c-step1').classList.remove('hidden');
   document.getElementById('c-step2').classList.add('hidden');
   document.getElementById('c-step3').classList.add('hidden');
@@ -1679,11 +1764,6 @@ function confirmarCompra() {
 
   const btn = document.getElementById('c-confirm-btn');
   btn.disabled = true; btn.textContent = 'Registrando…';
-
-  // Guardar nombre en historial si es repuesto u otro
-  if (cFil.esProducto) {
-    _saveOtro(cFil.material === 'Repuesto' ? 'repuesto' : 'otro', cFil.color);
-  }
 
   api('registrarCompra', {
     material: cFil.material, color: cFil.color, barcode: cFil.barcode || '',
@@ -1840,34 +1920,55 @@ function lookupBc(bc, mode) {
 }
 
 function onBarcodeDetected(bc) {
-  // Repuesto / Otro: solo llenar el campo de barcode, no buscar en inventario
-  if (scanMode === 'repuesto') {
-    document.getElementById('c-rep-barcode').value = bc;
-    if (navigator.vibrate) navigator.vibrate(80);
-    toast('✓ Código escaneado', 'ok');
+  // Escaneo en panel compra-producto
+  if (scanMode === 'producto-compra') {
+    document.getElementById('c-pro-bc').value = bc;
+    lookupBcProducto(bc);
     return;
   }
-  if (scanMode === 'otro') {
-    document.getElementById('c-otro-barcode').value = bc;
-    if (navigator.vibrate) navigator.vibrate(80);
-    toast('✓ Código escaneado', 'ok');
-    return;
-  }
-  // Filamento: lookup normal
+  // Lookup general
   api('lookupBarcode', { barcode: bc }).then(res => {
-    if (res) {
-      const f = fils.find(x => x.material === res.material && x.color === res.color)
-        || { ...res, costo: calcCosto(res.material, res.color), precio: calcVenta(res.material, res.color), barcode: bc, stock: 0, minimo: 6, key: res.material+'|'+res.color };
-      f.barcode = bc;
-      if (navigator.vibrate) navigator.vibrate(80);
-      toast('✓ ' + res.material + ' ' + res.color, 'ok');
-      selectFil(scanMode, f);
-    } else {
-      pendingBc = bc;
-      document.getElementById('bs-bc-code').textContent = bc;
-      document.getElementById('nb-color').value = '';
-      abrirBS('bs-new-bc');
+    if (!res) {
+      // No registrado
+      if (scanMode === 'venta') {
+        pendingBc = bc;
+        document.getElementById('bs-bc-code').textContent = bc;
+        document.getElementById('nb-color').value = '';
+        abrirBS('bs-new-bc');
+      }
+      return;
     }
+    if (res.esProducto) {
+      // ── Producto escaneado durante VENTA ──
+      if (scanMode === 'venta') {
+        if (!res.precio) { toast('Sin precio configurado para este producto', 'warn'); return; }
+        if (res.stock <= 0) { toast('⚠ Sin stock de ' + res.nombre, 'warn'); }
+        agregarAlCarrito({
+          tipo    : 'producto',
+          nombre  : res.nombre || res.color,
+          material: res.material,
+          color   : res.color,
+          barcode : bc,
+          cantidad: 1,
+          precio  : res.precio,
+          esProducto: true
+        });
+        if (navigator.vibrate) navigator.vibrate(80);
+        toast('✓ ' + (res.nombre || res.color) + ' agregado', 'ok');
+      } else {
+        // En modo compra: mostrar en panel producto
+        document.getElementById('c-pro-bc').value = bc;
+        lookupBcProducto(bc);
+      }
+      return;
+    }
+    // ── Filamento ──
+    const f = fils.find(x => x.material === res.material && x.color === res.color)
+      || { ...res, costo: calcCosto(res.material, res.color), precio: calcVenta(res.material, res.color), barcode: bc, stock: 0, minimo: 6, key: res.material+'|'+res.color };
+    f.barcode = bc;
+    if (navigator.vibrate) navigator.vibrate(80);
+    toast('✓ ' + res.material + ' ' + res.color, 'ok');
+    selectFil(scanMode, f);
   }).catch(() => {
     toast('Error al buscar código', 'err');
   });
