@@ -1089,6 +1089,16 @@ window.onload = () => {
 
   api('getClientes').then(data => { clientes = data; }).catch(() => {});
 
+  // Listener delegado para búsqueda de clientes — captura eventos a nivel documento
+  document.addEventListener('input', function(e) {
+    if (e.target.id === 'cli-search-main') {
+      filtrarClientesPrincipal(e.target.value);
+    }
+    if (e.target.id === 'bs-cli-search') {
+      buscarClienteBS(e.target.value);
+    }
+  });
+
   loadHomeAlerts();
 };
 
