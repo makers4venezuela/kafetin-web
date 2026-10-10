@@ -1206,20 +1206,31 @@ function abrirBsCliVenta() {
 }
 
 function buscarClienteBS(q) {
-  const matches = !q ? clientes.slice(0,8) :
-    clientes.filter(c => c.nombre.toLowerCase().includes(q.toLowerCase()) || c.telefono.includes(q)).slice(0,10);
-  document.getElementById('bs-cli-results').innerHTML =
-    matches.length ? matches.map(cliItem).join('') :
-    '<div style="padding:12px;color:var(--gray);font-size:13px">Sin resultados</div>';
+  const ql = (q || '').toLowerCase().trim();
+  const matches = !ql
+    ? clientes
+    : clientes.filter(c =>
+        c.nombre.toLowerCase().includes(ql) ||
+        c.telefono.includes(ql) ||
+        (c.empresa || '').toLowerCase().includes(ql));
+  const el = document.getElementById('bs-cli-results');
+  el.innerHTML = matches.length
+    ? matches.map((c, i) => cliItem(c, i)).join('')
+    : '<div style="padding:12px;color:var(--gray);font-size:13px">Sin resultados</div>';
 }
 
-function cliItem(c) {
-  const initials = c.nombre.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
-  const empresaTag = c.empresa ? `<span style="font-size:11px;font-weight:600;background:var(--g);color:#fff;border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:middle">${c.empresa}</span>` : '';
-  return `<div class="cli-res-item" onclick='setClienteRapido(${JSON.stringify(c)})' style="display:flex;align-items:center;gap:12px;padding:12px 10px;border-bottom:1px solid var(--bdr);cursor:pointer">
+function cliItem(c, idx) {
+  // Guardar el objeto en window para evitar problemas con comillas en el onclick
+  const key = '_clibs_' + (idx !== undefined ? idx : Date.now());
+  window[key] = c;
+  const initials = c.nombre.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase() || '?';
+  const empresaTag = c.empresa
+    ? `<span style="font-size:11px;font-weight:600;background:var(--g);color:#fff;border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:middle">${c.empresa}</span>`
+    : '';
+  return `<div class="cli-res-item" onclick="setClienteRapido(window['${key}'])" style="display:flex;align-items:center;gap:12px;padding:12px 10px;border-bottom:1px solid var(--bdr);cursor:pointer;active:background:#f5f5f5">
     <div style="width:38px;height:38px;border-radius:50%;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0">${initials}</div>
-    <div style="flex:1">
-      <div style="font-weight:800;font-size:15px;color:var(--k)">${c.nombre}${empresaTag}</div>
+    <div style="flex:1;min-width:0">
+      <div style="font-weight:800;font-size:15px;color:var(--k);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.nombre}${empresaTag}</div>
       <div style="font-size:12px;color:var(--gray)">📞 ${c.telefono}${c.ciudad?' · '+c.ciudad:''}</div>
     </div>
   </div>`;
