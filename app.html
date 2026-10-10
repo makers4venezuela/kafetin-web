@@ -1187,7 +1187,10 @@ function onSmartKeyV(e) {
 
 // Abrir bottom sheet para buscar cliente antes de la venta
 function abrirBsCliVenta() {
-  document.getElementById('bs-cli-search').value = '';
+  const inp = document.getElementById('bs-cli-search');
+  inp.value = '';
+  // Binding directo al DOM — más confiable que el atributo oninput del HTML
+  inp.oninput = function() { buscarClienteBS(this.value); };
   abrirBS('bs-cli-venta');
 
   const renderClis = () => {
@@ -1224,7 +1227,7 @@ function cliItem(c, idx) {
   // Guardar el objeto en window para evitar problemas con comillas en el onclick
   const key = '_clibs_' + (idx !== undefined ? idx : Date.now());
   window[key] = c;
-  const initials = c.nombre.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase() || '?';
+  const initials = (c.nombre||'?').split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase() || '?';
   const empresaTag = c.empresa
     ? `<span style="font-size:11px;font-weight:600;background:var(--g);color:#fff;border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:middle">${c.empresa}</span>`
     : '';
@@ -1245,7 +1248,7 @@ function setClienteRapido(c) {
   if (!c) {
     _resetCliCard();
   } else {
-    const initials = c.nombre.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase() || '?';
+    const initials = (c.nombre||'?').split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase() || '?';
     card.className = 'cli-quick has-client';
     card.onclick = () => abrirBsCliVenta();
     card.innerHTML = `
@@ -1839,6 +1842,8 @@ function setQtyDisplay(hiddenId, val) {
 // CLIENTES SCREEN
 // ─────────────────────────────────────────────────────────────
 function loadClientes() {
+  const inp = document.getElementById('cli-search-main');
+  if (inp) inp.oninput = function() { filtrarClientesPrincipal(this.value); };
   api('getClientes').then(data => {
     clientes = data;
     renderCliList(data);
