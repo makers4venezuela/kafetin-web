@@ -1211,8 +1211,8 @@ function buscarClienteBS(q) {
   const matches = !ql
     ? clientes
     : clientes.filter(c =>
-        c.nombre.toLowerCase().includes(ql) ||
-        c.telefono.includes(ql) ||
+        (c.nombre  || '').toLowerCase().includes(ql) ||
+        (c.telefono|| '').includes(ql) ||
         (c.empresa || '').toLowerCase().includes(ql));
   const el = document.getElementById('bs-cli-results');
   el.innerHTML = matches.length
@@ -1856,8 +1856,11 @@ function renderCliList(data) {
 }
 
 function filtrarClientesPrincipal(q) {
-  renderCliList(q ? clientes.filter(c =>
-    c.nombre.toLowerCase().includes(q.toLowerCase()) || c.telefono.includes(q)
+  const ql = (q || '').toLowerCase();
+  renderCliList(ql ? clientes.filter(c =>
+    (c.nombre  || '').toLowerCase().includes(ql) ||
+    (c.telefono|| '').includes(q) ||
+    (c.empresa || '').toLowerCase().includes(ql)
   ) : clientes);
 }
 
