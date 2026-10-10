@@ -1211,16 +1211,9 @@ function abrirBsCliVenta() {
 
 function buscarClienteBS(q) {
   const ql = (q || '').toLowerCase().trim();
-  const matches = !ql
-    ? clientes
-    : clientes.filter(c =>
-        (c.nombre  || '').toLowerCase().includes(ql) ||
-        (c.telefono|| '').includes(ql) ||
-        (c.empresa || '').toLowerCase().includes(ql));
-  const el = document.getElementById('bs-cli-results');
-  el.innerHTML = matches.length
-    ? matches.map((c, i) => cliItem(c, i)).join('')
-    : '<div style="padding:12px;color:var(--gray);font-size:13px">Sin resultados</div>';
+  document.querySelectorAll('#bs-cli-results .cli-res-item').forEach(function(item) {
+    item.style.display = (!ql || item.textContent.toLowerCase().includes(ql)) ? '' : 'none';
+  });
 }
 
 function cliItem(c, idx) {
@@ -1861,12 +1854,10 @@ function renderCliList(data) {
 }
 
 function filtrarClientesPrincipal(q) {
-  const ql = (q || '').toLowerCase();
-  renderCliList(ql ? clientes.filter(c =>
-    (c.nombre  || '').toLowerCase().includes(ql) ||
-    (c.telefono|| '').includes(q) ||
-    (c.empresa || '').toLowerCase().includes(ql)
-  ) : clientes);
+  const ql = (q || '').toLowerCase().trim();
+  document.querySelectorAll('#cli-list-main .cli-card').forEach(function(card) {
+    card.style.display = (!ql || card.textContent.toLowerCase().includes(ql)) ? '' : 'none';
+  });
 }
 
 // ─────────────────────────────────────────────────────────────
