@@ -1201,7 +1201,8 @@ function abrirBsCliVenta() {
     '<div style="padding:12px;color:var(--gray);font-size:13px">Cargando…</div>';
   api('getClientes').then(data => {
     clientes = data;
-    renderClis();
+    const q = document.getElementById('bs-cli-search').value;
+    if (q.trim()) buscarClienteBS(q); else renderClis();
   }).catch(() => renderClis());
 }
 
