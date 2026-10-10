@@ -1192,7 +1192,7 @@ function abrirBsCliVenta() {
 
   const renderClis = () => {
     document.getElementById('bs-cli-results').innerHTML =
-      clientes.length ? clientes.slice(0,8).map(cliItem).join('') :
+      clientes.length ? clientes.map((c, i) => cliItem(c, i)).join('') :
       '<div style="padding:12px;color:var(--gray);font-size:13px">Sin clientes registrados</div>';
   };
 
