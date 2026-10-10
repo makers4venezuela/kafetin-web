@@ -1188,10 +1188,21 @@ function onSmartKeyV(e) {
 // Abrir bottom sheet para buscar cliente antes de la venta
 function abrirBsCliVenta() {
   document.getElementById('bs-cli-search').value = '';
-  document.getElementById('bs-cli-results').innerHTML =
-    clientes.length ? clientes.slice(0,8).map(cliItem).join('') :
-    '<div style="padding:12px;color:var(--gray);font-size:13px">Sin clientes registrados</div>';
   abrirBS('bs-cli-venta');
+
+  const renderClis = () => {
+    document.getElementById('bs-cli-results').innerHTML =
+      clientes.length ? clientes.slice(0,8).map(cliItem).join('') :
+      '<div style="padding:12px;color:var(--gray);font-size:13px">Sin clientes registrados</div>';
+  };
+
+  // Siempre recarga la lista para que refleje clientes recién creados
+  document.getElementById('bs-cli-results').innerHTML =
+    '<div style="padding:12px;color:var(--gray);font-size:13px">Cargando…</div>';
+  api('getClientes').then(data => {
+    clientes = data;
+    renderClis();
+  }).catch(() => renderClis());
 }
 
 function buscarClienteBS(q) {
